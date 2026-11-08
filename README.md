@@ -57,6 +57,25 @@ In GitHub Repo Settings -> Pages -> Source: `Deploy from branch main /root` -> S
 
 ---
 
+
+---
+
+## ☁️ Cross-Device Cloud Sync Setup (Firebase Firestore)
+
+Aapka platform **Cross-Device Cloud Sync Engine** (`js/cloud-db.js`) ke sath configured hai. Agar koi student apne phone par ya kisi dusre laptop par login karega, toh uska purana saved data (solved problems, score, completed topics, scratchpad, notes) instantly restore ho jayega.
+
+### 2-Minute Firebase Setup (Free Tier):
+1. Go to: **[console.firebase.google.com](https://console.firebase.google.com/)**
+2. Click **"Add project"** -> Name do: `myth-dsa-guide` -> Click Continue.
+3. Left menu me jao -> **Build** -> **Firestore Database** -> Click **"Create database"** -> Select **"Start in test mode"** -> Done.
+4. Left menu me jao -> **Build** -> **Authentication** -> Click **"Get started"** -> Sign-in method me **Google** select karo -> Enable & Save.
+5. Project Settings (gear icon ⚙️) -> **General** -> Scroll down to **"Your apps"** -> Click Web icon `</>` -> App register karo.
+6. Jo `firebaseConfig` object milega usse copy karo.
+7. **Option A (In Browser)**: Platform open karo -> Topbar me **"Cloud: Standby"** button par click karo -> Config paste karo -> Click **"Save Config & Activate Cloud"**.
+8. **Option B (In Code)**: `js/firebase-config.js` file me `window.FIREBASE_CONFIG` me paste kar do!
+
+---
+
 ## 💎 MYTH Architecture & Core Features
 
 ### 1. Dual Language Engine (C++ & Java)

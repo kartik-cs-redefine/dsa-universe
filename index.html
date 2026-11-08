@@ -48,6 +48,12 @@
 
     <!-- Right Control Bar -->
     <div class="topbar-controls-row">
+      <!-- Cross-Device Cloud Sync Status -->
+      <button class="tactile-btn" id="cloudSyncStatusBtn" title="Cross-Device Cloud Database Status • Click to Setup / Test">
+        <span id="cloudStatusDot" style="width:8px; height:8px; border-radius:50%; background:#eab308; display:inline-block;"></span>
+        <span id="cloudStatusText" style="font-family:var(--font-mono); font-size:0.75rem; font-weight:800;">Cloud: Standby</span>
+      </button>
+
       <!-- C++ vs Java Dual-Engine Switcher -->
       <div class="code-mode-toggle" title="Switch programming language for all code & solutions">
         <button class="code-mode-btn active" id="codeModeCppBtn">C++</button>
@@ -466,7 +472,100 @@ npx vercel<br>
     </div>
   </div>
 
+  
+  <!-- CROSS-DEVICE CLOUD BACKEND SETUP MODAL -->
+  <div class="tactile-modal-overlay" id="cloudSetupModal">
+    <div class="tactile-modal-card" style="width:min(680px, calc(100% - 32px)); max-height:85vh; overflow-y:auto;">
+      <div class="modal-header-row" style="margin-bottom:0.75rem;">
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <span style="font-size:1.3rem;">☁️</span>
+          <span class="modal-header-title">Cross-Device Cloud Database</span>
+        </div>
+        <button class="modal-close-cross" id="closeCloudSetupModal">×</button>
+      </div>
+
+      <!-- Cloud Status Banner -->
+      <div id="cloudModalStatusBanner" style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-panel-elevated); border:var(--border-thick); border-radius:var(--radius-boxy); padding:0.85rem 1.1rem; margin-bottom:1.25rem; box-shadow:var(--shadow-tactile);">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <span id="cloudModalStatusDot" style="width:10px; height:10px; border-radius:50%; background:#eab308; display:inline-block;"></span>
+          <div>
+            <div id="cloudModalStatusTitle" style="font-weight:900; font-size:0.92rem; color:var(--text-main);">Cloud Sync: Local Fallback Mode</div>
+            <div id="cloudModalStatusSub" style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">Paste your Firebase project credentials below to activate multi-device cloud persistence.</div>
+          </div>
+        </div>
+        <button class="tactile-btn btn-yellow" id="testCloudConnectionBtn" onclick="window.testCloudConnection()" style="font-size:0.75rem; padding:0.4rem 0.75rem;">
+          Test Ping ⚡
+        </button>
+      </div>
+
+      <!-- Direct Config Input Box -->
+      <div style="background:var(--bg-surface); border:var(--border-thick); border-radius:var(--radius-boxy); padding:1.1rem; margin-bottom:1.25rem;">
+        <label style="display:block; font-family:var(--font-mono); font-size:0.75rem; font-weight:900; color:var(--text-main); margin-bottom:0.4rem; text-transform:uppercase;">
+          Firebase Web Config (JSON or JS Object)
+        </label>
+        <textarea 
+          id="cloudConfigInputText" 
+          class="interactive-code-textarea" 
+          style="min-height:120px; font-size:0.75rem; margin-bottom:0.75rem;" 
+          placeholder='{
+  "apiKey": "AIzaSy...",
+  "authDomain": "myth-dsa.firebaseapp.com",
+  "projectId": "myth-dsa",
+  "storageBucket": "myth-dsa.appspot.com",
+  "messagingSenderId": "...",
+  "appId": "..."
+}'
+        ></textarea>
+        
+        <div style="display:flex; gap:0.6rem;">
+          <button class="tactile-btn btn-lime" onclick="window.saveCustomCloudConfig()" style="flex:1; justify-content:center; padding:0.6rem; font-size:0.85rem;">
+            💾 Save Config & Activate Cloud
+          </button>
+          <button class="tactile-btn" onclick="window.clearCustomCloudConfig()" style="padding:0.6rem 0.9rem; font-size:0.85rem;">
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- Step by Step Setup Instructions -->
+      <div style="background:var(--bg-panel-elevated); border:var(--border-thick); border-radius:var(--radius-boxy); padding:1.1rem; margin-bottom:1rem;">
+        <span style="font-family:var(--font-mono); font-size:0.78rem; font-weight:900; color:var(--accent-yellow); display:block; margin-bottom:0.75rem;">
+          LINE-BY-LINE SETUP GUIDE (FREE TIER • 2 MINUTES):
+        </span>
+
+        <div style="display:flex; flex-direction:column; gap:0.65rem; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-main); line-height:1.6;">
+          <div>
+            <strong style="color:var(--accent-lime);">1. Create Firebase Project:</strong> 
+            Open <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" style="color:var(--accent-yellow); text-decoration:underline;">console.firebase.google.com</a>, click <em>"Add project"</em>, name it <code>myth-dsa-guide</code>.
+          </div>
+          <div>
+            <strong style="color:var(--accent-lime);">2. Enable Firestore Database:</strong> 
+            Left menu -> <strong>Build</strong> -> <strong>Firestore Database</strong> -> Click <em>"Create database"</em> -> Select <em>"Start in test mode"</em> -> Done.
+          </div>
+          <div>
+            <strong style="color:var(--accent-lime);">3. Enable Google Authentication:</strong> 
+            Left menu -> <strong>Build</strong> -> <strong>Authentication</strong> -> <em>"Get started"</em> -> Select <strong>Google</strong> provider -> Enable & Save.
+          </div>
+          <div>
+            <strong style="color:var(--accent-lime);">4. Copy Web App Config:</strong> 
+            Project Settings (gear icon) -> <strong>General</strong> -> Scroll to <strong>Your apps</strong> -> Click <code>&lt;/&gt;</code> Web icon -> Copy <code>firebaseConfig</code> and paste above (or in <code>js/firebase-config.js</code>).
+          </div>
+        </div>
+      </div>
+
+      <button class="tactile-btn" onclick="document.getElementById('cloudSetupModal').classList.remove('active')" style="width:100%; justify-content:center; padding:0.75rem;">
+        Close Cloud Hub
+      </button>
+    </div>
+  </div>
+
   <!-- Scripts -->
+  <!-- Firebase SDK v10 (Compat Mode for native cross-browser & mobile execution) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/cloud-db.js"></script>
   <script src="js/content.js"></script>
   <script src="js/visualizer.js"></script>
   <script src="js/app.js"></script>

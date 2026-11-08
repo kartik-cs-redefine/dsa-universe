@@ -158,6 +158,132 @@ document.addEventListener("DOMContentLoaded", () => {
   // Load Auth Session
   let authSession = JSON.parse(localStorage.getItem(KEY_AUTH) || "null");
 
+  // ============================================================================
+  // CROSS-DEVICE CLOUD DATABASE ENGINE (Firebase Firestore Integration)
+  // ============================================================================
+
+  function updateCloudStatusUI(isConnected, statusMsg) {
+    const cloudStatusDot = document.getElementById("cloudStatusDot");
+    const cloudStatusText = document.getElementById("cloudStatusText");
+    const cloudModalStatusDot = document.getElementById("cloudModalStatusDot");
+    const cloudModalStatusTitle = document.getElementById("cloudModalStatusTitle");
+    const cloudModalStatusSub = document.getElementById("cloudModalStatusSub");
+
+    if (isConnected) {
+      if (cloudStatusDot) cloudStatusDot.style.background = "#10b981"; // Emerald green
+      if (cloudStatusText) cloudStatusText.innerText = "Cloud: Live ✓";
+      if (cloudModalStatusDot) cloudModalStatusDot.style.background = "#10b981";
+      if (cloudModalStatusTitle) cloudModalStatusTitle.innerText = "Cloud Sync: Live Connected (Google Firestore)";
+      if (cloudModalStatusSub) cloudModalStatusSub.innerText = "Multi-device synchronization is active. Progress automatically syncs across all student devices.";
+    } else {
+      if (cloudStatusDot) cloudStatusDot.style.background = "#eab308"; // Amber
+      if (cloudStatusText) cloudStatusText.innerText = "Cloud: Standby";
+      if (cloudModalStatusDot) cloudModalStatusDot.style.background = "#eab308";
+      if (cloudModalStatusTitle) cloudModalStatusTitle.innerText = "Cloud Sync: Standby / Local Mode";
+      if (cloudModalStatusSub) cloudModalStatusSub.innerText = statusMsg || "Paste Firebase credentials below to enable cross-device cloud persistence.";
+    }
+  }
+
+  // Cloud Setup Modal Triggers
+  const cloudSyncStatusBtn = document.getElementById("cloudSyncStatusBtn");
+  const cloudSetupModal = document.getElementById("cloudSetupModal");
+  const closeCloudSetupModal = document.getElementById("closeCloudSetupModal");
+
+  if (cloudSyncStatusBtn && cloudSetupModal) {
+    cloudSyncStatusBtn.addEventListener("click", () => {
+      cloudSetupModal.classList.add("active");
+      const textarea = document.getElementById("cloudConfigInputText");
+      if (textarea) {
+        const saved = localStorage.getItem("myth_firebase_custom_config");
+        if (saved) {
+          textarea.value = saved;
+        } else if (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey) {
+          textarea.value = JSON.stringify(window.FIREBASE_CONFIG, null, 2);
+        }
+      }
+    });
+  }
+
+  if (closeCloudSetupModal && cloudSetupModal) {
+    closeCloudSetupModal.addEventListener("click", () => {
+      cloudSetupModal.classList.remove("active");
+    });
+  }
+
+  window.saveCustomCloudConfig = async () => {
+    const textarea = document.getElementById("cloudConfigInputText");
+    if (!textarea || !textarea.value.trim()) {
+      alert("Please paste your Firebase configuration object or JSON.");
+      return;
+    }
+    let raw = textarea.value.trim();
+    if (raw.startsWith("const firebaseConfig =")) {
+      raw = raw.replace("const firebaseConfig =", "").trim();
+    }
+    if (raw.endsWith(";")) {
+      raw = raw.slice(0, -1).trim();
+    }
+    try {
+      let parsed;
+      try {
+        parsed = JSON.parse(raw);
+      } catch (jsonErr) {
+        // Fallback for JS object syntax
+        parsed = (new Function("return " + raw))();
+      }
+
+      if (!parsed || !parsed.apiKey || !parsed.projectId) {
+        alert("Invalid Firebase config. Must contain 'apiKey' and 'projectId'.");
+        return;
+      }
+
+      localStorage.setItem("myth_firebase_custom_config", JSON.stringify(parsed));
+      window.FIREBASE_CONFIG = parsed;
+
+      const success = await window.CloudDB.init();
+      if (success) {
+        alert("🎉 Firebase Firestore successfully connected! Cross-device sync is now LIVE.");
+        if (cloudSetupModal) cloudSetupModal.classList.remove("active");
+        if (authSession) {
+          await window.CloudDB.saveUserProfile(authSession);
+          syncCurrentUserLeaderboard();
+        }
+      } else {
+        alert("Firebase initialized, but check your API Key / Project ID permissions.");
+      }
+    } catch (e) {
+      alert("Failed to parse config: " + e.message);
+    }
+  };
+
+  window.clearCustomCloudConfig = () => {
+    if (confirm("Reset Firebase custom config and return to default?")) {
+      localStorage.removeItem("myth_firebase_custom_config");
+      location.reload();
+    }
+  };
+
+  window.testCloudConnection = async () => {
+    const btn = document.getElementById("testCloudConnectionBtn");
+    if (btn) btn.innerText = "Pinging...";
+    if (window.CloudDB && window.CloudDB.isCloudActive) {
+      try {
+        await window.CloudDB.saveUserProfile({
+          name: authSession ? authSession.name : "Test Ping",
+          roll: authSession ? authSession.roll : "test_ping_001",
+          lastLogin: new Date().toISOString()
+        });
+        alert("✅ Cloud Ping Successful! Connected to Google Firestore database.");
+      } catch (err) {
+        alert("Ping error: " + err.message);
+      }
+    } else {
+      alert("⚠️ Firebase backend not connected yet. Paste your Firebase config and click 'Save Config'.");
+    }
+    if (btn) btn.innerText = "Test Ping ⚡";
+  };
+
+
   // DOM Elements
   const authGatekeeperModal = document.getElementById("authGatekeeperModal");
   const authInputName = document.getElementById("authInputName");
@@ -503,7 +629,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // AUTHENTICATION & GATEKEEPER ENGINE (Compulsory Login • Zero Demo)
   // ============================================================================
 
-  function checkAuthAndInitialize() {
+  async function checkAuthAndInitialize() {
     if (!authSession || !authSession.isLoggedIn) {
       // Force display compulsory auth gatekeeper
       if (authGatekeeperModal) {
@@ -515,6 +641,26 @@ document.addEventListener("DOMContentLoaded", () => {
     // User is authenticated
     if (authGatekeeperModal) {
       authGatekeeperModal.style.display = "none";
+    }
+
+    // Cross-Device Cloud Progress Recovery
+    if (window.CloudDB) {
+      try {
+        const cloudProgress = await window.CloudDB.loadUserProgress(authSession.roll);
+        if (cloudProgress) {
+          // Merge cloud progress with local sets
+          cloudProgress.completedTopics.forEach(t => completedTopics.add(t));
+          cloudProgress.solvedProblems.forEach(p => solvedProblems.add(p));
+          const localAttempts = parseInt(localStorage.getItem(`${KEY_ATTEMPTS}_${authSession.roll}`) || "0", 10);
+          const mergedAttempts = Math.max(localAttempts, cloudProgress.totalAttempts || 0, solvedProblems.size);
+          localStorage.setItem(`${KEY_ATTEMPTS}_${authSession.roll}`, mergedAttempts);
+          localStorage.setItem(`${KEY_PROGRESS}_${authSession.roll}`, JSON.stringify(Array.from(completedTopics)));
+          localStorage.setItem(`${KEY_SOLVED_PROBS}_${authSession.roll}`, JSON.stringify(Array.from(solvedProblems)));
+          console.log(`[CloudDB] Cross-device progress restored for ${authSession.name}: ${solvedProblems.size} problems solved.`);
+        }
+      } catch (err) {
+        console.warn("[CloudDB] Could not fetch remote progress:", err);
+      }
     }
 
     // Load user state
@@ -563,7 +709,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     
   // Google Auth Handlers
-  window.handleGoogleAuth = () => {
+  window.handleGoogleAuth = async () => {
+    if (window.CloudDB && window.CloudDB.isCloudActive) {
+      try {
+        const user = await window.CloudDB.loginWithGoogle();
+        if (user) {
+          const googleName = user.displayName || "Kartik Kumar";
+          const googleEmail = user.email || "kartik.kumar@student.edu";
+          let roll = "2501640100454"; // Primary default per Rule 1
+          if (googleName.toLowerCase().includes("tanmay")) roll = "2501640100945";
+          else if (googleName.toLowerCase().includes("krish")) roll = "2501640100471";
+
+          window.selectGoogleAccount(googleName, roll, googleEmail, googleName.toLowerCase().replace(/\s+/g, ''));
+          return;
+        }
+      } catch (err) {
+        console.warn("[CloudDB] Firebase popup auth cancelled or failed, falling back to account picker:", err);
+      }
+    }
+    // Fallback account selector modal
     const googleAuthModal = document.getElementById("googleAuthModal");
     if (googleAuthModal) googleAuthModal.classList.add("active");
   };
@@ -576,7 +740,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  window.selectGoogleAccount = (name, roll, email, leetcodeUser) => {
+  window.selectGoogleAccount = async (name, roll, email, leetcodeUser) => {
     authSession = {
       name,
       roll,
@@ -589,6 +753,10 @@ document.addEventListener("DOMContentLoaded", () => {
       loggedInAt: new Date().toISOString()
     };
     localStorage.setItem(KEY_AUTH, JSON.stringify(authSession));
+
+    if (window.CloudDB) {
+      await window.CloudDB.saveUserProfile(authSession);
+    }
 
     const googleAuthModal = document.getElementById("googleAuthModal");
     if (googleAuthModal) googleAuthModal.classList.remove("active");
@@ -744,6 +912,19 @@ document.addEventListener("DOMContentLoaded", () => {
     // Sort descending by score, then accuracy
     registry.sort((a, b) => (b.score - a.score) || (b.accuracy - a.accuracy));
     localStorage.setItem(KEY_LEADERBOARD, JSON.stringify(registry));
+
+    // Sync to Cloud Firestore (Realtime Cohort Leaderboard)
+    if (window.CloudDB) {
+      window.CloudDB.syncLeaderboardRecord(currentUserRecord);
+      window.CloudDB.saveUserProgress(authSession.roll, {
+        completedTopics,
+        solvedProblems,
+        totalAttempts: userAttempts,
+        score: stats.totalScore,
+        streak: currentUserRecord.streak,
+        accuracy: userAccuracy
+      });
+    }
 
     // Update modal stats
     const rank = registry.findIndex(u => u.roll === authSession.roll) + 1;
@@ -2000,10 +2181,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.saveProblemNotes = (probId, val) => {
     localStorage.setItem(`${KEY_NOTES}_${probId}`, val);
+    if (authSession && window.CloudDB) {
+      window.CloudDB.saveNotes(authSession.roll, probId, val);
+    }
   };
 
   window.saveScratchpad = (probId, val) => {
     localStorage.setItem(`${KEY_SCRATCHPAD}_${probId}_${currentCodeMode}`, val);
+    if (authSession && window.CloudDB) {
+      window.CloudDB.saveScratchpad(authSession.roll, probId, currentCodeMode, val);
+    }
   };
 
   window.resetStarterCode = (probId) => {
@@ -2290,6 +2477,19 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
+  }
+
+  // Register Cloud DB status listener
+  if (window.CloudDB) {
+    window.CloudDB.onStatusChange(updateCloudStatusUI);
+    window.CloudDB.init().then(() => {
+      // Setup Realtime Leaderboard listener across all devices
+      window.CloudDB.listenGlobalLeaderboard(students => {
+        if (activeTab === "leaderboard") {
+          renderLeaderboardView();
+        }
+      });
+    });
   }
 
   // Check auth and initialize the app

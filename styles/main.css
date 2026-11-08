@@ -2766,3 +2766,20 @@ body:not(.dark) .hint-toggle-head {
   padding: 0.2rem 0.5rem;
   margin-left: 0.5rem;
 }
+
+/* =========================================================
+   CROSS-DEVICE CLOUD DATABASE & REALTIME SYNC BADGES
+   ========================================================= */
+#cloudStatusDot {
+  box-shadow: 0 0 0 1.5px #000000;
+  transition: background 0.3s ease;
+}
+
+#cloudStatusBtn:hover #cloudStatusDot {
+  transform: scale(1.2);
+}
+
+#cloudModalStatusBanner {
+  border: var(--border-thick);
+  box-shadow: var(--shadow-tactile);
+}
