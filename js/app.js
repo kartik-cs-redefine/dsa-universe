@@ -1,7 +1,7 @@
 // ==============================================================================
 // MYTH DSA APPLICATION ENGINE - PRODUCTION GRADE
 // Dual-Language (C++ & Java) • Multi-Tone • Dark/Light Neo-Brutalist • Auth Gatekeeper
-// Full LeetCode Analytics • Realtime Multi-User Leaderboard • Master DSA Roadmap
+// Performance Analytics • Realtime Multi-User Leaderboard • Master DSA Roadmap
 // ==============================================================================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -422,7 +422,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div>
               <h2 style="font-size:1.35rem; font-weight:900; color:var(--text-main);">Live Student Hall of Fame</h2>
               <p style="font-size:0.85rem; color:var(--text-muted); font-family:var(--font-mono);">
-                Ranked dynamically by verified LeetCode points, topic completion bonuses & day streak.
+                Ranked dynamically by verified algorithmic points, module completion bonuses & active day streak.
               </p>
             </div>
             <input 
@@ -515,7 +515,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // ============================================================================
-  // LEETCODE ANALYTICS, ACTIVITY GRAPH & SCORING
+  // PERFORMANCE ANALYTICS, ACTIVITY GRAPH & SCORING
   // ============================================================================
 
   function renderAnalyticsView() {
@@ -603,10 +603,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <!-- Donut & Breakdown Grid -->
         <div class="analytics-core-grid">
-          <!-- LeetCode Circular Progress Ring Card -->
+          <!-- Problem Mastery Progress Ring Card -->
           <div class="donut-card-container">
             <div style="font-size:1.15rem; font-weight:900; color:var(--text-main); align-self:flex-start;">
-              LeetCode Problem Progress
+              Problem Mastery Progress
             </div>
 
             <div class="donut-chart-wrapper">
@@ -670,7 +670,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
 
-          <!-- Submission Activity Heatmap (GitHub / LeetCode style) -->
+          <!-- Submission Activity Heatmap -->
           <div class="heatmap-card-container">
             <div class="heatmap-card-header">
               <div>
@@ -779,7 +779,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   <p class="roadmap-card-desc">${escapeHtml(domain.desc)}</p>
                   <div class="roadmap-meta-chips">
                     <span class="roadmap-chip">📚 ${domain.modulesCount} Modules</span>
-                    <span class="roadmap-chip">🎯 ${domain.problemsCount} LeetCode Qs</span>
+                    <span class="roadmap-chip">🎯 ${domain.problemsCount} Problems</span>
                     ${domain.tags.map(t => `<span class="roadmap-chip" style="color:var(--accent-yellow);">#${t}</span>`).join("")}
                   </div>
                 </div>
@@ -812,7 +812,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.previewRoadmapTrack = (trackId) => {
     const track = MASTER_ROADMAP.find(t => t.id === trackId);
     if (!track) return;
-    alert(`[${track.title} Roadmap Preview]\n• Modules: ${track.modulesCount}\n• Problems: ${track.problemsCount} LeetCode verified questions\n• Status: Planned expansion in next release!`);
+    alert(`[${track.title} Roadmap Preview]\n• Modules: ${track.modulesCount}\n• Problems: ${track.problemsCount} verified practice problems\n• Status: Planned expansion in next release!`);
   };
 
   // Topbar Track Dropdown Event
@@ -981,7 +981,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (overallProgressBar) overallProgressBar.style.width = `${percentage}%`;
     if (overallProgressLabel) {
-      overallProgressLabel.innerText = `${percentage}% • ${completedCount}/${totalTopics} TOPICS (${solvedProblems.size} LC SOLVED)`;
+      overallProgressLabel.innerText = `${percentage}% • ${completedCount}/${totalTopics} TOPICS (${solvedProblems.size} SOLVED)`;
     }
     localStorage.setItem(`${KEY_PROGRESS}_${authSession.roll}`, JSON.stringify(Array.from(completedTopics)));
   }
@@ -1130,7 +1130,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <tr>
                   <th>Concept</th>
                   <th>C (What you learned 6 mo ago)</th>
-                  <th>C++ (LeetCode Target)</th>
+                  <th>C++ (Modern SDE Target)</th>
                   <th>Java (JVM Target)</th>
                 </tr>
               </thead>
@@ -1272,11 +1272,11 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="workspace-hero-header">
           <div class="topic-meta-row">
             <span class="topic-tag-pill">PRACTICE ARENA</span>
-            <span class="topic-standard-badge">3 VERIFIED PROBLEMS • COMPLETEINTERVIEW</span>
+            <span class="topic-standard-badge">3 VERIFIED PROBLEMS • MYTH BENCHMARK</span>
           </div>
-          <h1 class="topic-main-title">${topic.title} — LeetCode Arena</h1>
+          <h1 class="topic-main-title">${topic.title} — Practice Arena</h1>
           <p class="topic-sub-summary">
-            Test cases, progressive hints, split-pane coding, and company tags for FAANG interviews.
+            Test cases, progressive hints, split-pane coding, and company tags for Tier-1 SDE interviews.
           </p>
         </div>
 
@@ -1310,9 +1310,9 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="prob-meta-left">
             <span class="difficulty-pill diff-${prob.difficulty.toLowerCase()}">${prob.difficulty}</span>
             <span class="prob-title-text">${prob.title}</span>
-            <span class="leetcode-badge-link">
+            <span class="prob-ref-badge-link">
               <a href="${prob.leetcode_url}" target="_blank" rel="noopener noreferrer" style="color:inherit; text-decoration:none;">
-                ${prob.leetcode_no} ↗
+                Ref #${prob.leetcode_no} ↗
               </a>
             </span>
           </div>
@@ -1434,7 +1434,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
 
             <div class="test-output-console" id="console-${prob.id}">
-              <span style="color:var(--text-muted);">Click "Run Tests" to execute against LeetCode test suite...</span>
+              <span style="color:var(--text-muted);">Click "Run Tests" to execute against verification test suite...</span>
             </div>
 
             <!-- Editorial Solution Drawer -->

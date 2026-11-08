@@ -1,15 +1,14 @@
 /* 
    ==========================================================================
-   MLH NEO-BRUTALIST & COMPLETEINTERVIEW PRODUCTION DESIGN SYSTEM
+   MYTH DESIGN SYSTEM - PRODUCTION GRADE DEVELOPER PLATFORM
    Artisanal, Tactile, High-Density Developer Platform (C++ & Java Dual Mode)
-   Inspired by MLH (Major League Hacking) + CompleteInterview.com
    ========================================================================== 
 */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
 
 /* =========================================================
-   LIGHT THEME: MLH NEO-BRUTALIST (Paper White, Pitch Black, Bold Accents)
+   LIGHT THEME: MYTH NEO-BRUTALIST (Paper White, Pitch Black, Bold Accents)
    ========================================================= */
 :root {
   --theme-mode: 'light';
@@ -21,7 +20,7 @@
   --bg-hover: #e2e8f0;
   --bg-terminal: #090d16;
 
-  /* MLH Bold Borders & Offsets */
+  /* MYTH Bold Borders & Offsets */
   --border-thick: 2px solid #000000;
   --border-medium: 1.5px solid #000000;
   --border-hairline: 1px solid #cbd5e1;
@@ -38,12 +37,12 @@
   --text-steel: #64748b;
 
   /* Signature Punchy Accents */
-  --accent-yellow: #ffc700;       /* High-Vis MLH Yellow */
+  --accent-yellow: #ffc700;       /* High-Vis Accent Yellow */
   --accent-lime: #b5e61d;         /* Tactical Lime */
   --accent-cyan: #00e5ff;         /* Electric Cyan */
   --accent-emerald: #10b981;      /* Success Green */
   --accent-crimson: #ff3366;      /* Hot Coral Red */
-  --accent-purple: #8b5cf6;       /* LeetCode Violet */
+  --accent-purple: #8b5cf6;       /* Violet Accent */
 
   --font-heading: 'Plus Jakarta Sans', -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', Consolas, monospace;
@@ -646,7 +645,7 @@ main.primary-workspace-viewport {
   line-height: 1.6;
 }
 
-/* LeetCode Milestone Callout Banner */
+/* Milestone Callout Banner */
 .milestone-checkpoint-card {
   background: var(--bg-panel-elevated);
   border: var(--border-thick);
@@ -921,13 +920,347 @@ pre.code-craft-syntax {
 }
 
 /* =========================================================
-   COMPLETEINTERVIEW SPLIT-PANE CODING ARENA
+   MYTH SPLIT-PANE CODING ARENA
    ========================================================= */
+.practice-arena-grid,
 .problems-showcase-container {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 2.25rem;
   margin-top: 1.75rem;
+}
+
+/* Problem Workspace Card */
+.problem-workspace-card,
+.problem-split-box {
+  background: var(--bg-panel);
+  border: var(--border-thick);
+  border-radius: var(--radius-boxy);
+  box-shadow: var(--shadow-tactile-lg);
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+
+.problem-workspace-card.solved {
+  border-color: var(--accent-emerald);
+}
+
+.prob-header-banner,
+.problem-header-bar {
+  padding: 1.1rem 1.5rem;
+  background: var(--bg-panel-elevated);
+  border-bottom: var(--border-thick);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.prob-meta-left,
+.problem-title-cluster {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.difficulty-pill,
+.diff-badge-sticker {
+  font-size: 0.72rem;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  padding: 0.25rem 0.65rem;
+  border-radius: 2px;
+  text-transform: uppercase;
+  border: 1.5px solid #000000;
+  box-shadow: 1px 1px 0px #000000;
+}
+
+.diff-easy {
+  background: #10b981;
+  color: #000000;
+}
+
+.diff-medium {
+  background: #ffc700;
+  color: #000000;
+}
+
+.diff-hard {
+  background: #ff4757;
+  color: #ffffff;
+}
+
+.prob-title-text {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.prob-ref-badge-link,
+.leetcode-badge-link {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 800;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
+  padding: 0.2rem 0.55rem;
+  border-radius: 2px;
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.4);
+}
+
+.prob-ref-badge-link a,
+.leetcode-badge-link a {
+  color: var(--accent-yellow);
+  text-decoration: none;
+}
+
+.prob-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.bookmark-icon-btn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: transform 0.1s ease, color 0.1s ease;
+}
+
+.bookmark-icon-btn:hover,
+.bookmark-icon-btn.active {
+  color: var(--accent-yellow);
+  transform: scale(1.15);
+}
+
+.status-indicator-tag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 0.25rem 0.65rem;
+  border-radius: 2px;
+  border: 1.5px solid #000000;
+  box-shadow: 1.5px 1.5px 0px #000000;
+}
+
+.status-indicator-tag.solved {
+  background: var(--accent-emerald);
+  color: #000000;
+}
+
+.status-indicator-tag.todo {
+  background: var(--bg-surface);
+  color: var(--text-muted);
+}
+
+.prob-left-spec-pane,
+.split-left-pane {
+  padding: 1.5rem 1.75rem;
+  border-right: var(--border-thick);
+  overflow-y: auto;
+  max-height: 640px;
+  background: var(--bg-surface);
+}
+
+.company-stickers-row,
+.company-tags-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.company-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: var(--text-muted);
+}
+
+.company-tag-sticker,
+.company-pill {
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  padding: 0.15rem 0.45rem;
+  border-radius: 2px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-panel-elevated);
+  color: var(--text-main);
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.4);
+}
+
+.example-io-card,
+.example-test-card {
+  background: var(--bg-panel-elevated);
+  border: 1.5px solid var(--border-color);
+  border-left: 4px solid var(--accent-yellow);
+  border-radius: 2px;
+  padding: 0.85rem 1.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  margin-bottom: 0.85rem;
+}
+
+.io-label {
+  color: var(--text-muted);
+  font-weight: 800;
+}
+
+.io-val {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.hints-accordion-wrapper,
+.hints-accordion-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 1.25rem 0;
+}
+
+.hint-tier-box,
+.hint-pill-toggle {
+  background: var(--bg-panel-elevated);
+  border: 1.5px dashed var(--border-color);
+  border-radius: 2px;
+  transition: all 0.12s ease;
+  overflow: hidden;
+}
+
+.hint-tier-box:hover,
+.hint-pill-toggle:hover {
+  border-color: var(--accent-yellow);
+}
+
+.hint-toggle-header,
+.hint-toggle-head {
+  width: 100%;
+  background: none;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.65rem 0.95rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--accent-yellow);
+  cursor: pointer;
+  text-align: left;
+}
+
+.hint-drawer-content,
+.hint-toggle-content {
+  display: none;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border-hairline);
+  font-size: 0.88rem;
+  color: var(--text-body);
+  line-height: 1.55;
+  background: var(--bg-surface);
+}
+
+.hint-drawer-content.open,
+.hint-pill-toggle.revealed .hint-toggle-content {
+  display: block;
+}
+
+.notes-scratchpad-input {
+  width: 100%;
+  min-height: 75px;
+  background: var(--bg-panel-elevated);
+  border: var(--border-thick);
+  border-radius: var(--radius-boxy);
+  padding: 0.65rem 0.85rem;
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  color: var(--text-main);
+  outline: none;
+  resize: vertical;
+}
+
+.notes-scratchpad-input:focus {
+  border-color: var(--accent-yellow);
+}
+
+.prob-right-editor-pane,
+.split-right-pane {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-terminal);
+}
+
+.editor-header-action-row,
+.editor-ribbon-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #000000;
+  padding: 0.55rem 1rem;
+  border-bottom: 1.5px solid #2b3142;
+}
+
+.editor-lang-indicator {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: var(--accent-yellow);
+}
+
+.editor-mini-btn,
+.mini-editor-btn {
+  background: var(--bg-panel-elevated);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.25rem 0.55rem;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.editor-mini-btn:hover,
+.mini-editor-btn:hover {
+  background: var(--accent-yellow);
+  color: #000000;
+}
+
+.interactive-code-textarea,
+.split-code-editor {
+  width: 100%;
+  flex: 1;
+  min-height: 280px;
+  background: #080a0f;
+  border: none;
+  outline: none;
+  padding: 1.15rem;
+  color: #e2e8f0;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  resize: vertical;
+  tab-size: 4;
+}
+
+.test-runner-action-bar,
+.test-runner-ribbon {
+  background: var(--bg-surface);
+  border-top: var(--border-thick);
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 /* Split-Pane Problem Box */
@@ -981,7 +1314,7 @@ pre.code-craft-syntax {
   color: #ffffff;
 }
 
-/* Company Sticker Pills (CompleteInterview style) */
+/* Company Sticker Pills */
 .company-tags-row {
   display: flex;
   align-items: center;
@@ -1491,7 +1824,7 @@ body:not(.dark) .hint-toggle-head {
 }
 
 /* =========================================================
-   LEETCODE-STYLE ANALYTICS DASHBOARD
+   PERFORMANCE ANALYTICS DASHBOARD
    ========================================================= */
 .analytics-dashboard-view {
   display: flex;
@@ -1580,7 +1913,7 @@ body:not(.dark) .hint-toggle-head {
   letter-spacing: -0.02em;
 }
 
-/* LeetCode Circular Donut & Breakdown Grid */
+/* Circular Donut & Breakdown Grid */
 .analytics-core-grid {
   display: grid;
   grid-template-columns: minmax(320px, 380px) 1fr;
@@ -1681,16 +2014,16 @@ body:not(.dark) .hint-toggle-head {
 .diff-bar-fill.medium { background: var(--accent-yellow); }
 .diff-bar-fill.hard { background: var(--accent-crimson); }
 
-/* Submission Activity Heatmap (GitHub / LeetCode style) */
+/* Submission Activity Heatmap */
 .heatmap-card-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   background: var(--bg-surface);
   border: var(--border-thick);
   border-radius: var(--radius-boxy);
   padding: 1.75rem;
   box-shadow: var(--shadow-tactile);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
 }
 
 .heatmap-card-header {

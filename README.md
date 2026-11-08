@@ -1,8 +1,7 @@
-# Linked List Zero to FAANG Mastery (C++ & Java) ⚡
+# MYTH Learning Platform — DSA Engineering Mastery (C++ & Java) ⚡
 
-> **Interactive DSA Mastery Platform for Kartik Kumar (Roll: 2501640100454)**  
-> **Inspired by CompleteInterview.com & MLH Boxy Neo-Brutalist Aesthetic**  
-> Complete dual-engine curriculum covering Singly, Doubly, and Circular Linked Lists from zero to FAANG-level competitive programming.
+> **High-Performance DSA Mastery Engine**  
+> Complete dual-language curriculum covering all fundamental and advanced algorithmic patterns from absolute zero to Tier-1 Software Engineering standards.
 
 ---
 
@@ -58,7 +57,7 @@ In GitHub Repo Settings -> Pages -> Source: `Deploy from branch main /root` -> S
 
 ---
 
-## 💎 Features Implemented
+## 💎 MYTH Architecture & Core Features
 
 ### 1. Dual Language Engine (C++ & Java)
 - **C++ Mode**: Pointers (`ListNode*`), manual memory (`new`, `delete`), `nullptr`, pass-by-pointer / reference, memory safety.
@@ -66,38 +65,49 @@ In GitHub Repo Settings -> Pages -> Source: `Deploy from branch main /root` -> S
 - Instant switch in the topbar recalculates and updates all theory code blocks, dry-run diagrams, starter code, and verified solutions.
 
 ### 2. Multi-Tone Pedagogical Switching
-- **Aap Ki Style (Hinglish Mentor)**: Witty, conversational banter, real-world analogies (train coaches, treasure hunts, railway loops), honest feedback, and personalized greetings using your name (`Kartik`).
-- **English (FAANG Formal)**: Crisp, precise interview-ready explanations, invariants, and edge case breakdowns.
-- **TL;DR (Rapid Revision)**: Compressed bullet points for last-minute interview recaps.
+- **Aap Ki Style (Hinglish Mentor)**: Witty, conversational banter, real-world analogies (train coaches, treasure hunts, railway loops), honest feedback, and personalized greetings using your name.
+- **English (Formal Spec)**: Crisp, precise interview-ready explanations, invariants, and edge case breakdowns.
+- **TL;DR (Rapid Revision)**: Compressed bullet points for last-minute exam recaps.
 
-### 3. CompleteInterview.com Inspired Problem Arena
-- **42 LeetCode Problems** spanning all 14 syllabus topics + Master Revision Sheet.
-- **Company Stickers**: Google, Meta, Amazon, Microsoft, Apple, Uber tags on each problem card.
-- **Status Tracking**: Auto-saved status tags (`Todo`, `Attempted`, `Solved`) tracked in `localStorage`.
-- **Split-Pane Interactive Workspace**:
-  - Problem description & examples.
-  - Progressive 3-tier hint revelation (Hint 1 -> Hint 2 -> Hint 3).
-  - Code scratchpad with full editing capability.
-  - Simulated Test Runner with 3 company test cases per problem.
-  - Verified editorial solutions with line-by-line breakdown.
-  - Auto-saving personal scratchpad notes.
+### 3. Compulsory Student Authentication (Zero Demo Preset)
+- Secure gatekeeper modal enforces real student login (Full Name & Roll Number/Student ID).
+- All progress, points, code drafts, and streak counts are strictly persisted per student in `localStorage`.
+- Profile Hub modal displays student metrics and provides one-click **"Switch Student / Logout"**.
 
-### 4. MLH Neo-Brutalist Boxy UI (Zero "AI Look")
-- High-contrast, tactile design: 2px-3px solid ink borders, sharp 0-4px radius, `3px 3px 0px #000` drop shadows.
-- Vibrant color blocking: Electric Lime (`#B5E61D`), Neon Yellow (`#FFC700`), Cyan (`#00E5FF`), Coral (`#FF3366`).
-- Artisanal custom SVG badge favicon (`favicon.svg`) — zero generic AI/Gemini logos.
-- Full Light & Dark theme support with dedicated high-contrast contrast palettes.
+### 4. Realtime Student Leaderboard & Hall of Fame
+- Multi-student scoring and ranking engine:
+  - Easy Problem = 10 pts
+  - Medium Problem = 25 pts
+  - Hard Problem = 50 pts
+  - Topic Module Completion = 40 pts
+- Top 3 Podium with Trophy Badges (🥇 Gold, 🥈 Silver, 🥉 Bronze).
+- Interactive ranking table highlighting the active user with a bright `YOU` badge.
+- Instant search filter by name or roll number.
 
-### 5. Multi-User MYTH Profile Switching
-- Preloaded profiles:
-  - **Kartik Kumar** (Roll: `2501640100454`) [Primary Default]
-  - **Tanmay Awasthi** (Roll: `2501640100945`)
-  - **Krish Chaddha** (Roll: `2501640100471`)
-  - Custom profile creator with independent `localStorage` progress tracking.
+### 5. MYTH Performance Analytics & Contribution Heatmap
+- Circular Donut Progress Ring with Easy, Medium, Hard breakdown bars.
+- 16-Week (112-Day) interactive Code Execution & Submission Calendar Heatmap with hover tooltips.
+- Day streak tracker (`🔥 Active Streak`), acceptance rate, and skill coverage matrix.
+
+### 6. Multi-Domain DSA Roadmap (Scalable Platform Architecture)
+- Comprehensive curriculum covering 7 core domains:
+  1. 🔗 Linked Lists & Pointers [Active Track • 15 Modules • 42 Verified Problems]
+  2. 📊 Arrays, Strings & Two Pointers [Upcoming]
+  3. 🥞 Stacks, Queues & Monotonic Deques [Upcoming]
+  4. 🌲 Binary Trees & BSTs [Upcoming]
+  5. ⛰️ Heaps, Priority Queues & Greedy [Upcoming]
+  6. 🕸️ Graphs, BFS/DFS & Disjoint Sets [Upcoming]
+  7. 🧩 Dynamic Programming (0 to Master) [Upcoming]
+
+### 7. Interactive Memory Visualizer
+- Real-time physical node card animator:
+  - Insert Head, Insert Tail, Insert at Position, Delete Value.
+  - Animated step-by-step list reversal.
+  - Realtime memory pointer trace terminal.
 
 ---
 
-## 📚 Master Syllabus Covered
+## 📚 Master Linked List Curriculum Covered
 1. **Quick Revision**: Pointers, Dynamic Memory (`new`/`delete` vs `new`/GC), Struct vs Class
 2. **Node Creation & Singly Linked List Basics**: Structure, Traversal, Printing
 3. **Insertion & Deletion Operations**: Head, Tail, Position, Value, Edge Cases
@@ -110,6 +120,6 @@ In GitHub Repo Settings -> Pages -> Source: `Deploy from branch main /root` -> S
 10. **Palindrome Linked List**: Middle split, reverse half, compare, restore
 11. **Intersection of Two Linked Lists**: Length difference & dual pointer swap
 12. **Doubly & Circular Linked Lists**: Prev pointer manipulation, split & traversal
-13. **LeetCode ListNode Mastery**: LeetCode format, memory leaks, custom drivers
+13. **Master ListNode Implementations**: Driver code, memory leak prevention, testbench
 14. **Dummy Node Technique & Master Patterns**: Sentinels, Tortoise & Hare, Multi-pointer
 15. **Master Revision & Cheat Sheet**: Complexity matrix, golden rules, bug checklist

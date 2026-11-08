@@ -154,7 +154,7 @@ window.COURSE_DATA = [
       },
       {
         "id": "p1_3",
-        "difficulty": "LeetCode Style",
+        "difficulty": "Hard",
         "title": "LeetCode 237: Delete Node in a Linked List",
         "leetcode": "LeetCode 237 (Easy)",
         "leetcode_url": "https://leetcode.com/problems/delete-node-in-a-linked-list/",
@@ -341,7 +341,7 @@ window.COURSE_DATA = [
       },
       {
         "id": "p2_3",
-        "difficulty": "LeetCode Style",
+        "difficulty": "Hard",
         "title": "LeetCode 1290: Convert Binary Number in a Linked List to Integer",
         "leetcode": "LeetCode 1290 (Easy)",
         "leetcode_url": "https://leetcode.com/problems/convert-binary-number-in-a-linked-list-to-integer/",
@@ -528,7 +528,7 @@ window.COURSE_DATA = [
       },
       {
         "id": "p3_3",
-        "difficulty": "LeetCode Style",
+        "difficulty": "Hard",
         "title": "LeetCode 328: Odd Even Linked List",
         "leetcode": "LeetCode 328 (Medium)",
         "leetcode_url": "https://leetcode.com/problems/odd-even-linked-list/",
@@ -716,7 +716,7 @@ window.COURSE_DATA = [
       },
       {
         "id": "p4_3",
-        "difficulty": "LeetCode Style",
+        "difficulty": "Hard",
         "title": "LeetCode 876: Middle of the Linked List (Length Method)",
         "leetcode": "LeetCode 876 (Easy)",
         "leetcode_url": "https://leetcode.com/problems/middle-of-the-linked-list/",
@@ -904,7 +904,7 @@ window.COURSE_DATA = [
       },
       {
         "id": "p5_3",
-        "difficulty": "LeetCode Style",
+        "difficulty": "Hard",
         "title": "LeetCode 25: Reverse Nodes in k-Group (Hard)",
         "leetcode": "LeetCode 25 (Hard)",
         "leetcode_url": "https://leetcode.com/problems/reverse-nodes-in-k-group/",
@@ -1085,7 +1085,7 @@ window.COURSE_DATA = [
       },
       {
         "id": "p6_3",
-        "difficulty": "LeetCode Style",
+        "difficulty": "Hard",
         "title": "LeetCode 2130: Maximum Twin Sum of a Linked List",
         "leetcode": "LeetCode 2130 (Medium)",
         "leetcode_url": "https://leetcode.com/problems/maximum-twin-sum-of-a-linked-list/",
@@ -1267,9 +1267,9 @@ window.COURSE_DATA = [
       },
       {
         "id": "p7_3",
-        "difficulty": "LeetCode Style",
+        "difficulty": "Hard",
         "title": "Break and Remove Loop from Linked List",
-        "leetcode": "GFG / Interview Classic",
+        "leetcode": "Problem Ref #142",
         "leetcode_url": "https://leetcode.com/problems/linked-list-cycle-ii/",
         "desc": "Given a linked list with a loop, detect and break the loop so it becomes linear with tail->next = null.",
         "input": "1 -> 2 -> 3 -> 4 -> 5 -> connects back to 3",
@@ -1449,7 +1449,7 @@ window.COURSE_DATA = [
       },
       {
         "id": "p8_3",
-        "difficulty": "LeetCode Style",
+        "difficulty": "Hard",
         "title": "LeetCode 23: Merge k Sorted Lists (Hard)",
         "leetcode": "LeetCode 23 (Hard)",
         "leetcode_url": "https://leetcode.com/problems/merge-k-sorted-lists/",
@@ -1630,7 +1630,7 @@ window.COURSE_DATA = [
       },
       {
         "id": "p9_3",
-        "difficulty": "LeetCode Style",
+        "difficulty": "Hard",
         "title": "LeetCode 61: Rotate List",
         "leetcode": "LeetCode 61 (Medium)",
         "leetcode_url": "https://leetcode.com/problems/rotate-list/",
@@ -1811,7 +1811,7 @@ window.COURSE_DATA = [
       },
       {
         "id": "p10_3",
-        "difficulty": "LeetCode Style",
+        "difficulty": "Hard",
         "title": "Check Palindrome with Stack",
         "leetcode": "Memory Variant",
         "leetcode_url": "https://leetcode.com/problems/palindrome-linked-list/",
@@ -1991,7 +1991,7 @@ window.COURSE_DATA = [
       },
       {
         "id": "p11_3",
-        "difficulty": "LeetCode Style",
+        "difficulty": "Hard",
         "title": "LeetCode 599: Minimum Index Sum of Two Lists",
         "leetcode": "LeetCode 599",
         "leetcode_url": "https://leetcode.com/problems/minimum-index-sum-of-two-lists/",
@@ -2170,7 +2170,7 @@ window.COURSE_DATA = [
       },
       {
         "id": "p12_3",
-        "difficulty": "LeetCode Style",
+        "difficulty": "Hard",
         "title": "LeetCode 146: LRU Cache (DLL + HashMap)",
         "leetcode": "LeetCode 146 (Hard/Medium Favorite)",
         "leetcode_url": "https://leetcode.com/problems/lru-cache/",
@@ -2352,7 +2352,7 @@ window.COURSE_DATA = [
       },
       {
         "id": "p13_3",
-        "difficulty": "LeetCode Style",
+        "difficulty": "Hard",
         "title": "LeetCode 2: Add Two Numbers",
         "leetcode": "LeetCode 2 (Core)",
         "leetcode_url": "https://leetcode.com/problems/add-two-numbers/",
@@ -2532,7 +2532,7 @@ window.COURSE_DATA = [
       },
       {
         "id": "p14_3",
-        "difficulty": "LeetCode Style",
+        "difficulty": "Hard",
         "title": "LeetCode 138: Copy List with Random Pointer",
         "leetcode": "LeetCode 138 (Master Pattern)",
         "leetcode_url": "https://leetcode.com/problems/copy-list-with-random-pointer/",
