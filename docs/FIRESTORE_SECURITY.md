@@ -10,7 +10,7 @@ This document outlines the security architecture, document ownership model, and 
 1. **Google Auth Provider (`firebase.auth.GoogleAuthProvider`)**:
    - Authenticated via `signInWithPopup(provider)`.
    - Produces a Firebase auth user where `request.auth.uid` is the Google account UID (e.g. `google:1082...`).
-   - The student associates their university roll number (e.g. `2501640100454`) upon sign-in.
+   - The student associates their university roll number (e.g. `1000000000001`) upon sign-in.
    - When writing to `myth_users/{roll}`, the client sets `uid: request.auth.uid` in the document.
    - The rule verifies:
      `resource.data.uid == request.auth.uid && request.resource.data.uid == request.auth.uid`

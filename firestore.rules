@@ -142,7 +142,8 @@ service cloud.firestore {
 
     // 4. Student Scratchpads (Code Editor) - Private to student; no resource.data dependency on update
     match /myth_scratchpads/{docKey} {
-      allow read, delete: if ownsRollClaim(docKey.split('_')[0]);
+      allow read, delete: if isVerifiedCohortEmail()
+        && docKey.matches('^' + getRosterRecord(request.auth.token.email).roll + '_.*');
 
       allow create, update: if request.resource.data.keys().hasAll(['roll', 'probId', 'codeMode', 'code', 'uid', 'updatedAt'])
         && ownsRollClaim(request.resource.data.roll)
@@ -153,7 +154,8 @@ service cloud.firestore {
 
     // 5. Student Problem Notes - Private to student; no resource.data dependency on update
     match /myth_notes/{docKey} {
-      allow read, delete: if ownsRollClaim(docKey.split('_')[0]);
+      allow read, delete: if isVerifiedCohortEmail()
+        && docKey.matches('^' + getRosterRecord(request.auth.token.email).roll + '_.*');
 
       allow create, update: if request.resource.data.keys().hasAll(['roll', 'probId', 'notes', 'uid', 'updatedAt'])
         && ownsRollClaim(request.resource.data.roll)

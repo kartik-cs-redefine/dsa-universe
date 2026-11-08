@@ -82,10 +82,13 @@
         <span>🚀</span> Git & Deploy
       </button>
 
+      <!-- Cloud Sync Alert Banner -->
+      <span id="cloudSyncAlertBanner" style="display:none; color:var(--accent-crimson); font-family:var(--font-mono); font-size:0.75rem; font-weight:800; background:rgba(239,68,68,0.15); padding:0.3rem 0.6rem; border:1px solid var(--accent-crimson); border-radius:4px;" title="Cloud sync failed. Operating in offline cache mode.">⚠️ Cloud Not Synced</span>
+
       <!-- Student Profile Pill (Click to view Profile / Logout) -->
       <div class="student-avatar-pill" id="profileOpenBtn" title="Student Session • Click to View Stats or Logout">
-        <div class="avatar-initial-box" id="topbarProfileAvatar">K</div>
-        <span class="avatar-name-text" id="topbarProfileName">Kartik Kumar</span>
+        <div class="avatar-initial-box" id="topbarProfileAvatar">S</div>
+        <span class="avatar-name-text" id="topbarProfileName">Student</span>
       </div>
     </div>
   </header>
@@ -185,7 +188,7 @@
             type="text" 
             id="authInputName" 
             class="auth-input-field" 
-            placeholder="e.g. Kartik Kumar" 
+            placeholder="e.g. Student Full Name" 
             required 
             autocomplete="name"
           >
@@ -197,7 +200,7 @@
             type="text" 
             id="authInputRoll" 
             class="auth-input-field" 
-            placeholder="e.g. 2501640100454" 
+            placeholder="e.g. 1000000000001" 
             required
           >
         </div>
@@ -208,7 +211,7 @@
             type="text" 
             id="authInputLeetCode" 
             class="auth-input-field" 
-            placeholder="e.g. kartikkumar"
+            placeholder="e.g. your_leetcode_handle"
           >
         </div>
 
@@ -266,7 +269,7 @@
       <form id="googleDirectAuthForm">
         <div class="auth-input-group" style="margin-bottom:0.75rem;">
           <label>Google Account Name *</label>
-          <input type="text" id="googleInputName" class="auth-input-field" placeholder="e.g. Kartik Kumar" required>
+          <input type="text" id="googleInputName" class="auth-input-field" placeholder="e.g. Student Full Name" required>
         </div>
         <div class="auth-input-group" style="margin-bottom:0.75rem;">
           <label>Google Email *</label>
@@ -274,7 +277,7 @@
         </div>
         <div class="auth-input-group" style="margin-bottom:0.75rem;">
           <label>Student Roll Number / ID *</label>
-          <input type="text" id="googleInputRoll" class="auth-input-field" placeholder="e.g. 2501640100454" required>
+          <input type="text" id="googleInputRoll" class="auth-input-field" placeholder="e.g. 1000000000001" required>
         </div>
         <div class="auth-input-group" style="margin-bottom:1rem;">
           <label>LeetCode Username (Optional)</label>
@@ -296,13 +299,13 @@
       </div>
 
       <div style="display:flex; align-items:center; gap:1.1rem; margin-bottom:1.25rem; background:var(--bg-panel-elevated); padding:1rem 1.25rem; border:var(--border-thick); border-radius:var(--radius-boxy); box-shadow:var(--shadow-tactile);">
-        <div class="analytics-user-avatar" id="modalProfileAvatar" style="width:48px; height:48px; font-size:1.3rem;">K</div>
+        <div class="analytics-user-avatar" id="modalProfileAvatar" style="width:48px; height:48px; font-size:1.3rem;">S</div>
         <div style="flex:1;">
           <div style="display:flex; align-items:center;">
-            <h3 id="modalProfileName" style="font-size:1.15rem; font-weight:900; color:var(--text-main);">Kartik Kumar</h3>
+            <h3 id="modalProfileName" style="font-size:1.15rem; font-weight:900; color:var(--text-main);">Student</h3>
             <span id="modalGoogleBadge" class="google-verified-badge" style="display:none;">Google Verified ✓</span>
           </div>
-          <p id="modalProfileRoll" style="font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted); font-weight:800;">Roll: 2501640100454</p>
+          <p id="modalProfileRoll" style="font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted); font-weight:800;">Roll: --</p>
         </div>
       </div>
 

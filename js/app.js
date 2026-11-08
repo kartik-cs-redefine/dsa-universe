@@ -1028,7 +1028,7 @@ document.addEventListener("DOMContentLoaded", () => {
       modalGoogleBadge.style.display = (authSession.authProvider === "google") ? "inline-flex" : "none";
     }
     const modalInputLeetCode = document.getElementById("modalInputLeetCode");
-    if (modalInputLeetCode) modalInputLeetCode.value = authSession.leetcodeUser || "kartikkumar";
+    if (modalInputLeetCode) modalInputLeetCode.value = authSession.leetcodeUser || "";
 
     const modalMascotAvatarMount = document.getElementById("modalMascotAvatarMount");
     const modalMascotTitle = document.getElementById("modalMascotTitle");
@@ -1331,9 +1331,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 <span style="font-weight:900;">${escapeHtml(user.name)}</span>
             ${isCurrentUser ? `<span class="you-sticker-tag">YOU</span>` : ""}
             ${user.authProvider === 'google' ? `<span class="google-verified-badge" style="font-size:0.65rem;">Google</span>` : ""}
-            <a href="https://leetcode.com/u/${user.leetcodeUser || 'kartikkumar'}/" target="_blank" rel="noopener noreferrer" style="font-family:var(--font-mono); font-size:0.68rem; color:var(--accent-yellow); margin-left:0.45rem; text-decoration:none; background:var(--bg-panel-elevated); padding:0.15rem 0.45rem; border-radius:2px; border:1px solid var(--border-color); display:inline-block;" title="View Live LeetCode Profile">
-              @${user.leetcodeUser || 'kartikkumar'} ↗
-            </a>
+            ${user.leetcodeUser ? `
+            <a href="https://leetcode.com/u/${escapeHtml(user.leetcodeUser)}/" target="_blank" rel="noopener noreferrer" style="font-family:var(--font-mono); font-size:0.68rem; color:var(--accent-yellow); margin-left:0.45rem; text-decoration:none; background:var(--bg-panel-elevated); padding:0.15rem 0.45rem; border-radius:2px; border:1px solid var(--border-color); display:inline-block;" title="View Live LeetCode Profile">
+              @${escapeHtml(user.leetcodeUser)} ↗
+            </a>` : ""}
               </div>
             </div>
           </td>
@@ -2109,7 +2110,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getPersonalizedIntuition(topic) {
-    const studentName = authSession ? authSession.name : "Kartik Kumar";
+    const studentName = authSession ? authSession.name : "Student";
     let text = topic.intuition_hinglish;
     if (currentLang === "en") text = topic.intuition_en || topic.intuition_hinglish;
     else if (currentLang === "tldr") text = topic.intuition_tldr || topic.intuition_hinglish;

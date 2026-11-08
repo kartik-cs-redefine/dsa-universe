@@ -65,6 +65,18 @@ export class CloudDBEngine {
     if (typeof cb === "function") this.onStatusChangeCallbacks.push(cb);
   }
 
+  setSyncError(hasError, message = "") {
+    this.hasSyncError = hasError;
+    if (typeof document !== "undefined") {
+      const banner = document.getElementById("cloudSyncAlertBanner");
+      if (banner) {
+        banner.style.display = hasError ? "inline-flex" : "none";
+        if (message) banner.title = `Cloud Sync Failed: ${message}`;
+      }
+    }
+    this.notifyStatus(!hasError, message || (hasError ? "Sync Failed" : "Synced"));
+  }
+
   notifyStatus(isConnected, message) {
     this.onStatusChangeCallbacks.forEach(cb => {
       try { cb(isConnected, message); } catch (e) {}
@@ -97,7 +109,10 @@ export class CloudDBEngine {
       const doc = await this.db.collection("myth_roster").doc(email).get();
       if (doc.exists) {
         const data = doc.data();
-        if (data.roll === roll) return data;
+        if (data.roll === roll) {
+          this.rosterName = data.name;
+          return data;
+        }
         throw new Error(`Your Google account (${email}) is enrolled under roll ${data.roll}, not ${roll}.`);
       }
       throw new Error(`Your Google account (${email}) is not enrolled in the verified student roster.`);
@@ -129,8 +144,10 @@ export class CloudDBEngine {
     if (this.isCloudActive && this.db) {
       try {
         await this.db.collection("myth_users").doc(profile.roll).set(payload, { merge: true });
+        this.setSyncError(false);
         console.log(`[CloudDB] Profile synced to cloud for ${profile.name} (${profile.roll})`);
       } catch (e) {
+        this.setSyncError(true, e.message);
         console.warn("[CloudDB] Failed to save profile to Firestore:", e);
       }
     }
@@ -172,8 +189,10 @@ export class CloudDBEngine {
     if (this.isCloudActive && this.db) {
       try {
         await this.db.collection("myth_progress").doc(roll).set(payload, { merge: true });
+        this.setSyncError(false);
         console.log(`[CloudDB] Progress synced to cloud for ${roll}`);
       } catch (e) {
+        this.setSyncError(true, e.message);
         console.warn("[CloudDB] Progress sync failed:", e);
       }
     }
@@ -219,9 +238,20 @@ export class CloudDBEngine {
   async syncLeaderboardRecord(record) {
     if (!this.auth?.currentUser) return;
     const uid = this.auth.currentUser.uid;
+
+    if (!this.rosterName && this.auth.currentUser.email && this.isCloudActive && this.db) {
+      try {
+        const email = (this.auth.currentUser.email || "").toLowerCase().trim();
+        const doc = await this.db.collection("myth_roster").doc(email).get();
+        if (doc.exists) {
+          this.rosterName = doc.data().name;
+        }
+      } catch (err) {}
+    }
+
     const payload = {
       uid: uid,
-      name: record.name,
+      name: this.rosterName || record.name,
       lcSolved: typeof record.lcSolved === "number" ? Math.min(record.lcSolved, 5000) : 0,
       lcEasy: typeof record.lcEasy === "number" ? record.lcEasy : 0,
       lcMedium: typeof record.lcMedium === "number" ? record.lcMedium : 0,
@@ -236,7 +266,9 @@ export class CloudDBEngine {
     if (this.isCloudActive && this.db) {
       try {
         await this.db.collection("myth_leaderboard").doc(uid).set(payload, { merge: true });
+        this.setSyncError(false);
       } catch (e) {
+        this.setSyncError(true, e.message);
         console.warn("[CloudDB] Leaderboard sync failed:", e);
       }
     }
@@ -294,7 +326,10 @@ export class CloudDBEngine {
     if (this.isCloudActive && this.db) {
       try {
         await this.db.collection("myth_scratchpads").doc(docKey).set(payload, { merge: true });
-      } catch (e) {}
+        this.setSyncError(false);
+      } catch (e) {
+        this.setSyncError(true, e.message);
+      }
     }
     localStorage.setItem(`myth_scratchpad_${probId}_${codeMode}`, codeText);
   }
@@ -327,7 +362,10 @@ export class CloudDBEngine {
     if (this.isCloudActive && this.db) {
       try {
         await this.db.collection("myth_notes").doc(docKey).set(payload, { merge: true });
-      } catch (e) {}
+        this.setSyncError(false);
+      } catch (e) {
+        this.setSyncError(true, e.message);
+      }
     }
     localStorage.setItem(`myth_notes_${probId}`, notesText);
   }

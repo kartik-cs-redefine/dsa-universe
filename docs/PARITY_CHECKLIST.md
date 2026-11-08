@@ -7,7 +7,7 @@ This checklist documents every user-facing feature of the MYTH DSA platform. Dur
 ## 1. Authentication & Session Gatekeeper
 * [ ] **Roll & Name Authentication**:
   - Open app with clean session -> Gatekeeper modal appears.
-  - Enter student name (e.g. `Kartik Kumar`), Roll Number (e.g. `2501640100454`), select Language Track (`C++`).
+  - Enter student name (e.g. `Student Name`), Roll Number (e.g. `1000000000001`), select Language Track (`C++`).
   - Submit form -> Modal closes smoothly, topbar displays student name and avatar initial `K`.
 * [ ] **Google Popup Authentication**:
   - Click "Sign in with Google" button -> Firebase popup triggers.

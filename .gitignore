@@ -11,3 +11,4 @@ roster.csv
 *service-account*.json
 *.pem
 firestore-debug.log
+backups/
