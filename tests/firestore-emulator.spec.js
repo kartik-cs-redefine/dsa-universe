@@ -39,6 +39,16 @@ describe('Firestore Security Rules Emulator Suite', () => {
   });
 
   afterAll(async () => {
+    try {
+      const covRes = await fetch(`http://127.0.0.1:8088/emulator/v1/projects/${PROJECT_ID}:ruleCoverage`);
+      if (covRes.ok) {
+        const covHtml = await covRes.text();
+        fs.writeFileSync(path.resolve(__dirname, '../coverage-rules.html'), covHtml, 'utf8');
+        console.log('[COVERAGE] Rules coverage report saved to coverage-rules.html');
+      }
+    } catch (e) {
+      console.warn('Could not fetch rule coverage:', e);
+    }
     if (testEnv) {
       await testEnv.cleanup();
     }
@@ -475,6 +485,156 @@ describe('Firestore Security Rules Emulator Suite', () => {
         roll: VICTIM_ROLL,
         uid: VICTIM_UID,
         evilInjectedField: 'hack', // REJECTED BY hasOnly()
+        updatedAt: new Date().toISOString()
+      })
+    );
+  });
+
+  it('13. READ ACCESS: Roster-peer cannot read victim\'s myth_users profile (owner read succeeds)', async () => {
+    const victimDb = testEnv.authenticatedContext(VICTIM_UID, {
+      email: VICTIM_EMAIL,
+      email_verified: true
+    }).firestore();
+
+    // Seed victim profile
+    await victimDb.collection('myth_users').doc(VICTIM_ROLL).set({
+      name: VICTIM_NAME,
+      roll: VICTIM_ROLL,
+      uid: VICTIM_UID,
+      email: VICTIM_EMAIL,
+      updatedAt: new Date().toISOString()
+    });
+
+    // Positive Control: Owner can read own profile
+    await assertSucceeds(victimDb.collection('myth_users').doc(VICTIM_ROLL).get());
+
+    // Attack: Roster-peer attacker tries to read victim profile -> DENIED
+    const attackerDb = testEnv.authenticatedContext(ATTACKER_UID, {
+      email: ATTACKER_EMAIL,
+      email_verified: true
+    }).firestore();
+
+    await assertFails(attackerDb.collection('myth_users').doc(VICTIM_ROLL).get());
+  });
+
+  it('14. READ ACCESS: Roster-peer cannot read victim\'s myth_progress (owner read succeeds)', async () => {
+    const victimDb = testEnv.authenticatedContext(VICTIM_UID, {
+      email: VICTIM_EMAIL,
+      email_verified: true
+    }).firestore();
+
+    // Seed victim progress
+    await victimDb.collection('myth_progress').doc(VICTIM_ROLL).set({
+      uid: VICTIM_UID,
+      solvedProblems: ['prob-reverse-list', 'prob-cycle'],
+      updatedAt: new Date().toISOString()
+    });
+
+    // Positive Control: Owner can read own progress
+    await assertSucceeds(victimDb.collection('myth_progress').doc(VICTIM_ROLL).get());
+
+    // Attack: Roster-peer attacker tries to read victim progress -> DENIED
+    const attackerDb = testEnv.authenticatedContext(ATTACKER_UID, {
+      email: ATTACKER_EMAIL,
+      email_verified: true
+    }).firestore();
+
+    await assertFails(attackerDb.collection('myth_progress').doc(VICTIM_ROLL).get());
+  });
+
+  it('15. READ ACCESS: Roster-peer cannot read victim\'s myth_scratchpads (owner read succeeds)', async () => {
+    const probId = 'prob-confidential-scratch';
+    const codeMode = 'cpp';
+    const victimScratchKey = `${VICTIM_ROLL}_${probId}_${codeMode}`;
+
+    const victimDb = testEnv.authenticatedContext(VICTIM_UID, {
+      email: VICTIM_EMAIL,
+      email_verified: true
+    }).firestore();
+
+    // Seed victim scratchpad
+    await victimDb.collection('myth_scratchpads').doc(victimScratchKey).set({
+      roll: VICTIM_ROLL,
+      probId: probId,
+      codeMode: codeMode,
+      code: 'ListNode* confidentialSolution() { return nullptr; }',
+      uid: VICTIM_UID,
+      updatedAt: new Date().toISOString()
+    });
+
+    // Positive Control: Owner can read own scratchpad
+    await assertSucceeds(victimDb.collection('myth_scratchpads').doc(victimScratchKey).get());
+
+    // Attack: Roster-peer attacker tries to read victim scratchpad -> DENIED
+    const attackerDb = testEnv.authenticatedContext(ATTACKER_UID, {
+      email: ATTACKER_EMAIL,
+      email_verified: true
+    }).firestore();
+
+    await assertFails(attackerDb.collection('myth_scratchpads').doc(victimScratchKey).get());
+  });
+
+  it('16. READ ACCESS: Roster-peer cannot read victim\'s myth_notes (owner read succeeds)', async () => {
+    const probId = 'prob-confidential-notes';
+    const victimNotesKey = `${VICTIM_ROLL}_${probId}`;
+
+    const victimDb = testEnv.authenticatedContext(VICTIM_UID, {
+      email: VICTIM_EMAIL,
+      email_verified: true
+    }).firestore();
+
+    // Seed victim personal notes
+    await victimDb.collection('myth_notes').doc(victimNotesKey).set({
+      roll: VICTIM_ROLL,
+      probId: probId,
+      notes: 'Secret edge case analysis for technical interview',
+      uid: VICTIM_UID,
+      updatedAt: new Date().toISOString()
+    });
+
+    // Positive Control: Owner can read own notes
+    await assertSucceeds(victimDb.collection('myth_notes').doc(victimNotesKey).get());
+
+    // Attack: Roster-peer attacker tries to read victim notes -> DENIED
+    const attackerDb = testEnv.authenticatedContext(ATTACKER_UID, {
+      email: ATTACKER_EMAIL,
+      email_verified: true
+    }).firestore();
+
+    await assertFails(attackerDb.collection('myth_notes').doc(victimNotesKey).get());
+  });
+
+  it('17. CROSS-UID WRITE: Roster-peer cannot write to another uid\'s myth_leaderboard doc (owner write succeeds)', async () => {
+    const victimDb = testEnv.authenticatedContext(VICTIM_UID, {
+      email: VICTIM_EMAIL,
+      email_verified: true
+    }).firestore();
+
+    // Positive Control: Owner can write to own leaderboard doc
+    await assertSucceeds(
+      victimDb.collection('myth_leaderboard').doc(VICTIM_UID).set({
+        name: VICTIM_NAME,
+        uid: VICTIM_UID,
+        lcSolved: 42,
+        platformSolved: 12,
+        compositePoints: 50,
+        updatedAt: new Date().toISOString()
+      })
+    );
+
+    // Attack: Roster-peer attacker tries to write/overwrite victim's leaderboard doc (docKey = VICTIM_UID)
+    const attackerDb = testEnv.authenticatedContext(ATTACKER_UID, {
+      email: ATTACKER_EMAIL,
+      email_verified: true
+    }).firestore();
+
+    await assertFails(
+      attackerDb.collection('myth_leaderboard').doc(VICTIM_UID).set({
+        name: ATTACKER_NAME,
+        uid: VICTIM_UID, // Mismatched auth.uid vs doc UID / roster
+        lcSolved: 999,
+        platformSolved: 50,
+        compositePoints: 800,
         updatedAt: new Date().toISOString()
       })
     );

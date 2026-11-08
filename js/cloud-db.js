@@ -38,6 +38,13 @@ export class CloudDBEngine {
       this.auth = firebase.auth();
       this.db = firebase.firestore();
 
+      // Clear authoritative roster claim cache on logout or session change
+      this.auth.onAuthStateChanged(user => {
+        if (!user) {
+          this.rosterName = null;
+        }
+      });
+
       // Enable offline cache persistence for instant offline loading
       try {
         await this.db.enablePersistence({ synchronizeTabs: true });
@@ -70,11 +77,19 @@ export class CloudDBEngine {
     if (typeof document !== "undefined") {
       const banner = document.getElementById("cloudSyncAlertBanner");
       if (banner) {
-        banner.style.display = hasError ? "inline-flex" : "none";
+        banner.classList.toggle("visible", hasError);
         if (message) banner.title = `Cloud Sync Failed: ${message}`;
       }
     }
     this.notifyStatus(!hasError, message || (hasError ? "Sync Failed" : "Synced"));
+  }
+
+  // Authoritative student logout: resets roster claim cache and terminates Firebase session
+  async logout() {
+    this.rosterName = null;
+    if (this.auth) {
+      await this.auth.signOut();
+    }
   }
 
   notifyStatus(isConnected, message) {
@@ -229,7 +244,9 @@ export class CloudDBEngine {
           solvedProblems: parsed.solvedProblems || [],
           bookmarkedProblems: parsed.bookmarkedProblems || []
         };
-      } catch (e) {}
+      } catch (e) {
+        console.warn("[CloudDB] Cache parse failed for progress:", e);
+      }
     }
     return null;
   }
@@ -245,8 +262,17 @@ export class CloudDBEngine {
         const doc = await this.db.collection("myth_roster").doc(email).get();
         if (doc.exists) {
           this.rosterName = doc.data().name;
+        } else {
+          const err = new Error(`Email ${email} is not enrolled in verified student roster.`);
+          this.setSyncError(true, err.message);
+          console.error("[CloudDB] Roster identity lookup failed:", err);
+          return;
         }
-      } catch (err) {}
+      } catch (err) {
+        this.setSyncError(true, `Roster identity lookup error: ${err.message}`);
+        console.error("[CloudDB] Roster identity error:", err);
+        return;
+      }
     }
 
     const payload = {
@@ -341,7 +367,9 @@ export class CloudDBEngine {
       try {
         const doc = await this.db.collection("myth_scratchpads").doc(docKey).get();
         if (doc.exists) return doc.data().code;
-      } catch (e) {}
+      } catch (e) {
+        console.warn(`[CloudDB] Scratchpad read failed for ${docKey}:`, e);
+      }
     }
     return localStorage.getItem(`myth_scratchpad_${probId}_${codeMode}`);
   }
@@ -377,7 +405,9 @@ export class CloudDBEngine {
       try {
         const doc = await this.db.collection("myth_notes").doc(docKey).get();
         if (doc.exists) return doc.data().notes;
-      } catch (e) {}
+      } catch (e) {
+        console.warn(`[CloudDB] Notes read failed for ${docKey}:`, e);
+      }
     }
     return localStorage.getItem(`myth_notes_${probId}`);
   }

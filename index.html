@@ -83,7 +83,7 @@
       </button>
 
       <!-- Cloud Sync Alert Banner -->
-      <span id="cloudSyncAlertBanner" style="display:none; color:var(--accent-crimson); font-family:var(--font-mono); font-size:0.75rem; font-weight:800; background:rgba(239,68,68,0.15); padding:0.3rem 0.6rem; border:1px solid var(--accent-crimson); border-radius:4px;" title="Cloud sync failed. Operating in offline cache mode.">⚠️ Cloud Not Synced</span>
+      <span id="cloudSyncAlertBanner" class="cloud-sync-alert-banner" title="Cloud sync failed. Operating in offline cache mode.">⚠️ Cloud Not Synced</span>
 
       <!-- Student Profile Pill (Click to view Profile / Logout) -->
       <div class="student-avatar-pill" id="profileOpenBtn" title="Student Session • Click to View Stats or Logout">
@@ -618,6 +618,15 @@ npx vercel<br>
       </div>
     </div>
   </div>
+
+  <!-- Platform Engineering & Authorship Footer (Names Only) -->
+  <footer style="margin-top:2.5rem; padding:1.25rem 1rem; border-top:var(--border-thick); background:var(--bg-panel-elevated); text-align:center; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted);">
+    <div style="display:flex; justify-content:center; align-items:center; gap:0.75rem; flex-wrap:wrap; font-weight:700; color:var(--text-main);">
+      <span>⚡ MYTH DSA Mastery Platform</span>
+      <span>•</span>
+      <span>Engineering & Authorship: Kartik Kumar, Tanmay Awasthi, Krish Chaddha</span>
+    </div>
+  </footer>
 
   <!-- App Entry Point (Vite / ES Modules) -->
   <script type="module" src="/js/app.js"></script>

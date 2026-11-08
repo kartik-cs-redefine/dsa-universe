@@ -3455,3 +3455,22 @@ body:not(.dark) .hint-toggle-head {
   transform: scale(1.25);
   box-shadow: 0 0 8px currentColor;
 }
+
+/* Cloud Sync Alert Banner */
+.cloud-sync-alert-banner {
+  display: none;
+  align-items: center;
+  color: var(--accent-crimson);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 800;
+  background: rgba(239, 68, 68, 0.15);
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--accent-crimson);
+  border-radius: 4px;
+}
+
+.cloud-sync-alert-banner.visible {
+  display: inline-flex;
+}
+

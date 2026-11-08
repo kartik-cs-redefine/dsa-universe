@@ -33,7 +33,7 @@ describe('Firestore Security Rules Specification & Static Integrity', () => {
   });
 
   it('should enforce numeric bounds and schema constraints on leaderboard', () => {
-    expect(rulesContent).toContain('match /myth_leaderboard/{roll}');
+    expect(rulesContent).toContain('match /myth_leaderboard/{uid}');
     expect(rulesContent).toContain('data.lcSolved is number');
     expect(rulesContent).toContain('data.lcSolved <= 5000');
     expect(rulesContent).toContain('data.platformSolved <= 500');

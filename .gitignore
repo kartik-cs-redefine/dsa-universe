@@ -12,3 +12,5 @@ roster.csv
 *.pem
 firestore-debug.log
 backups/
+coverage-rules.html
+coverage/

@@ -153,3 +153,11 @@ Aapka platform **Cross-Device Cloud Sync Engine** (`js/cloud-db.js`) ke sath con
 13. **Master ListNode Implementations**: Driver code, memory leak prevention, testbench
 14. **Dummy Node Technique & Master Patterns**: Sentinels, Tortoise & Hare, Multi-pointer
 15. **Master Revision & Cheat Sheet**: Complexity matrix, golden rules, bug checklist
+
+---
+
+## 👥 Engineering Team & Authors
+- **Kartik Kumar** — Lead Architect & Platform Engineer
+- **Tanmay Awasthi** — Core Contributor & Algorithmic Design
+- **Krish Chaddha** — Core Contributor & Systems Engineering
+

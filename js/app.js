@@ -10,6 +10,7 @@ import { COURSE_DATA } from "./content.js";
 import { visualizerInstance, LinkedListVisualizer } from "./visualizer.js";
 import { mascotEngineInstance, MascotEngine, MASCOT_PALETTES, MASCOT_CHARACTERS } from "./mascot-system.js";
 import { raceArenaInstance, RaceArenaEngine } from "./race-arena.js";
+import { calculateCompositePoints, calculateConsecutiveStreak } from "./scoring.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   // Storage Keys
@@ -1117,11 +1118,31 @@ document.addEventListener("DOMContentLoaded", () => {
     const lcHard = isLcConnected ? (lcStats.hardSolved || 0) : 0;
     const lcPoints = (lcEasy * 10) + (lcMedium * 25) + (lcHard * 50);
 
-    // MYTH Platform verified score (20% Weight)
-    const mythPoints = stats.totalScore;
+    // Calculate authentic 80/20 weighted composite score via scoring module
+    const compositeResult = calculateCompositePoints(
+      { easy: lcEasy, medium: lcMedium, hard: lcHard },
+      { easy: stats.easyCount, medium: stats.medCount, hard: stats.hardCount, completedTopics: completedTopics.size }
+    );
+    const compositeScore = compositeResult.compositeScore;
+    const mythPoints = compositeResult.mythPoints;
 
-    // Weighted Composite Score: 80% LC + 20% MYTH
-    const compositeScore = Math.round((0.80 * lcPoints) + (0.20 * mythPoints));
+    // Calculate authentic consecutive active day learning streak
+    const historyKey = `myth_activity_history_${authSession.roll}`;
+    let rawHistory = [];
+    try {
+      rawHistory = JSON.parse(localStorage.getItem(historyKey) || "[]");
+    } catch (e) {
+      rawHistory = [];
+    }
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (!rawHistory.includes(todayStr) && totalSolved > 0) {
+      rawHistory.push(todayStr);
+      try { localStorage.setItem(historyKey, JSON.stringify(rawHistory)); } catch (e) {}
+    }
+    let calculatedStreak = calculateConsecutiveStreak(rawHistory);
+    if (isLcConnected && lcStats && lcStats.streak) {
+      calculatedStreak = Math.max(calculatedStreak, lcStats.streak);
+    }
 
     const existingIdx = registry.findIndex(u => u.roll === authSession.roll);
     const currentUserRecord = {
@@ -1142,11 +1163,12 @@ document.addEventListener("DOMContentLoaded", () => {
       mythMedium: stats.medCount,
       mythHard: stats.hardCount,
       mythPoints: mythPoints,
-      // Final Composite score
+      // Final Composite score (80/20)
       score: compositeScore,
+      compositePoints: compositeScore,
       acceptedSubmissions: totalSolved,
       totalAttempts: userAttempts,
-      streak: Math.max(1, Math.min(14, solvedProblems.size + 1)),
+      streak: calculatedStreak,
       accuracy: userAccuracy
     };
 
