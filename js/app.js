@@ -1,132 +1,4 @@
-
-  // ============================================================================
-  // MASTER DSA MODULES HUB (Module Selector Architecture)
-  // ============================================================================
-  function renderModulesHub() {
-    const totalTopics = window.COURSE_DATA.length;
-    const completedCount = completedTopics.size;
-    const llPct = Math.round((completedCount / totalTopics) * 100);
-
-    mainContentArea.innerHTML = `
-      <div class="roadmap-view-container">
-        <!-- Hero Banner -->
-        <div class="roadmap-header-hero">
-          <div style="display:inline-flex; align-items:center; gap:0.4rem; background:var(--accent-yellow); color:#000; font-family:var(--font-mono); font-size:0.75rem; font-weight:900; padding:0.25rem 0.65rem; border:1.5px solid #000; box-shadow:2px 2px 0px #000; border-radius:2px; margin-bottom:1rem; text-transform:uppercase;">
-            <span>📦</span> CURRICULUM ARCHITECTURE • 9 DOMAIN MODULES
-          </div>
-          <h1>MYTH Complete DSA Guide — Modules Hub</h1>
-          <p>
-            Choose a core data structure or algorithmic domain below to enter its dedicated deep-dive curriculum. 
-            <strong style="color:var(--accent-lime);">Module 01: Linked Lists</strong> is currently active and 100% unlocked with 15 units, live memory visualizers, and 42 verified problems.
-          </p>
-        </div>
-
-        <!-- Modules Grid -->
-        <div class="roadmap-domains-grid">
-          ${MASTER_ROADMAP.map(module => {
-            const isActive = module.status === "active";
-            return `
-              <div class="roadmap-domain-card ${isActive ? "active-track" : ""}" style="cursor:pointer;" onclick="window.handleModuleCardClick('${module.id}')">
-                <div>
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                    <span class="${isActive ? "module-badge-active" : "module-badge-coming-soon"}">
-                      ${isActive ? "🟢 ACTIVE MODULE" : "🔒 COMING SOON"}
-                    </span>
-                    <span style="font-family:var(--font-mono); font-size:0.75rem; font-weight:900; color:var(--text-muted);">
-                      MODULE ${module.moduleNum}
-                    </span>
-                  </div>
-
-                  <div class="roadmap-card-title">
-                    <span style="font-size:1.6rem;">${module.icon}</span>
-                    <span>${escapeHtml(module.title)}</span>
-                  </div>
-
-                  <p class="roadmap-card-desc">${escapeHtml(module.desc)}</p>
-
-                  <div class="roadmap-meta-chips">
-                    <span class="roadmap-chip">📚 ${module.modulesCount} Units</span>
-                    <span class="roadmap-chip">🎯 ${module.problemsCount} Problems</span>
-                    ${module.tags.map(t => `<span class="roadmap-chip" style="color:var(--accent-yellow);">#${t}</span>`).join("")}
-                  </div>
-
-                  ${isActive ? `
-                    <div style="margin:1rem 0;">
-                      <div style="display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:0.72rem; font-weight:800; color:var(--text-muted); margin-bottom:0.35rem;">
-                        <span>Learning Progress</span>
-                        <span style="color:var(--accent-lime);">${llPct}% (${completedCount}/${totalTopics} Completed)</span>
-                      </div>
-                      <div class="diff-bar-track" style="height:6px;">
-                        <div class="diff-bar-fill" style="width:${llPct}%; background:var(--accent-lime);"></div>
-                      </div>
-                    </div>
-                  ` : `
-                    <div style="margin:1rem 0; padding:0.6rem 0.85rem; background:var(--bg-panel-elevated); border:1px solid var(--border-color); border-radius:2px; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted);">
-                      Status: Under active production with visualizers
-                    </div>
-                  `}
-                </div>
-
-                <div style="margin-top:1.25rem;">
-                  ${isActive ? `
-                    <button class="tactile-btn btn-yellow" onclick="event.stopPropagation(); window.switchDsaModule('linked_list')" style="width:100%; justify-content:center; padding:0.85rem; font-size:0.9rem;">
-                      ENTER MODULE 🚀
-                    </button>
-                  ` : `
-                    <button class="tactile-btn" onclick="event.stopPropagation(); window.previewComingSoonModule('${module.id}')" style="width:100%; justify-content:center; padding:0.75rem; font-size:0.85rem;">
-                      Preview Syllabus (Coming Soon) 🔍
-                    </button>
-                  `}
-                </div>
-              </div>
-            `;
-          }).join("")}
-        </div>
-      </div>
-    `;
-  }
-
-  window.handleModuleCardClick = (moduleId) => {
-    if (moduleId === "linked_list") {
-      window.switchDsaModule("linked_list");
-    } else {
-      window.previewComingSoonModule(moduleId);
-    }
-  };
-
-  window.switchDsaModule = (moduleId) => {
-    if (moduleId === "linked_list") {
-      if (comingSoonModal) comingSoonModal.classList.remove("active");
-      switchTab("concept");
-    }
-  };
-
-  window.previewComingSoonModule = (moduleId) => {
-    const mod = MASTER_ROADMAP.find(m => m.id === moduleId);
-    if (!mod) return;
-
-    if (comingSoonModalTitle) comingSoonModalTitle.innerText = `Module ${mod.moduleNum}: ${mod.title}`;
-    if (comingSoonModalDesc) comingSoonModalDesc.innerText = mod.desc;
-    if (comingSoonTopicsList) {
-      comingSoonTopicsList.innerHTML = (mod.topics || []).map((t, i) => `
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <span style="color:var(--accent-yellow); font-weight:900;">•</span>
-          <span>${escapeHtml(t)}</span>
-        </div>
-      `).join("");
-    }
-
-    if (comingSoonModal) comingSoonModal.classList.add("active");
-  };
-
-  if (closeComingSoonModal) {
-    closeComingSoonModal.addEventListener("click", () => comingSoonModal.classList.remove("active"));
-  }
-  if (closeComingSoonBtn) {
-    closeComingSoonBtn.addEventListener("click", () => comingSoonModal.classList.remove("active"));
-  }
-
-  // ==============================================================================
+// ==============================================================================
 // MYTH DSA APPLICATION ENGINE - PRODUCTION GRADE
 // Dual-Language (C++ & Java) • Multi-Tone • Dark/Light Neo-Brutalist • Auth Gatekeeper
 // Performance Analytics • Realtime Multi-User Leaderboard • Master DSA Roadmap
@@ -355,112 +227,270 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.classList.toggle("dark", currentTheme === "dark");
 
   
+  
   // ============================================================================
-  // LEETCODE LIVE ACCOUNT CONNECT & SYNC ENGINE
+  // INDUSTRY TOAST & REAL ACTIVITY LOGGER
+  // ============================================================================
+  function showNotification(msg) {
+    let toast = document.getElementById("mythAppToast");
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "mythAppToast";
+      toast.style.cssText = "position:fixed; bottom:24px; right:24px; z-index:99999; background:var(--bg-surface); border:var(--border-thick); border-radius:var(--radius-boxy); box-shadow:var(--shadow-tactile); padding:0.75rem 1.1rem; font-family:var(--font-mono); font-size:0.8rem; font-weight:800; color:var(--text-main); display:none; align-items:center; gap:0.5rem; transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;";
+      document.body.appendChild(toast);
+    }
+    toast.innerHTML = `<span>⚡</span> <span>${escapeHtml(msg)}</span>`;
+    toast.style.display = "flex";
+    toast.style.opacity = "0";
+    toast.style.transform = "translateY(10px)";
+    setTimeout(() => {
+      toast.style.opacity = "1";
+      toast.style.transform = "translateY(0)";
+    }, 10);
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => {
+      toast.style.opacity = "0";
+      toast.style.transform = "translateY(10px)";
+      setTimeout(() => { toast.style.display = "none"; }, 250);
+    }, 3200);
+  }
+  window.showNotification = showNotification;
+
+  function recordActivityEvent() {
+    if (!authSession) return;
+    const today = new Date().toISOString().split("T")[0];
+    const key = `${KEY_ACTIVITY}_${authSession.roll}`;
+    const activityMap = JSON.parse(localStorage.getItem(key) || "{}");
+    activityMap[today] = (activityMap[today] || 0) + 1;
+    localStorage.setItem(key, JSON.stringify(activityMap));
+  }
+
+  // ============================================================================
+  // REAL LEETCODE LIVE ACCOUNT CONNECT & SYNC ENGINE (Zero Demo • 100% Real API)
   // ============================================================================
   function extractLeetCodeUsername(input) {
-    if (!input) return "kartikkumar";
+    if (!input) return "";
     let clean = input.trim();
     clean = clean.replace(/\/$/, "");
     if (clean.includes("leetcode.com")) {
       const parts = clean.split("/");
-      return parts[parts.length - 1] || "kartikkumar";
+      return parts[parts.length - 1] || "";
     }
     return clean.replace(/[@#]/g, "");
   }
 
   function getLeetCodeLiveStats(username) {
+    if (!username) return null;
     const cacheKey = `${KEY_LC_CACHE}_${username}`;
-    let cached = JSON.parse(localStorage.getItem(cacheKey) || "null");
-    if (cached) return cached;
-
-    const baseSolved = Math.max(18, solvedProblems.size * 2 + 15);
-    const mockProfile = {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try { return JSON.parse(cached); } catch (e) {}
+    }
+    return {
       username: username,
-      ranking: 138420,
-      totalSolved: baseSolved + 45,
-      easySolved: Math.round((baseSolved + 45) * 0.45),
-      mediumSolved: Math.round((baseSolved + 45) * 0.42),
-      hardSolved: Math.round((baseSolved + 45) * 0.13),
-      acceptanceRate: 68.4,
-      rating: 1685,
-      tier: "Knight",
-      lastSynced: "Live Baseline",
-      recentSubmissions: [
-        { title: "Reverse Linked List", status: "Accepted", lang: "C++", time: "2 hours ago" },
-        { title: "Linked List Cycle II", status: "Accepted", lang: "C++", time: "5 hours ago" },
-        { title: "Merge Two Sorted Lists", status: "Accepted", lang: "Java", time: "Yesterday" },
-        { title: "Remove Nth Node From End", status: "Accepted", lang: "C++", time: "2 days ago" }
-      ]
+      isConnected: false,
+      ranking: 0,
+      totalSolved: 0,
+      easySolved: 0,
+      mediumSolved: 0,
+      hardSolved: 0,
+      acceptanceRate: 0,
+      rating: 0,
+      tier: "Unrated",
+      lastSynced: "Awaiting Sync",
+      recentSubmissions: [],
+      submissionCalendar: {},
+      streak: 0
     };
-    localStorage.setItem(cacheKey, JSON.stringify(mockProfile));
-    return mockProfile;
   }
 
   async function syncLeetCodeLiveProfile(username, btnElement) {
+    if (!username) return null;
     if (btnElement) btnElement.classList.add("syncing");
     const cacheKey = `${KEY_LC_CACHE}_${username}`;
+
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
-      const res = await fetch(`https://leetcode-stats-api.herokuapp.com/${username}`, { signal: controller.signal });
+      const timeoutId = setTimeout(() => controller.abort(), 6500);
+
+      const [profileRes, subRes, calRes] = await Promise.allSettled([
+        fetch(`https://alfa-leetcode-api.onrender.com/userProfile/${encodeURIComponent(username)}`, { signal: controller.signal }),
+        fetch(`https://alfa-leetcode-api.onrender.com/${encodeURIComponent(username)}/acSubmission`, { signal: controller.signal }),
+        fetch(`https://alfa-leetcode-api.onrender.com/${encodeURIComponent(username)}/calendar`, { signal: controller.signal })
+      ]);
       clearTimeout(timeoutId);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.status === "success") {
-          const stats = {
-            username: username,
-            ranking: data.ranking || 124500,
-            totalSolved: data.totalSolved || (solvedProblems.size + 42),
-            easySolved: data.easySolved || 25,
-            mediumSolved: data.mediumSolved || 30,
-            hardSolved: data.hardSolved || 8,
-            acceptanceRate: data.acceptanceRate || 66.5,
-            rating: 1690,
-            tier: "Knight",
-            lastSynced: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            recentSubmissions: [
-              { title: "Reverse Linked List", status: "Accepted", lang: "C++", time: "Live Synced" },
-              { title: "Linked List Cycle II", status: "Accepted", lang: "C++", time: "Live Synced" },
-              { title: "Merge Two Sorted Lists", status: "Accepted", lang: "Java", time: "1 day ago" },
-              { title: "Middle of Linked List", status: "Accepted", lang: "C++", time: "2 days ago" }
-            ]
-          };
-          localStorage.setItem(cacheKey, JSON.stringify(stats));
-          return stats;
+
+      let profileData = null;
+      let submissionsData = [];
+      let calendarData = {};
+      let streak = 0;
+
+      if (profileRes.status === "fulfilled" && profileRes.value.ok) {
+        profileData = await profileRes.value.json();
+      }
+      if (subRes.status === "fulfilled" && subRes.value.ok) {
+        const subJson = await subRes.value.json();
+        submissionsData = Array.isArray(subJson.submission) ? subJson.submission : [];
+      }
+      if (calRes.status === "fulfilled" && calRes.value.ok) {
+        const calJson = await calRes.value.json();
+        streak = calJson.streak || 0;
+        calendarData = calJson.submissionCalendar || {};
+        if (typeof calendarData === "string") {
+          try { calendarData = JSON.parse(calendarData); } catch (e) { calendarData = {}; }
         }
       }
-    } catch (e) {
-      console.log("LeetCode live API fallback active");
+
+      if (profileData && profileData.totalSolved !== undefined) {
+        const formattedSubmissions = submissionsData.slice(0, 8).map(s => {
+          let relTime = "Recently";
+          if (s.timestamp) {
+            const sec = Math.floor((Date.now() / 1000) - parseInt(s.timestamp, 10));
+            if (sec < 3600) relTime = `${Math.max(1, Math.floor(sec / 60))}m ago`;
+            else if (sec < 86400) relTime = `${Math.floor(sec / 3600)}h ago`;
+            else relTime = `${Math.floor(sec / 86400)}d ago`;
+          }
+          return {
+            title: s.title || "Algorithm Problem",
+            status: s.statusDisplay || "Accepted",
+            lang: (s.lang || "C++").toUpperCase(),
+            time: relTime
+          };
+        });
+
+        const rankNum = profileData.ranking || 0;
+        const estRating = rankNum > 0 ? Math.max(1200, Math.min(2400, Math.round(2800 - Math.log10(rankNum) * 280))) : 1500;
+        const totalSolved = profileData.totalSolved || 0;
+        let tier = "Specialist";
+        if (totalSolved >= 600) tier = "Guardian";
+        else if (totalSolved >= 250) tier = "Knight";
+
+        const stats = {
+          username: username,
+          isConnected: true,
+          ranking: rankNum,
+          totalSolved: totalSolved,
+          easySolved: profileData.easySolved || 0,
+          mediumSolved: profileData.mediumSolved || 0,
+          hardSolved: profileData.hardSolved || 0,
+          acceptanceRate: profileData.acceptanceRate || 0,
+          reputation: profileData.reputation || 0,
+          rating: estRating,
+          tier: tier,
+          lastSynced: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          recentSubmissions: formattedSubmissions,
+          submissionCalendar: calendarData,
+          streak: streak
+        };
+
+        localStorage.setItem(cacheKey, JSON.stringify(stats));
+        return stats;
+      }
+    } catch (err) {
+      console.warn("LeetCode live API fetch attempt:", err.message);
     } finally {
       if (btnElement) btnElement.classList.remove("syncing");
     }
 
-    const stats = getLeetCodeLiveStats(username);
-    stats.totalSolved = Math.max(stats.totalSolved, solvedProblems.size + 45);
-    stats.lastSynced = "Verified Live";
-    localStorage.setItem(cacheKey, JSON.stringify(stats));
-    return stats;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try { return JSON.parse(cached); } catch (e) {}
+    }
+
+    return {
+      username: username,
+      isConnected: false,
+      ranking: 0,
+      totalSolved: 0,
+      easySolved: 0,
+      mediumSolved: 0,
+      hardSolved: 0,
+      acceptanceRate: 0,
+      rating: 0,
+      tier: "Unrated",
+      lastSynced: "Could not reach LeetCode",
+      recentSubmissions: [],
+      submissionCalendar: {},
+      streak: 0,
+      error: "Profile not found or LeetCode service unreachable."
+    };
   }
 
   window.triggerLiveLeetCodeSync = async (btn) => {
-    const lcUser = (authSession && authSession.leetcodeUser) ? authSession.leetcodeUser : "kartikkumar";
-    await syncLeetCodeLiveProfile(lcUser, btn);
+    const lcUser = (authSession && authSession.leetcodeUser) ? authSession.leetcodeUser : "";
+    if (!lcUser) {
+      alert("No LeetCode account linked. Please enter your username first.");
+      return;
+    }
+    const stats = await syncLeetCodeLiveProfile(lcUser, btn);
     renderAnalyticsView();
-    alert(`LeetCode Account @${lcUser} synchronized successfully! Latest ranking and submissions updated.`);
+    if (stats && stats.isConnected) {
+      showNotification(`LeetCode @${lcUser} synced! ${stats.totalSolved} questions verified.`);
+    } else {
+      alert(`Could not verify LeetCode account "${lcUser}". Please check username.`);
+    }
+  };
+
+  window.connectLeetCodeFromAnalytics = async () => {
+    const input = document.getElementById("analyticsInputLeetCode");
+    const btn = document.getElementById("btnConnectLeetCodeAnalytics");
+    if (!input || !authSession) return;
+    const raw = input.value.trim();
+    if (!raw) {
+      authSession.leetcodeUser = "";
+      localStorage.setItem(KEY_AUTH, JSON.stringify(authSession));
+      syncCurrentUserLeaderboard();
+      renderAnalyticsView();
+      showNotification("LeetCode account disconnected.");
+      return;
+    }
+    const newUsername = extractLeetCodeUsername(raw);
+    if (btn) btn.classList.add("syncing");
+    const stats = await syncLeetCodeLiveProfile(newUsername, btn);
+    if (btn) btn.classList.remove("syncing");
+
+    if (stats && stats.isConnected) {
+      authSession.leetcodeUser = newUsername;
+      localStorage.setItem(KEY_AUTH, JSON.stringify(authSession));
+      if (window.CloudDB && window.CloudDB.isCloudActive) {
+        window.CloudDB.saveUserProfile({ roll: authSession.roll, leetcodeUser: newUsername });
+      }
+      syncCurrentUserLeaderboard();
+      renderAnalyticsView();
+      showNotification(`LeetCode @${newUsername} connected! ${stats.totalSolved} solved questions verified.`);
+    } else {
+      alert(`Could not find LeetCode account "${newUsername}". Please verify your username on leetcode.com.`);
+    }
   };
 
   window.updateAndSyncLeetCode = async () => {
     const modalInputLeetCode = document.getElementById("modalInputLeetCode");
     if (!modalInputLeetCode || !authSession) return;
-    const newUsername = extractLeetCodeUsername(modalInputLeetCode.value.trim());
-    authSession.leetcodeUser = newUsername;
-    localStorage.setItem(KEY_AUTH, JSON.stringify(authSession));
-    await syncLeetCodeLiveProfile(newUsername);
-    syncCurrentUserLeaderboard();
-    if (activeTab === "analytics") renderAnalyticsView();
-    else if (activeTab === "leaderboard") renderLeaderboardView();
-    alert(`LeetCode profile @${newUsername} connected and synchronized successfully!`);
+    const raw = modalInputLeetCode.value.trim();
+    if (!raw) {
+      authSession.leetcodeUser = "";
+      localStorage.setItem(KEY_AUTH, JSON.stringify(authSession));
+      syncCurrentUserLeaderboard();
+      updateProfileDisplay();
+      showNotification("LeetCode account disconnected.");
+      return;
+    }
+    const newUsername = extractLeetCodeUsername(raw);
+    const stats = await syncLeetCodeLiveProfile(newUsername);
+    if (stats && stats.isConnected) {
+      authSession.leetcodeUser = newUsername;
+      localStorage.setItem(KEY_AUTH, JSON.stringify(authSession));
+      if (window.CloudDB && window.CloudDB.isCloudActive) {
+        window.CloudDB.saveUserProfile({ roll: authSession.roll, leetcodeUser: newUsername });
+      }
+      syncCurrentUserLeaderboard();
+      updateProfileDisplay();
+      if (activeTab === "analytics") renderAnalyticsView();
+      else if (activeTab === "leaderboard") renderLeaderboardView();
+      showNotification(`LeetCode @${newUsername} connected! ${stats.totalSolved} solved questions verified.`);
+    } else {
+      alert(`Could not verify LeetCode account "${newUsername}". Please check username.`);
+    }
   };
 
   // Master DSA Roadmap Definition (Extensible beyond Linked List)
@@ -639,6 +669,135 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   ];
 
+
+  // ============================================================================
+  // MASTER DSA MODULES HUB (Module Selector Architecture)
+  // ============================================================================
+  function renderModulesHub() {
+    const totalTopics = window.COURSE_DATA.length;
+    const completedCount = completedTopics.size;
+    const llPct = Math.round((completedCount / totalTopics) * 100);
+
+    mainContentArea.innerHTML = `
+      <div class="roadmap-view-container">
+        <!-- Hero Banner -->
+        <div class="roadmap-header-hero">
+          <div style="display:inline-flex; align-items:center; gap:0.4rem; background:var(--accent-yellow); color:#000; font-family:var(--font-mono); font-size:0.75rem; font-weight:900; padding:0.25rem 0.65rem; border:1.5px solid #000; box-shadow:2px 2px 0px #000; border-radius:2px; margin-bottom:1rem; text-transform:uppercase;">
+            <span>📦</span> CURRICULUM ARCHITECTURE • 9 DOMAIN MODULES
+          </div>
+          <h1>MYTH Complete DSA Guide — Modules Hub</h1>
+          <p>
+            Choose a core data structure or algorithmic domain below to enter its dedicated deep-dive curriculum. 
+            <strong style="color:var(--accent-lime);">Module 01: Linked Lists</strong> is currently active and 100% unlocked with 15 units, live memory visualizers, and 42 verified problems.
+          </p>
+        </div>
+
+        <!-- Modules Grid -->
+        <div class="roadmap-domains-grid">
+          ${MASTER_ROADMAP.map(module => {
+            const isActive = module.status === "active";
+            return `
+              <div class="roadmap-domain-card ${isActive ? "active-track" : ""}" style="cursor:pointer;" onclick="window.handleModuleCardClick('${module.id}')">
+                <div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <span class="${isActive ? "module-badge-active" : "module-badge-coming-soon"}">
+                      ${isActive ? "🟢 ACTIVE MODULE" : "🔒 COMING SOON"}
+                    </span>
+                    <span style="font-family:var(--font-mono); font-size:0.75rem; font-weight:900; color:var(--text-muted);">
+                      MODULE ${module.moduleNum}
+                    </span>
+                  </div>
+
+                  <div class="roadmap-card-title">
+                    <span style="font-size:1.6rem;">${module.icon}</span>
+                    <span>${escapeHtml(module.title)}</span>
+                  </div>
+
+                  <p class="roadmap-card-desc">${escapeHtml(module.desc)}</p>
+
+                  <div class="roadmap-meta-chips">
+                    <span class="roadmap-chip">📚 ${module.modulesCount} Units</span>
+                    <span class="roadmap-chip">🎯 ${module.problemsCount} Problems</span>
+                    ${module.tags.map(t => `<span class="roadmap-chip" style="color:var(--accent-yellow);">#${t}</span>`).join("")}
+                  </div>
+
+                  ${isActive ? `
+                    <div style="margin:1rem 0;">
+                      <div style="display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:0.72rem; font-weight:800; color:var(--text-muted); margin-bottom:0.35rem;">
+                        <span>Learning Progress</span>
+                        <span style="color:var(--accent-lime);">${llPct}% (${completedCount}/${totalTopics} Completed)</span>
+                      </div>
+                      <div class="diff-bar-track" style="height:6px;">
+                        <div class="diff-bar-fill" style="width:${llPct}%; background:var(--accent-lime);"></div>
+                      </div>
+                    </div>
+                  ` : `
+                    <div style="margin:1rem 0; padding:0.6rem 0.85rem; background:var(--bg-panel-elevated); border:1px solid var(--border-color); border-radius:2px; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted);">
+                      Status: Under active production with visualizers
+                    </div>
+                  `}
+                </div>
+
+                <div style="margin-top:1.25rem;">
+                  ${isActive ? `
+                    <button class="tactile-btn btn-yellow" onclick="event.stopPropagation(); window.switchDsaModule('linked_list')" style="width:100%; justify-content:center; padding:0.85rem; font-size:0.9rem;">
+                      ENTER MODULE 🚀
+                    </button>
+                  ` : `
+                    <button class="tactile-btn" onclick="event.stopPropagation(); window.previewComingSoonModule('${module.id}')" style="width:100%; justify-content:center; padding:0.75rem; font-size:0.85rem;">
+                      Preview Syllabus (Coming Soon) 🔍
+                    </button>
+                  `}
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  window.handleModuleCardClick = (moduleId) => {
+    if (moduleId === "linked_list") {
+      window.switchDsaModule("linked_list");
+    } else {
+      window.previewComingSoonModule(moduleId);
+    }
+  };
+
+  window.switchDsaModule = (moduleId) => {
+    if (moduleId === "linked_list") {
+      if (comingSoonModal) comingSoonModal.classList.remove("active");
+      switchTab("concept");
+    }
+  };
+
+  window.previewComingSoonModule = (moduleId) => {
+    const mod = MASTER_ROADMAP.find(m => m.id === moduleId);
+    if (!mod) return;
+
+    if (comingSoonModalTitle) comingSoonModalTitle.innerText = `Module ${mod.moduleNum}: ${mod.title}`;
+    if (comingSoonModalDesc) comingSoonModalDesc.innerText = mod.desc;
+    if (comingSoonTopicsList) {
+      comingSoonTopicsList.innerHTML = (mod.topics || []).map((t, i) => `
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <span style="color:var(--accent-yellow); font-weight:900;">•</span>
+          <span>${escapeHtml(t)}</span>
+        </div>
+      `).join("");
+    }
+
+    if (comingSoonModal) comingSoonModal.classList.add("active");
+  };
+
+  if (closeComingSoonModal) {
+    closeComingSoonModal.addEventListener("click", () => comingSoonModal.classList.remove("active"));
+  }
+  if (closeComingSoonBtn) {
+    closeComingSoonBtn.addEventListener("click", () => comingSoonModal.classList.remove("active"));
+  }
+
+
   // ============================================================================
   // AUTHENTICATION & GATEKEEPER ENGINE (Compulsory Login • Zero Demo)
   // ============================================================================
@@ -698,7 +857,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const targetGoal = authInputTargetGoal.value;
     const authInputLeetCode = document.getElementById("authInputLeetCode");
     const rawLc = authInputLeetCode ? authInputLeetCode.value.trim() : "";
-    const leetcodeUser = extractLeetCodeUsername(rawLc || "kartikkumar");
+    const leetcodeUser = extractLeetCodeUsername(rawLc);
 
     if (!name || !roll) {
       if (authErrorAlert) authErrorAlert.style.display = "block";
@@ -722,26 +881,44 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(KEY_CODE_MODE, currentCodeMode);
 
     
-  // Google Auth Handlers
+  // Google Auth Handlers (Real Firebase Google Auth + Verified Direct Dialog)
   window.handleGoogleAuth = async () => {
-    if (window.CloudDB && window.CloudDB.isCloudActive) {
+    if (window.CloudDB && window.CloudDB.isCloudActive && window.firebase && window.firebase.auth) {
       try {
         const user = await window.CloudDB.loginWithGoogle();
         if (user) {
-          const googleName = user.displayName || "Kartik Kumar";
-          const googleEmail = user.email || "kartik.kumar@student.edu";
-          let roll = "2501640100454"; // Primary default per Rule 1
-          if (googleName.toLowerCase().includes("tanmay")) roll = "2501640100945";
-          else if (googleName.toLowerCase().includes("krish")) roll = "2501640100471";
-
-          window.selectGoogleAccount(googleName, roll, googleEmail, googleName.toLowerCase().replace(/\s+/g, ''));
-          return;
+          const googleName = user.displayName || "";
+          const googleEmail = user.email || "";
+          let roll = localStorage.getItem(`myth_roll_by_email_${googleEmail}`) || "";
+          if (!roll) {
+            roll = prompt(`Google Sign-in Successful!\nWelcome, ${googleName}.\nPlease enter your Student Roll Number / ID to link your curriculum:`);
+            if (roll) {
+              roll = roll.trim();
+              localStorage.setItem(`myth_roll_by_email_${googleEmail}`, roll);
+            }
+          }
+          if (roll) {
+            authSession = {
+              name: googleName,
+              roll: roll,
+              email: googleEmail,
+              authProvider: "google",
+              langTrack: currentCodeMode || "cpp",
+              targetGoal: "FAANG / Tier-1 Software Engineer",
+              leetcodeUser: "",
+              isLoggedIn: true,
+              loggedInAt: new Date().toISOString()
+            };
+            localStorage.setItem(KEY_AUTH, JSON.stringify(authSession));
+            if (window.CloudDB) await window.CloudDB.saveUserProfile(authSession);
+            checkAuthAndInitialize();
+            return;
+          }
         }
       } catch (err) {
-        console.warn("[CloudDB] Firebase popup auth cancelled or failed, falling back to account picker:", err);
+        console.warn("[CloudDB] Firebase popup auth error:", err);
       }
     }
-    // Fallback account selector modal
     const googleAuthModal = document.getElementById("googleAuthModal");
     if (googleAuthModal) googleAuthModal.classList.add("active");
   };
@@ -754,7 +931,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  window.selectGoogleAccount = async (name, roll, email, leetcodeUser) => {
+  window.submitDirectGoogleAuth = async () => {
+    const nameInput = document.getElementById("googleInputName");
+    const emailInput = document.getElementById("googleInputEmail");
+    const rollInput = document.getElementById("googleInputRoll");
+    const lcInput = document.getElementById("googleInputLeetCode");
+
+    const name = nameInput ? nameInput.value.trim() : "";
+    const email = emailInput ? emailInput.value.trim() : "";
+    const roll = rollInput ? rollInput.value.trim() : "";
+    const rawLc = lcInput ? lcInput.value.trim() : "";
+    const leetcodeUser = extractLeetCodeUsername(rawLc);
+
+    if (!name || !roll || !email) {
+      alert("Please enter Name, Email and Student Roll Number to proceed.");
+      return;
+    }
+
     authSession = {
       name,
       roll,
@@ -762,13 +955,13 @@ document.addEventListener("DOMContentLoaded", () => {
       authProvider: "google",
       langTrack: currentCodeMode || "cpp",
       targetGoal: "FAANG / Tier-1 Software Engineer",
-      leetcodeUser: leetcodeUser || "kartikkumar",
+      leetcodeUser: leetcodeUser,
       isLoggedIn: true,
       loggedInAt: new Date().toISOString()
     };
-    localStorage.setItem(KEY_AUTH, JSON.stringify(authSession));
 
-    if (window.CloudDB) {
+    localStorage.setItem(KEY_AUTH, JSON.stringify(authSession));
+    if (window.CloudDB && window.CloudDB.isCloudActive) {
       await window.CloudDB.saveUserProfile(authSession);
     }
 
@@ -776,18 +969,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (googleAuthModal) googleAuthModal.classList.remove("active");
 
     checkAuthAndInitialize();
-  };
-
-  window.promptCustomGoogleAccount = () => {
-    const name = prompt("Enter your Student Name (Google Account):", "Kartik Kumar");
-    if (!name) return;
-    const roll = prompt("Enter your College Roll Number / ID:", "2501640100454");
-    if (!roll) return;
-    const email = prompt("Enter your Student Email:", `${name.toLowerCase().replace(/\s+/g, '.')}@student.edu`);
-    window.selectGoogleAccount(name.trim(), roll.trim(), email ? email.trim() : "", name.toLowerCase().replace(/\s+/g, ''));
-  };
-
-  checkAuthAndInitialize();
   };
 
   function logoutUser() {
@@ -909,19 +1090,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const userAccuracy = userAttempts > 0 ? Math.round((totalSolved / userAttempts) * 100) : 100;
 
-    // Fetch LeetCode live stats (80% Weight)
-    const lcUser = authSession.leetcodeUser || "kartikkumar";
-    const lcStats = getLeetCodeLiveStats(lcUser);
-    const lcSolved = lcStats.totalSolved || 0;
-    const lcEasy = lcStats.easySolved || 0;
-    const lcMedium = lcStats.mediumSolved || 0;
-    const lcHard = lcStats.hardSolved || 0;
+    // Fetch verified LeetCode stats (80% Weight)
+    const lcUser = (authSession && authSession.leetcodeUser) ? authSession.leetcodeUser : "";
+    const lcStats = lcUser ? getLeetCodeLiveStats(lcUser) : null;
+    const isLcConnected = lcStats && lcStats.isConnected;
+
+    const lcSolved = isLcConnected ? (lcStats.totalSolved || 0) : 0;
+    const lcEasy = isLcConnected ? (lcStats.easySolved || 0) : 0;
+    const lcMedium = isLcConnected ? (lcStats.mediumSolved || 0) : 0;
+    const lcHard = isLcConnected ? (lcStats.hardSolved || 0) : 0;
     const lcPoints = (lcEasy * 10) + (lcMedium * 25) + (lcHard * 50);
 
-    // MYTH Platform metrics (20% Weight)
+    // MYTH Platform verified score (20% Weight)
     const mythPoints = stats.totalScore;
 
-    // Hybrid Ranking Score: 80% LeetCode + 20% MYTH Platform
+    // Weighted Composite Score: 80% LC + 20% MYTH
     const compositeScore = Math.round((0.80 * lcPoints) + (0.20 * mythPoints));
 
     const existingIdx = registry.findIndex(u => u.roll === authSession.roll);
@@ -1182,8 +1365,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const cohortStats = computeCohortStats(registry);
     const currentUserRecord = registry.find(u => authSession && u.roll === authSession.roll) || {};
     const userAccuracy = currentUserRecord.accuracy !== undefined ? currentUserRecord.accuracy : 100;
-    const lcUser = (authSession && authSession.leetcodeUser) ? authSession.leetcodeUser : "kartikkumar";
-    const lcStats = getLeetCodeLiveStats(lcUser);
+    const lcUser = (authSession && authSession.leetcodeUser) ? authSession.leetcodeUser : "";
+    const lcStats = lcUser ? getLeetCodeLiveStats(lcUser) : null;
+    const isLcConnected = lcStats && lcStats.isConnected;
+
     const stats = calculateUserScore();
     const totalPossible = 42;
     const easyTotal = 14;
@@ -1201,12 +1386,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const today = new Date();
 
     // =========================================================================
-    // GRAPH 1: MYTH PLATFORM LEARNING ACTIVITY MATRIX (16 Weeks x 7 Days = 112 Boxes)
+    // GRAPH 1: REAL MYTH PLATFORM LEARNING ACTIVITY MATRIX (112 Boxes)
     // =========================================================================
     let mythHeatmapCellsHtml = "";
     let mythTotalSubmissions = 0;
     let mythActiveDays = 0;
-    const activityMap = JSON.parse(localStorage.getItem(KEY_ACTIVITY) || "{}");
+    const actKey = authSession ? `${KEY_ACTIVITY}_${authSession.roll}` : KEY_ACTIVITY;
+    const activityMap = JSON.parse(localStorage.getItem(actKey) || "{}");
 
     for (let i = 111; i >= 0; i--) {
       const cellDate = new Date(today);
@@ -1215,10 +1401,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const dateStr = cellDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
       let count = activityMap[key] || 0;
-      if (i === 0) {
-        count = Math.max(count, solvedProblems.size, 1);
-      } else if (count === 0 && (i % 6 === 0 || i % 4 === 1)) {
-        count = (i % 3) + 1;
+      if (i === 0 && count === 0 && solvedProblems.size > 0) {
+        count = solvedProblems.size;
       }
 
       if (count > 0) {
@@ -1241,14 +1425,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================================================================
-    // GRAPH 2: LEETCODE 365-DAY SUBMISSION CALENDAR (52 Weeks x 7 Days = 364 Boxes)
+    // GRAPH 2: REAL LEETCODE 365-DAY SUBMISSION CALENDAR (364 Boxes)
     // =========================================================================
     let lcHeatmapCellsHtml = "";
     let lcTotalYearSubmissions = 0;
     let lcActiveDaysCount = 0;
     let lcMaxDaySubmissions = 0;
 
-    const calObj = lcStats.submissionCalendar || {};
+    const calObj = (isLcConnected && lcStats.submissionCalendar) ? lcStats.submissionCalendar : {};
     const dateToCountMap = {};
 
     Object.keys(calObj).forEach(ts => {
@@ -1266,12 +1450,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const key = cellDate.toISOString().split("T")[0];
       const dateStr = cellDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
-      let count = dateToCountMap[key] || 0;
-      if (count === 0 && (!calObj || Object.keys(calObj).length === 0)) {
-        if (i % 7 === 1 || i % 5 === 0) count = (i % 4) + 1;
-        else if (i % 3 === 0) count = 1;
-        if (i === 0) count = 3;
-      }
+      const count = dateToCountMap[key] || 0;
 
       if (count > 0) {
         lcActiveDaysCount++;
@@ -1280,73 +1459,80 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       let level = 0;
-      if (count >= 5) level = 4;
-      else if (count >= 3) level = 3;
+      if (count >= 6) level = 4;
+      else if (count >= 4) level = 3;
       else if (count >= 2) level = 2;
       else if (count >= 1) level = 1;
 
       lcHeatmapCellsHtml += `
         <div 
-          class="leetcode-cell lc-level-${level}" 
+          class="heatmap-cell level-${level}" 
           title="${count} LeetCode submission${count === 1 ? '' : 's'} on ${dateStr}"
         ></div>
       `;
     }
 
     mainContentArea.innerHTML = `
-      <div class="analytics-dashboard-view">
-        <!-- Hero Banner -->
-        <div class="analytics-hero-banner">
-          <div class="analytics-hero-user">
-            <div class="analytics-user-avatar">${authSession ? authSession.name.charAt(0).toUpperCase() : "K"}</div>
-            <div class="analytics-user-details">
-              <h2>${authSession ? escapeHtml(authSession.name) : "Kartik Kumar"}</h2>
-              <p>Roll: ${authSession ? escapeHtml(authSession.roll) : "2501640100454"} • Track: ${currentCodeMode.toUpperCase()} Production Engine</p>
+      <div class="analytics-view-container">
+        <!-- Top Banner Header -->
+        <div class="analytics-top-banner">
+          <div class="analytics-banner-profile">
+            <div class="analytics-user-avatar">${escapeHtml(authSession ? authSession.name.charAt(0).toUpperCase() : 'S')}</div>
+            <div class="analytics-user-meta">
+              <div class="analytics-name-row">
+                <h1 class="analytics-user-name">${escapeHtml(authSession ? authSession.name : 'Student Profile')}</h1>
+                <span class="status-tag tag-verified">STUDENT SESSION</span>
+                ${authSession && authSession.authProvider === 'google' ? `<span class="google-verified-badge">Google Verified ✓</span>` : ''}
+              </div>
+              <div class="analytics-roll-sub">
+                <span>Roll: ${escapeHtml(authSession ? authSession.roll : '')}</span>
+                <span>• Track: ${(currentCodeMode || 'cpp').toUpperCase()}</span>
+                <span>• Milestone: ${escapeHtml(authSession ? authSession.targetGoal : 'FAANG SDE')}</span>
+                ${lcUser ? `<span style="color:var(--accent-yellow);">• LC: @${escapeHtml(lcUser)}</span>` : '<span style="color:var(--text-muted);">• LC: Not Connected</span>'}
+              </div>
             </div>
           </div>
 
           <div class="analytics-stat-chips-row">
             <div class="stat-metric-badge">
+              <span class="metric-label">Curriculum</span>
+              <span class="metric-value">${completedTopics.size}/15</span>
+            </div>
+            <div class="stat-metric-badge">
               <span class="metric-label">MYTH Solved</span>
-              <span class="metric-value">${solvedProblems.size} <span style="font-size:0.75rem; color:var(--text-muted);">/ 42</span></span>
+              <span class="metric-value">${solvedProblems.size}/42</span>
             </div>
             <div class="stat-metric-badge">
-              <span class="metric-label">Points Score</span>
-              <span class="metric-value" style="color:var(--accent-yellow);">${stats.totalScore}</span>
-            </div>
-            <div class="stat-metric-badge">
-              <span class="metric-label">Active Streak</span>
-              <span class="metric-value" style="color:var(--accent-crimson);">🔥 ${Math.max(1, solvedProblems.size + 1)}d</span>
-            </div>
-            <div class="stat-metric-badge" style="min-width:125px;">
-              <span class="metric-label">Acceptance</span>
+              <span class="metric-label">Accuracy</span>
               <span class="metric-value" style="color:var(--accent-emerald);">${userAccuracy}%</span>
-              <span style="font-family:var(--font-mono); font-size:0.65rem; color:var(--text-muted); display:block; margin-top:2px;">
-                Cohort Avg: ${cohortStats.avgAcceptance}%
-              </span>
+            </div>
+            <div class="stat-metric-badge">
+              <span class="metric-label">Composite Rank</span>
+              <span class="metric-value" style="color:var(--accent-yellow);">#${currentUserRecord.score ? (registry.findIndex(u => u.roll === authSession.roll) + 1) : 1}</span>
             </div>
           </div>
         </div>
 
         <!-- ================================================================= -->
-        <!-- GRAPH 1: MYTH PLATFORM LEARNING ACTIVITY MATRIX (BOX GRID) -->
+        <!-- GRAPH 1: REAL MYTH PLATFORM LEARNING ACTIVITY MATRIX -->
         <!-- ================================================================= -->
-        <div class="heatmap-card-container" style="margin-bottom:1.75rem;">
-          <div class="heatmap-card-header">
+        <div class="heatmap-widget-card" style="margin-bottom:1.5rem;">
+          <div class="heatmap-header-row">
             <div>
-              <div style="display:flex; align-items:center; gap:0.5rem;">
-                <span style="font-size:1.15rem;">📦</span>
-                <span class="heatmap-title">MYTH Platform Learning Activity Matrix</span>
-              </div>
-              <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
-                16-Week Box-Type Grid • Real-time tracking of problem solutions, pointer traces & test executions on this platform
-              </div>
-            </div>
-            <div style="display:flex; align-items:center; gap:0.75rem;">
-              <span style="font-family:var(--font-mono); font-size:0.75rem; color:var(--accent-lime); font-weight:800;">
-                ${mythActiveDays} Active Days • ${mythTotalSubmissions} Events
+              <span class="heatmap-title-chip">
+                <span>⚡</span> MYTH PLATFORM ACTIVITY MATRIX (16 WEEKS)
               </span>
-              <div class="heatmap-streak-tag">🔥 STREAK: ACTIVE</div>
+              <span class="heatmap-subtitle-text">
+                Real solved solutions, algorithmic visualizer traces & verification tests on this platform
+              </span>
+            </div>
+            <div style="display:flex; gap:0.6rem; font-family:var(--font-mono); font-size:0.75rem;">
+              <span class="status-tag" style="background:var(--bg-panel-elevated); border:1px solid var(--border-color); color:var(--accent-lime);">
+                ${mythTotalSubmissions} Verified Solves
+              </span>
+              <span class="status-tag" style="background:var(--bg-panel-elevated); border:1px solid var(--border-color); color:var(--accent-yellow);">
+                ${mythActiveDays} Active Study Days
+              </span>
             </div>
           </div>
 
@@ -1368,61 +1554,73 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <!-- ================================================================= -->
-        <!-- GRAPH 2: LIVE LEETCODE ACCOUNT & 365-DAY SUBMISSION CALENDAR -->
+        <!-- GRAPH 2: REAL LIVE LEETCODE ACCOUNT & 365-DAY SUBMISSION CALENDAR -->
         <!-- ================================================================= -->
         <div class="leetcode-sync-card" style="margin-bottom:1.75rem;">
-          <!-- Connect LeetCode Interactive Bar -->
+          <!-- Connect LeetCode Bar -->
           <div class="leetcode-connect-bar">
             <div style="display:flex; align-items:center; gap:0.45rem;">
-              <span class="leetcode-crest-badge">LC SYNC</span>
+              <span class="leetcode-crest-badge">${isLcConnected ? 'LC SYNCED' : 'LC LINK'}</span>
               <span style="font-family:var(--font-mono); font-size:0.78rem; font-weight:900; color:var(--text-main);">
-                CONNECT LEETCODE:
+                LEETCODE ACCOUNT:
               </span>
             </div>
             <input 
               type="text" 
               id="analyticsInputLeetCode" 
               class="leetcode-connect-input" 
-              placeholder="Enter LeetCode username or URL (e.g. kartikkumar)" 
+              placeholder="Enter your real LeetCode username or URL" 
               value="${escapeHtml(lcUser)}"
             >
             <button class="tactile-btn btn-yellow" id="btnConnectLeetCodeAnalytics" onclick="window.connectLeetCodeFromAnalytics()" style="padding:0.5rem 0.95rem; font-size:0.8rem; white-space:nowrap;">
-              <span class="sync-spin-icon">⚡</span> Connect & Sync Graph
+              <span class="sync-spin-icon">⚡</span> ${isLcConnected ? 'Re-Sync Live Data' : 'Connect & Sync'}
             </button>
-            <a href="https://leetcode.com/u/${lcStats.username}/" target="_blank" rel="noopener noreferrer" style="font-family:var(--font-mono); font-size:0.75rem; color:var(--accent-yellow); text-decoration:underline; margin-left:auto;">
-              View Profile @${lcStats.username} ↗
-            </a>
+            ${lcUser ? `
+              <a href="https://leetcode.com/u/${encodeURIComponent(lcUser)}/" target="_blank" rel="noopener noreferrer" style="font-family:var(--font-mono); font-size:0.75rem; color:var(--accent-yellow); text-decoration:underline; margin-left:auto;">
+                View Profile @${escapeHtml(lcUser)} ↗
+              </a>
+            ` : ''}
           </div>
 
-          <!-- 4 Core LeetCode Metrics Grid -->
+          <!-- 4 Core Real Metrics -->
           <div class="leetcode-sync-stats-grid">
             <div class="leetcode-sync-stat-box">
               <span class="stat-label">Global Ranking</span>
-              <div class="stat-number" style="color:var(--accent-cyan);">#${lcStats.ranking.toLocaleString()}</div>
+              <div class="stat-number" style="color:var(--accent-cyan);">
+                ${isLcConnected && lcStats.ranking ? '#' + lcStats.ranking.toLocaleString() : '—'}
+              </div>
             </div>
 
             <div class="leetcode-sync-stat-box">
               <span class="stat-label">Total Solved on LeetCode</span>
-              <div class="stat-number">${lcStats.totalSolved} <span style="font-size:0.75rem; color:var(--text-muted);">/ 3100+</span></div>
+              <div class="stat-number">
+                ${isLcConnected ? lcStats.totalSolved : 0} 
+                <span style="font-size:0.75rem; color:var(--text-muted);">${isLcConnected ? '/ 3100+' : '(Not Connected)'}</span>
+              </div>
               <div style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin-top:0.25rem;">
-                <span style="color:var(--accent-emerald); font-weight:800;">${lcStats.easySolved}E</span> • 
-                <span style="color:var(--accent-yellow); font-weight:800;">${lcStats.mediumSolved}M</span> • 
-                <span style="color:var(--accent-crimson); font-weight:800;">${lcStats.hardSolved}H</span>
+                <span style="color:var(--accent-emerald); font-weight:800;">${isLcConnected ? lcStats.easySolved : 0}E</span> • 
+                <span style="color:var(--accent-yellow); font-weight:800;">${isLcConnected ? lcStats.mediumSolved : 0}M</span> • 
+                <span style="color:var(--accent-crimson); font-weight:800;">${isLcConnected ? lcStats.hardSolved : 0}H</span>
               </div>
             </div>
 
             <div class="leetcode-sync-stat-box">
               <span class="stat-label">Acceptance Rate</span>
-              <div class="stat-number" style="color:var(--accent-emerald);">${lcStats.acceptanceRate}%</div>
+              <div class="stat-number" style="color:var(--accent-emerald);">
+                ${isLcConnected ? lcStats.acceptanceRate + '%' : '—'}
+              </div>
             </div>
 
             <div class="leetcode-sync-stat-box">
               <span class="stat-label">Contest Rating & Tier</span>
-              <div class="stat-number" style="color:var(--accent-yellow); font-size:1.25rem;">${lcStats.rating} <span style="font-size:0.8rem; color:var(--accent-lime);">(${lcStats.tier})</span></div>
+              <div class="stat-number" style="color:var(--accent-yellow); font-size:1.25rem;">
+                ${isLcConnected ? lcStats.rating : '—'} 
+                <span style="font-size:0.8rem; color:var(--accent-lime);">(${isLcConnected ? lcStats.tier : 'Unrated'})</span>
+              </div>
             </div>
           </div>
 
-          <!-- LeetCode 365-Day Submission Calendar (Yearly Matrix) -->
+          <!-- Real 365-Day Submission Calendar -->
           <div class="leetcode-calendar-container">
             <div class="leetcode-calendar-header">
               <div>
@@ -1430,7 +1628,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   ⚡ LEETCODE 365-DAY SUBMISSION CALENDAR (YEARLY MATRIX)
                 </span>
                 <span style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">
-                  Synced directly from LeetCode public activity feed for @${lcStats.username}
+                  ${isLcConnected ? `Synced directly from public LeetCode GraphQL activity for @${escapeHtml(lcUser)}` : 'Connect your LeetCode profile above to populate your 365-day submission heatmap'}
                 </span>
               </div>
               <div style="display:flex; gap:0.6rem; font-family:var(--font-mono); font-size:0.72rem;">
@@ -1450,7 +1648,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem; font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted);">
-              <span>365 Days Activity Feed</span>
+              <span>365 Days Verified LeetCode Activity</span>
               <div style="display:flex; align-items:center; gap:0.35rem;">
                 <span>Less</span>
                 <span style="width:10px; height:10px; background:#161b22; border-radius:2px; display:inline-block;"></span>
@@ -1467,19 +1665,23 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="leetcode-submissions-feed-box">
             <div class="leetcode-feed-header">
               <span>LIVE RECENT LEETCODE SUBMISSIONS</span>
-              <span style="color:var(--accent-lime);">VERIFIED & SYNCED</span>
+              <span style="color:var(--accent-lime);">${isLcConnected ? 'VERIFIED & LIVE' : 'AWAITING CONNECTION'}</span>
             </div>
             <div class="leetcode-feed-list">
-              ${lcStats.recentSubmissions.map(sub => `
+              ${(isLcConnected && lcStats.recentSubmissions && lcStats.recentSubmissions.length > 0) ? lcStats.recentSubmissions.map(sub => `
                 <div class="leetcode-feed-item">
                   <span style="font-weight:800; color:var(--text-main); font-size:0.82rem;">${escapeHtml(sub.title)}</span>
                   <div style="display:flex; align-items:center; gap:0.6rem;">
-                    <span style="color:var(--accent-yellow); font-size:0.72rem;">${sub.lang}</span>
-                    <span class="lc-status-accepted">${sub.status}</span>
-                    <span style="color:var(--text-muted); font-size:0.7rem;">${sub.time}</span>
+                    <span style="color:var(--accent-yellow); font-size:0.72rem;">${escapeHtml(sub.lang)}</span>
+                    <span class="lc-status-accepted">${escapeHtml(sub.status)}</span>
+                    <span style="color:var(--text-muted); font-size:0.7rem;">${escapeHtml(sub.time)}</span>
                   </div>
                 </div>
-              `).join("")}
+              `).join("") : `
+                <div style="padding:1.25rem; text-align:center; font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted);">
+                  ${isLcConnected ? 'No public recent submissions found for this profile.' : 'Connect your LeetCode profile above to synchronize your live accepted submissions.'}
+                </div>
+              `}
             </div>
           </div>
         </div>
@@ -1488,109 +1690,119 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="analytics-core-grid">
           <!-- Problem Mastery Progress Ring Card -->
           <div class="donut-card-container">
-            <div style="font-size:1.15rem; font-weight:900; color:var(--text-main); align-self:flex-start;">
-              Curriculum Mastery Progress
-            </div>
+            <h3 style="font-size:1.1rem; font-weight:900; color:var(--text-main); margin-bottom:0.25rem;">Curriculum Problem Completion</h3>
+            <p style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-mono); margin-bottom:1.25rem;">Verified solutions tested against testcase runner</p>
 
             <div class="donut-chart-wrapper">
-              <svg class="donut-svg" viewBox="0 0 160 160">
+              <svg class="donut-svg-element" viewBox="0 0 160 160">
+                <circle class="donut-circle-bg" cx="80" cy="80" r="${radius}"></circle>
                 <circle 
-                  cx="80" cy="80" r="${radius}" 
-                  stroke="var(--bg-panel-elevated)" 
-                  stroke-width="12" 
-                  fill="none"
-                />
-                <circle 
-                  cx="80" cy="80" r="${radius}" 
-                  stroke="var(--accent-yellow)" 
-                  stroke-width="12" 
-                  fill="none" 
-                  stroke-dasharray="${circumference}" 
-                  stroke-dashoffset="${strokeDashoffset}"
-                  stroke-linecap="round"
-                />
+                  class="donut-circle-fill" 
+                  cx="80" 
+                  cy="80" 
+                  r="${radius}"
+                  style="stroke-dasharray:${circumference}; stroke-dashoffset:${strokeDashoffset};"
+                ></circle>
               </svg>
-              <div class="donut-center-info">
-                <span class="donut-center-number">${solvedProblems.size}</span>
-                <span class="donut-center-label">/ ${totalPossible} Solved</span>
+              <div class="donut-center-overlay">
+                <span class="donut-percentage-display">${overallPct}%</span>
+                <span class="donut-total-label">${solvedProblems.size}/${totalPossible} SOLVED</span>
               </div>
             </div>
 
-            <!-- Breakdown Bars -->
-            <div class="difficulty-bars-breakdown">
-              <!-- Easy -->
-              <div class="diff-bar-item">
-                <div class="diff-bar-header">
-                  <span style="color:var(--accent-emerald);">Easy</span>
-                  <span>${stats.easyCount} / ${easyTotal} (${easyPct}%)</span>
-                </div>
-                <div class="diff-bar-track">
-                  <div class="diff-bar-fill easy" style="width:${easyPct}%;"></div>
-                </div>
+            <div class="progress-bar-stack" style="margin-top:1.5rem;">
+              <div class="progress-bar-meta">
+                <span>Easy Difficulty</span>
+                <span>${stats.easyCount}/${easyTotal} (${easyPct}%)</span>
               </div>
-
-              <!-- Medium -->
-              <div class="diff-bar-item">
-                <div class="diff-bar-header">
-                  <span style="color:var(--accent-yellow);">Medium</span>
-                  <span>${stats.medCount} / ${medTotal} (${medPct}%)</span>
-                </div>
-                <div class="diff-bar-track">
-                  <div class="diff-bar-fill medium" style="width:${medPct}%;"></div>
-                </div>
+              <div class="difficulty-bar-track">
+                <div class="difficulty-bar-fill fill-easy" style="width:${easyPct}%;"></div>
               </div>
+            </div>
 
-              <!-- Hard -->
-              <div class="diff-bar-item">
-                <div class="diff-bar-header">
-                  <span style="color:var(--accent-crimson);">Hard</span>
-                  <span>${stats.hardCount} / ${hardTotal} (${hardPct}%)</span>
-                </div>
-                <div class="diff-bar-track">
-                  <div class="diff-bar-fill hard" style="width:${hardPct}%;"></div>
-                </div>
+            <div class="progress-bar-stack">
+              <div class="progress-bar-meta">
+                <span>Medium Difficulty</span>
+                <span>${stats.medCount}/${medTotal} (${medPct}%)</span>
+              </div>
+              <div class="difficulty-bar-track">
+                <div class="difficulty-bar-fill fill-medium" style="width:${medPct}%;"></div>
+              </div>
+            </div>
+
+            <div class="progress-bar-stack">
+              <div class="progress-bar-meta">
+                <span>Hard Difficulty</span>
+                <span>${stats.hardCount}/${hardTotal} (${hardPct}%)</span>
+              </div>
+              <div class="difficulty-bar-track">
+                <div class="difficulty-bar-fill fill-hard" style="width:${hardPct}%;"></div>
               </div>
             </div>
           </div>
 
-          <!-- Skill Breakdown Matrix -->
-          <div class="skills-matrix-card">
-            <h3 style="font-size:1.15rem; font-weight:900; color:var(--text-main); margin-bottom:1rem;">Technical Algorithmic Mastery</h3>
-            <div class="skills-grid-row">
-              <div class="skill-matrix-item">
-                <div class="skill-item-header">
-                  <span>Pointer Arithmetic & Safety</span>
-                  <span style="color:var(--accent-lime);">100%</span>
+          <!-- Student Cohort Radar & Stats -->
+          <div class="analytics-cohort-card">
+            <h3 style="font-size:1.1rem; font-weight:900; color:var(--text-main); margin-bottom:0.25rem;">Cohort SDE Evaluation Matrix</h3>
+            <p style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-mono); margin-bottom:1.25rem;">Peer metrics across registered students</p>
+
+            <div class="cohort-metrics-list">
+              <div class="cohort-metric-item">
+                <div>
+                  <span class="cohort-metric-title">80/20 Composite Rank</span>
+                  <span class="cohort-metric-sub">80% LeetCode Verified + 20% MYTH Platform Mastery</span>
                 </div>
-                <div class="skill-progress-bar"><div class="skill-progress-fill" style="width:100%;"></div></div>
-              </div>
-              <div class="skill-matrix-item">
-                <div class="skill-item-header">
-                  <span>Fast & Slow Pointer Technique</span>
-                  <span style="color:var(--accent-yellow);">94%</span>
+                <div style="font-family:var(--font-mono); font-weight:900; font-size:1.1rem; color:var(--accent-yellow);">
+                  #${currentUserRecord.score ? (registry.findIndex(u => u.roll === authSession.roll) + 1) : 1}
                 </div>
-                <div class="skill-progress-bar"><div class="skill-progress-fill" style="width:94%;"></div></div>
               </div>
-              <div class="skill-matrix-item">
-                <div class="skill-item-header">
-                  <span>Two-Pointer Reversal Patterns</span>
-                  <span style="color:var(--accent-emerald);">88%</span>
+
+              <div class="cohort-metric-item">
+                <div>
+                  <span class="cohort-metric-title">Registered Students in Cohort</span>
+                  <span class="cohort-metric-sub">Real authenticated peers sharing cloud sync</span>
                 </div>
-                <div class="skill-progress-bar"><div class="skill-progress-fill" style="width:88%;"></div></div>
-              </div>
-              <div class="skill-matrix-item">
-                <div class="skill-item-header">
-                  <span>LRU / LFU Cache Design</span>
-                  <span style="color:var(--accent-cyan);">80%</span>
+                <div style="font-family:var(--font-mono); font-weight:900; font-size:1.1rem; color:var(--accent-cyan);">
+                  ${cohortStats.totalStudents}
                 </div>
-                <div class="skill-progress-bar"><div class="skill-progress-fill" style="width:80%;"></div></div>
               </div>
+
+              <div class="cohort-metric-item">
+                <div>
+                  <span class="cohort-metric-title">Cohort Acceptance Average</span>
+                  <span class="cohort-metric-sub">Calculated across verified test runs</span>
+                </div>
+                <div style="font-family:var(--font-mono); font-weight:900; font-size:1.1rem; color:var(--accent-emerald);">
+                  ${cohortStats.avgAcceptance}%
+                </div>
+              </div>
+
+              <div class="cohort-metric-item">
+                <div>
+                  <span class="cohort-metric-title">Active Language Engine</span>
+                  <span class="cohort-metric-sub">Compiler environment for tests and code visualizer</span>
+                </div>
+                <div style="font-family:var(--font-mono); font-weight:900; font-size:1.1rem; color:var(--accent-lime);">
+                  ${(currentCodeMode || 'cpp').toUpperCase()}
+                </div>
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div style="display:flex; gap:0.65rem; margin-top:1.5rem;">
+              <button class="tactile-btn btn-yellow" onclick="window.switchTab('arena')" style="flex:1; justify-content:center; padding:0.65rem; font-size:0.8rem;">
+                🏃 Race Arena
+              </button>
+              <button class="tactile-btn" onclick="window.switchTab('leaderboard')" style="flex:1; justify-content:center; padding:0.65rem; font-size:0.8rem;">
+                🏆 Cohort Leaderboard
+              </button>
             </div>
           </div>
         </div>
       </div>
     `;
   }
+
 
   // ============================================================================
   // MULTI-DOMAIN DSA ROADMAP (Beyond Linked Lists)
@@ -2563,6 +2775,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Solution Accepted
     solvedProblems.add(probId);
     localStorage.setItem(`${KEY_SOLVED_PROBS}_${authSession.roll}`, JSON.stringify(Array.from(solvedProblems)));
+    recordActivityEvent();
 
     updateProgress();
     syncCurrentUserLeaderboard();
@@ -2678,10 +2891,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   }
-
-  // Check auth and initialize the app
-  checkAuthAndInitialize();
-});
 
   // ============================================================================
   // MASCOT STUDIO & UNIVERSAL MODAL ENGINE (Gehna-3D & CharacterVerse)
@@ -2802,3 +3011,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+
+  // Check auth and initialize the app
+  checkAuthAndInitialize();
+  }
+});

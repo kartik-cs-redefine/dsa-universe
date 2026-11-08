@@ -243,7 +243,7 @@
     </div>
   </div>
 
-  <!-- GOOGLE ACCOUNT SELECTOR MODAL -->
+  <!-- GOOGLE ACCOUNT AUTHENTICATION MODAL -->
   <div class="tactile-modal-overlay" id="googleAuthModal">
     <div class="tactile-modal-card" style="width:min(440px, calc(100% - 32px));">
       <div class="modal-header-row" style="margin-bottom:0.75rem;">
@@ -254,50 +254,36 @@
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
           </svg>
-          <span style="font-weight:900; font-size:1.05rem; color:var(--text-main);">Sign in with Google</span>
+          <span style="font-weight:900; font-size:1.05rem; color:var(--text-main);">Google Authentication</span>
         </div>
         <button class="modal-close-cross" id="closeGoogleAuthModal">×</button>
       </div>
 
       <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem;">
-        Select verified student profile to continue:
+        Authenticate with your verified Google account to synchronize your DSA progress across devices.
       </p>
 
-      <!-- Account 1: Kartik Kumar (Default per Rule 1) -->
-      <div class="google-account-select-card" onclick="window.selectGoogleAccount('Kartik Kumar', '2501640100454', 'kartik.kumar@student.edu', 'kartikkumar')">
-        <div class="google-avatar-circle" style="background:#4285F4; color:#fff;">K</div>
-        <div style="flex:1;">
-          <div style="font-weight:800; font-size:0.9rem; color:var(--text-main);">Kartik Kumar <span class="google-verified-badge">DEFAULT</span></div>
-          <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">kartik.kumar@student.edu • Roll: 2501640100454</div>
+      <form id="googleDirectAuthForm" onsubmit="event.preventDefault(); window.submitDirectGoogleAuth();">
+        <div class="auth-input-group" style="margin-bottom:0.75rem;">
+          <label>Google Account Name *</label>
+          <input type="text" id="googleInputName" class="auth-input-field" placeholder="e.g. Kartik Kumar" required>
         </div>
-        <span style="font-size:0.75rem; font-family:var(--font-mono); color:var(--accent-lime); font-weight:800;">SIGN IN →</span>
-      </div>
-
-      <!-- Account 2: Tanmay Awasthi -->
-      <div class="google-account-select-card" onclick="window.selectGoogleAccount('Tanmay Awasthi', '2501640100945', 'tanmay.awasthi@student.edu', 'tanmay_awasthi')">
-        <div class="google-avatar-circle" style="background:#34A853; color:#fff;">T</div>
-        <div style="flex:1;">
-          <div style="font-weight:800; font-size:0.9rem; color:var(--text-main);">Tanmay Awasthi</div>
-          <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">tanmay.awasthi@student.edu • Roll: 2501640100945</div>
+        <div class="auth-input-group" style="margin-bottom:0.75rem;">
+          <label>Google Email *</label>
+          <input type="email" id="googleInputEmail" class="auth-input-field" placeholder="student@university.edu" required>
         </div>
-        <span style="font-size:0.75rem; font-family:var(--font-mono); color:var(--text-muted); font-weight:800;">SIGN IN →</span>
-      </div>
-
-      <!-- Account 3: Krish Chaddha -->
-      <div class="google-account-select-card" onclick="window.selectGoogleAccount('Krish Chaddha', '2501640100471', 'krish.chaddha@student.edu', 'krish_chaddha')">
-        <div class="google-avatar-circle" style="background:#FBBC05; color:#000;">K</div>
-        <div style="flex:1;">
-          <div style="font-weight:800; font-size:0.9rem; color:var(--text-main);">Krish Chaddha</div>
-          <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">krish.chaddha@student.edu • Roll: 2501640100471</div>
+        <div class="auth-input-group" style="margin-bottom:0.75rem;">
+          <label>Student Roll Number / ID *</label>
+          <input type="text" id="googleInputRoll" class="auth-input-field" placeholder="e.g. 2501640100454" required>
         </div>
-        <span style="font-size:0.75rem; font-family:var(--font-mono); color:var(--text-muted); font-weight:800;">SIGN IN →</span>
-      </div>
-
-      <div style="margin-top:0.75rem; border-top:1px dashed var(--border-color); padding-top:0.75rem;">
-        <button class="tactile-btn" style="width:100%; justify-content:center; font-size:0.82rem; padding:0.6rem;" onclick="window.promptCustomGoogleAccount()">
-          ➕ Use Another Student Google Account
+        <div class="auth-input-group" style="margin-bottom:1rem;">
+          <label>LeetCode Username (Optional)</label>
+          <input type="text" id="googleInputLeetCode" class="auth-input-field" placeholder="e.g. username">
+        </div>
+        <button type="submit" class="tactile-btn btn-yellow" style="width:100%; justify-content:center; padding:0.75rem;">
+          Verify & Sign In with Google 🚀
         </button>
-      </div>
+      </form>
     </div>
   </div>
 
@@ -385,16 +371,6 @@
         <button class="tactile-btn btn-yellow" id="logoutProfileBtn" style="flex:1; justify-content:center; padding:0.75rem; background:var(--accent-crimson); color:#fff; border-color:#000;">
           Switch Student / Logout
         </button>
-      </div>
-      
-      <!-- Quick Profile Switcher (Rule 1 Support) -->
-      <div style="margin-top:1rem; padding-top:0.85rem; border-top:1px dashed var(--border-color); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
-        <span style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted); font-weight:800;">PROFILE SWITCHER:</span>
-        <div style="display:flex; gap:0.35rem;">
-          <button class="tactile-btn" style="font-size:0.72rem; padding:0.25rem 0.55rem;" onclick="window.selectGoogleAccount('Kartik Kumar', '2501640100454', 'kartik.kumar@student.edu', 'kartikkumar')">Kartik</button>
-          <button class="tactile-btn" style="font-size:0.72rem; padding:0.25rem 0.55rem;" onclick="window.selectGoogleAccount('Tanmay Awasthi', '2501640100945', 'tanmay.awasthi@student.edu', 'tanmay_awasthi')">Tanmay</button>
-          <button class="tactile-btn" style="font-size:0.72rem; padding:0.25rem 0.55rem;" onclick="window.selectGoogleAccount('Krish Chaddha', '2501640100471', 'krish.chaddha@student.edu', 'krish_chaddha')">Krish</button>
-        </div>
       </div>
     </div>
   </div>

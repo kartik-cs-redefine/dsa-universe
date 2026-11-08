@@ -27,44 +27,39 @@
     }
 
     buildRacerState(registry, activeUser) {
-      if (!Array.isArray(registry) || registry.length === 0) {
-        // Fallback default racers per user rule
-        registry = [
-          {
-            name: activeUser ? activeUser.name : "Kartik Kumar",
-            roll: activeUser ? activeUser.roll : "2501640100454",
-            track: "cpp",
-            leetcodeUser: activeUser ? activeUser.leetcodeUser : "kartikkumar",
-            lcSolved: 184,
-            mythSolved: 8,
-            score: 1350
-          },
-          {
-            name: "Tanmay Awasthi",
-            roll: "2501640100945",
-            track: "cpp",
-            leetcodeUser: "tanmay_awasthi",
-            lcSolved: 156,
-            mythSolved: 6,
-            score: 1140
-          },
-          {
-            name: "Krish Chaddha",
-            roll: "2501640100471",
-            track: "java",
-            leetcodeUser: "krish_chaddha",
-            lcSolved: 132,
-            mythSolved: 5,
-            score: 980
-          }
-        ];
+      let racersList = Array.isArray(registry) ? registry.filter(u => u && u.roll) : [];
+
+      // Ensure active logged-in student is included
+      if (activeUser && activeUser.roll && !racersList.some(u => u.roll === activeUser.roll)) {
+        racersList.push({
+          name: activeUser.name,
+          roll: activeUser.roll,
+          track: activeUser.langTrack || "cpp",
+          leetcodeUser: activeUser.leetcodeUser || "",
+          lcSolved: activeUser.lcSolved || 0,
+          mythSolved: activeUser.mythSolved || 0,
+          score: activeUser.score || 0
+        });
       }
 
-      // Collect solved counts (prioritize composite or total solved)
-      const solvedList = registry.map(u => (u.lcSolved || 0) + (u.mythSolved || u.acceptedSubmissions || 0));
+      // If still empty (no registered user yet), show active user placeholder
+      if (racersList.length === 0 && activeUser) {
+        racersList = [{
+          name: activeUser.name,
+          roll: activeUser.roll,
+          track: activeUser.langTrack || "cpp",
+          leetcodeUser: activeUser.leetcodeUser || "",
+          lcSolved: 0,
+          mythSolved: 0,
+          score: 0
+        }];
+      }
+
+      // Collect real solved counts (composite verified solved questions)
+      const solvedList = racersList.map(u => (u.lcSolved || 0) + (u.mythSolved || u.acceptedSubmissions || 0));
       const targetMilestone = this.calculateMilestone(solvedList);
 
-      const racers = registry.map((user, idx) => {
+      const racers = racersList.map((user, idx) => {
         const solved = (user.lcSolved || 0) + (user.mythSolved || user.acceptedSubmissions || 0);
         const progressPct = Math.min(95, Math.max(4, Math.round((solved / targetMilestone) * 1000) / 10));
         const mascot = window.MascotEngine ? window.MascotEngine.getEquipped(user.roll) : { charId: "buster-blitz", colorHex: "#00f0ff" };
@@ -74,14 +69,14 @@
           name: user.name,
           roll: user.roll,
           track: user.track || "cpp",
-          leetcodeUser: user.leetcodeUser || "kartikkumar",
+          leetcodeUser: user.leetcodeUser || "",
           solved,
           lcSolved: user.lcSolved || 0,
           mythSolved: user.mythSolved || user.acceptedSubmissions || 0,
           score: user.score || 0,
           progressPct,
-          charId: mascot.charId,
-          colorHex: mascot.colorHex,
+          charId: mascot.charId || "buster-blitz",
+          colorHex: mascot.colorHex || "#00f0ff",
           laneIndex: idx + 1,
           isUser: activeUser && user.roll === activeUser.roll
         };
