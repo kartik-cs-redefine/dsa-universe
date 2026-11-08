@@ -1,5 +1,5 @@
 // Tactical Linked List Visualizer Engine
-class VisualizerNode {
+export class VisualizerNode {
   constructor(val, addr = null) {
     this.id = Math.random().toString(36).substring(2, 9);
     this.val = val;
@@ -8,7 +8,7 @@ class VisualizerNode {
   }
 }
 
-class LinkedListVisualizer {
+export class LinkedListVisualizer {
   constructor() {
     this.head = null;
     this.isAnimating = false;
@@ -242,4 +242,7 @@ class LinkedListVisualizer {
   }
 }
 
-window.visualizerInstance = new LinkedListVisualizer();
+export const visualizerInstance = new LinkedListVisualizer();
+if (typeof window !== "undefined") {
+  window.visualizerInstance = visualizerInstance;
+}

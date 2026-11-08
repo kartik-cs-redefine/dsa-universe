@@ -7,10 +7,7 @@
  * target milestone with animated runner mascots, dust particles, and live HUD.
  */
 
-(function(window) {
-  "use strict";
-
-  class RaceArenaEngine {
+export class RaceArenaEngine {
     constructor() {
       this.currentWeather = "obsidian"; // 'dawn' | 'obsidian' | 'golden'
       this.currentPace = "sprint"; // 'cruise' | 'sprint' | 'turbo'
@@ -290,5 +287,7 @@
     }
   }
 
-  window.RaceArenaInstance = new RaceArenaEngine();
-})(window);
+export const raceArenaInstance = new RaceArenaEngine();
+if (typeof window !== "undefined") {
+  window.RaceArenaInstance = raceArenaInstance;
+}

@@ -2,35 +2,32 @@
  * ============================================================================
  * MYTH Complete DSA Guide — Cloud Backend Configuration (Firebase)
  * ============================================================================
- * Is file me aapko apna Firebase Project config paste karna hai.
- * 
- * Kaise lena hai (2 Minute Setup):
- * 1. Go to: https://console.firebase.google.com/
- * 2. Click "Add Project" -> Project ka name do: "myth-dsa-guide" -> Continue
- * 3. Project banne ke baad, "Web" icon (</>) par click karo -> App Register karo.
- * 4. Jo "firebaseConfig" object milega, uske values yaha paste kar do:
+ * Provides Firebase configuration via environment variables or manual fallback.
  */
 
-window.FIREBASE_CONFIG = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+export const FIREBASE_CONFIG = {
+  apiKey: import.meta.env?.VITE_FIREBASE_API_KEY || "",
+  authDomain: import.meta.env?.VITE_FIREBASE_AUTH_DOMAIN || "",
+  projectId: import.meta.env?.VITE_FIREBASE_PROJECT_ID || "",
+  storageBucket: import.meta.env?.VITE_FIREBASE_STORAGE_BUCKET || "",
+  messagingSenderId: import.meta.env?.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
+  appId: import.meta.env?.VITE_FIREBASE_APP_ID || ""
 };
 
 // Check if user has saved custom config in browser or if valid config exists
-(function() {
+try {
   const saved = localStorage.getItem("myth_firebase_custom_config");
   if (saved) {
-    try {
-      const parsed = JSON.parse(saved);
-      if (parsed.projectId && parsed.apiKey) {
-        window.FIREBASE_CONFIG = parsed;
-      }
-    } catch (e) {
-      console.warn("Invalid saved custom Firebase config:", e);
+    const parsed = JSON.parse(saved);
+    if (parsed.projectId && parsed.apiKey) {
+      Object.assign(FIREBASE_CONFIG, parsed);
     }
   }
-})();
+} catch (e) {
+  console.warn("Invalid saved custom Firebase config:", e);
+}
+
+// Preserve window global for backwards compatibility during migration
+if (typeof window !== "undefined") {
+  window.FIREBASE_CONFIG = FIREBASE_CONFIG;
+}

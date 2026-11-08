@@ -1,4 +1,4 @@
-window.COURSE_DATA = [
+export const COURSE_DATA = [
   {
     "id": "topic-1",
     "number": "01",
@@ -2622,3 +2622,8 @@ window.COURSE_DATA = [
     "problems": []
   }
 ];
+
+if (typeof window !== "undefined") {
+  window.COURSE_DATA = COURSE_DATA;
+}
+

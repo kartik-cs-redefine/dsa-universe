@@ -4,6 +4,13 @@
 // Performance Analytics • Realtime Multi-User Leaderboard • Master DSA Roadmap
 // ==============================================================================
 
+import { FIREBASE_CONFIG } from "./firebase-config.js";
+import { CloudDB } from "./cloud-db.js";
+import { COURSE_DATA } from "./content.js";
+import { visualizerInstance, LinkedListVisualizer } from "./visualizer.js";
+import { mascotEngineInstance, MascotEngine, MASCOT_PALETTES, MASCOT_CHARACTERS } from "./mascot-system.js";
+import { raceArenaInstance, RaceArenaEngine } from "./race-arena.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   // Storage Keys
   const KEY_AUTH = "myth_auth_session_v4";

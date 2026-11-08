@@ -6,10 +6,7 @@
  * on the Leaderboard podium, in the student profile, and running in the Race Arena.
  */
 
-(function(window) {
-  "use strict";
-
-  const MASCOT_CHARACTERS = [
+export const MASCOT_CHARACTERS = [
     {
       id: "buster-blitz",
       name: "Buster Blitz",
@@ -56,7 +53,7 @@
     }
   ];
 
-  const MASCOT_PALETTES = [
+export const MASCOT_PALETTES = [
     { name: "Radiant Cyan", hex: "#00f0ff", glow: "rgba(0, 240, 255, 0.4)" },
     { name: "Divine Amber", hex: "#ffc700", glow: "rgba(255, 199, 0, 0.4)" },
     { name: "Emerald Lime", hex: "#10b981", glow: "rgba(16, 185, 129, 0.4)" },
@@ -65,7 +62,7 @@
     { name: "Rose Crimson", hex: "#f43f5e", glow: "rgba(244, 63, 94, 0.4)" }
   ];
 
-  class MascotEngine {
+export class MascotEngine {
     constructor() {
       this.characters = MASCOT_CHARACTERS;
       this.palettes = MASCOT_PALETTES;
@@ -198,5 +195,7 @@
     }
   }
 
-  window.MascotEngine = new MascotEngine();
-})(window);
+  export const mascotEngineInstance = new MascotEngine();
+if (typeof window !== "undefined") {
+  window.MascotEngine = mascotEngineInstance;
+}
