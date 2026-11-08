@@ -3020,6 +3020,25 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 
+  // Modal and Auth Explicit Event Listeners
+  document.getElementById("googleAuthBtn")?.addEventListener("click", () => window.handleGoogleAuth());
+  document.getElementById("authLoginForm")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    window.handleAuthLogin();
+  });
+  document.getElementById("googleDirectAuthForm")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    window.submitDirectGoogleAuth();
+  });
+  document.getElementById("profileMascotCustomizeBtn")?.addEventListener("click", () => window.openMascotStudioModal());
+  document.getElementById("profileLeetCodeSyncBtn")?.addEventListener("click", () => window.updateAndSyncLeetCode());
+  document.getElementById("comingSoonSwitchModuleBtn")?.addEventListener("click", () => window.switchDsaModule("linked_list"));
+  document.getElementById("deployModalGotItBtn")?.addEventListener("click", () => document.getElementById("deployModal")?.classList.remove("active"));
+  document.getElementById("testCloudConnectionBtn")?.addEventListener("click", () => window.testCloudConnection());
+  document.getElementById("saveCustomCloudConfigBtn")?.addEventListener("click", () => window.saveCustomCloudConfig());
+  document.getElementById("clearCustomCloudConfigBtn")?.addEventListener("click", () => window.clearCustomCloudConfig());
+  document.getElementById("closeCloudSetupModalBtn")?.addEventListener("click", () => document.getElementById("cloudSetupModal")?.classList.remove("active"));
+
   // Check auth and initialize the app
   checkAuthAndInitialize();
   }

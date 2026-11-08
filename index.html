@@ -164,7 +164,7 @@
       </p>
 
       <!-- Google Sign In Option -->
-      <button type="button" class="google-auth-btn" id="googleAuthBtn" onclick="window.handleGoogleAuth();">
+      <button type="button" class="google-auth-btn" id="googleAuthBtn">
         <svg viewBox="0 0 24 24" width="20" height="20">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
           <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -178,7 +178,7 @@
         <span>OR STUDENT ID</span>
       </div>
 
-      <form id="authLoginForm" class="auth-form-grid" onsubmit="event.preventDefault(); window.handleAuthLogin();">
+      <form id="authLoginForm" class="auth-form-grid">
         <div class="auth-input-group">
           <label>Student Full Name *</label>
           <input 
@@ -263,7 +263,7 @@
         Authenticate with your verified Google account to synchronize your DSA progress across devices.
       </p>
 
-      <form id="googleDirectAuthForm" onsubmit="event.preventDefault(); window.submitDirectGoogleAuth();">
+      <form id="googleDirectAuthForm">
         <div class="auth-input-group" style="margin-bottom:0.75rem;">
           <label>Google Account Name *</label>
           <input type="text" id="googleInputName" class="auth-input-field" placeholder="e.g. Kartik Kumar" required>
@@ -339,7 +339,7 @@
             <div id="modalMascotTitle" style="font-weight:900; font-size:0.88rem; color:var(--text-main);">Buster Blitz</div>
           </div>
         </div>
-        <button class="tactile-btn btn-yellow" onclick="window.openMascotStudioModal()" style="font-size:0.75rem; padding:0.38rem 0.75rem;">
+        <button class="tactile-btn btn-yellow" id="profileMascotCustomizeBtn" style="font-size:0.75rem; padding:0.38rem 0.75rem;">
           Customize 🎭
         </button>
       </div>
@@ -358,7 +358,7 @@
             style="margin-bottom:0; padding:0.45rem 0.75rem; font-size:0.85rem;" 
             placeholder="Username or LeetCode URL"
           >
-          <button class="tactile-btn btn-yellow" onclick="window.updateAndSyncLeetCode()" style="padding:0.45rem 0.85rem; font-size:0.78rem; white-space:nowrap;">
+          <button class="tactile-btn btn-yellow" id="profileLeetCodeSyncBtn" style="padding:0.45rem 0.85rem; font-size:0.78rem; white-space:nowrap;">
             Sync ⚡
           </button>
         </div>
@@ -420,7 +420,7 @@
         <button class="tactile-btn" id="closeComingSoonBtn" style="flex:1; justify-content:center; padding:0.75rem;">
           Close Preview
         </button>
-        <button class="tactile-btn btn-yellow" onclick="window.switchDsaModule('linked_list')" style="flex:1; justify-content:center; padding:0.75rem;">
+        <button class="tactile-btn btn-yellow" id="comingSoonSwitchModuleBtn" style="flex:1; justify-content:center; padding:0.75rem;">
           Go to Active Module (Linked Lists) ⚡
         </button>
       </div>
@@ -464,7 +464,7 @@ npx vercel<br>
 3. Click "Deploy" (Zero configuration needed, vercel.json already present!)
       </div>
 
-      <button class="tactile-btn btn-lime" onclick="document.getElementById('deployModal').classList.remove('active')" style="width:100%; justify-content:center; padding:0.75rem;">
+      <button class="tactile-btn btn-lime" id="deployModalGotItBtn" style="width:100%; justify-content:center; padding:0.75rem;">
         Got it! Close Guide
       </button>
     </div>
@@ -491,7 +491,7 @@ npx vercel<br>
             <div id="cloudModalStatusSub" style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">Paste your Firebase project credentials below to activate multi-device cloud persistence.</div>
           </div>
         </div>
-        <button class="tactile-btn btn-yellow" id="testCloudConnectionBtn" onclick="window.testCloudConnection()" style="font-size:0.75rem; padding:0.4rem 0.75rem;">
+        <button class="tactile-btn btn-yellow" id="testCloudConnectionBtn" style="font-size:0.75rem; padding:0.4rem 0.75rem;">
           Test Ping ⚡
         </button>
       </div>
@@ -516,10 +516,10 @@ npx vercel<br>
         ></textarea>
         
         <div style="display:flex; gap:0.6rem;">
-          <button class="tactile-btn btn-lime" onclick="window.saveCustomCloudConfig()" style="flex:1; justify-content:center; padding:0.6rem; font-size:0.85rem;">
+          <button class="tactile-btn btn-lime" id="saveCustomCloudConfigBtn" style="flex:1; justify-content:center; padding:0.6rem; font-size:0.85rem;">
             💾 Save Config & Activate Cloud
           </button>
-          <button class="tactile-btn" onclick="window.clearCustomCloudConfig()" style="padding:0.6rem 0.9rem; font-size:0.85rem;">
+          <button class="tactile-btn" id="clearCustomCloudConfigBtn" style="padding:0.6rem 0.9rem; font-size:0.85rem;">
             Reset
           </button>
         </div>
@@ -551,7 +551,7 @@ npx vercel<br>
         </div>
       </div>
 
-      <button class="tactile-btn" onclick="document.getElementById('cloudSetupModal').classList.remove('active')" style="width:100%; justify-content:center; padding:0.75rem;">
+      <button class="tactile-btn" id="closeCloudSetupModalBtn" style="width:100%; justify-content:center; padding:0.75rem;">
         Close Cloud Hub
       </button>
     </div>

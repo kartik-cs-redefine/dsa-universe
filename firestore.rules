@@ -2,24 +2,19 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // --- Helper Functions ---
+    // --- Authentication & Identity Verification ---
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Direct User ID / Roll ownership verification
-    // Supports:
-    // 1. Documents storing `uid: request.auth.uid`
-    // 2. Direct UID-based document IDs
-    // 3. Custom token claims containing `roll`
-    function isDocOwner(docData) {
-      return isAuthenticated() && (
-        (docData.keys().hasAll(['uid']) && docData.uid == request.auth.uid) ||
-        (request.auth.token.keys().hasAll(['roll']) && docData.keys().hasAll(['roll']) && docData.roll == request.auth.token.roll)
-      );
+    // Roll Claim Ownership: Verifies that the caller owns the claim in myth_rolls
+    function ownsRollClaim(roll) {
+      return isAuthenticated()
+        && exists(/databases/$(database)/documents/myth_rolls/$(roll))
+        && get(/databases/$(database)/documents/myth_rolls/$(roll)).data.uid == request.auth.uid;
     }
 
-    // Validate myth_users document payload
+    // --- Payload Validation Helpers ---
     function isValidUserPayload(data, roll) {
       return data.keys().hasAll(['name', 'roll', 'uid', 'updatedAt'])
         && data.name is string && data.name.size() > 0 && data.name.size() <= 80
@@ -33,95 +28,108 @@ service cloud.firestore {
         && (!data.keys().hasAll(['langTrack']) || data.langTrack in ['cpp', 'java'])
         && (!data.keys().hasAll(['codeMode']) || data.codeMode in ['cpp', 'java'])
         && (!data.keys().hasAll(['avatar']) || (data.avatar is string && data.avatar.size() <= 10))
-        && (!data.keys().hasAll(['authProvider']) || data.authProvider in ['google', 'credentials', 'anonymous']);
+        && (!data.keys().hasAll(['authProvider']) || data.authProvider in ['google', 'credentials']);
     }
 
-    // Validate myth_progress document payload
-    function isValidProgressPayload(data, roll) {
-      return data.keys().hasAll(['updatedAt'])
-        && (!data.keys().hasAll(['uid']) || data.uid == request.auth.uid)
-        && (!data.keys().hasAll(['roll']) || data.roll == roll)
+    function isValidProgressPayload(data) {
+      return data.keys().hasAll(['uid', 'updatedAt'])
+        && data.uid == request.auth.uid
         && (!data.keys().hasAll(['completedTopics']) || data.completedTopics is list)
         && (!data.keys().hasAll(['solvedProblems']) || data.solvedProblems is list)
         && (!data.keys().hasAll(['bookmarkedProblems']) || data.bookmarkedProblems is list);
     }
 
-    // Validate myth_leaderboard document payload
     function isValidLeaderboardPayload(data, roll) {
-      return data.keys().hasAll(['roll', 'name', 'lcSolved', 'platformSolved', 'compositePoints', 'updatedAt'])
+      return data.keys().hasAll(['roll', 'name', 'uid', 'lcSolved', 'platformSolved', 'compositePoints', 'updatedAt'])
         && data.roll is string && data.roll == roll
-        && (!data.keys().hasAll(['uid']) || data.uid == request.auth.uid)
+        && data.uid is string && data.uid == request.auth.uid
         && data.name is string && data.name.size() > 0 && data.name.size() <= 80
         && data.lcSolved is number && data.lcSolved >= 0 && data.lcSolved <= 5000
         && data.platformSolved is number && data.platformSolved >= 0 && data.platformSolved <= 500
         && data.compositePoints is number && data.compositePoints >= 0
-        && (!data.keys().hasAll(['lcRanking']) || data.lcRanking is number);
+        && (!data.keys().hasAll(['lcRanking']) || data.lcRanking is number)
+        && (!data.keys().hasAll(['email'])); // PII Protection: email strictly forbidden in leaderboard
     }
 
-    // Validate docKey ownership for scratchpads & notes (format: {roll}_{probId}_{codeMode} or {roll}_{probId})
-    function isDocKeyOwner(docData, docKey) {
-      return isAuthenticated() && (
-        (docData != null && docData.keys().hasAll(['uid']) && docData.uid == request.auth.uid) ||
-        docKey.matches('^' + request.auth.uid + '_.*') ||
-        (request.auth.token.keys().hasAll(['roll']) && docKey.matches('^' + request.auth.token.roll + '_.*'))
-      );
+    function isValidScratchpadPayload(data) {
+      return data.keys().hasAll(['roll', 'probId', 'codeMode', 'code', 'uid', 'updatedAt'])
+        && data.uid == request.auth.uid
+        && data.roll is string
+        && data.code is string && data.code.size() <= 50000;
+    }
+
+    function isValidNotesPayload(data) {
+      return data.keys().hasAll(['roll', 'probId', 'notes', 'uid', 'updatedAt'])
+        && data.uid == request.auth.uid
+        && data.roll is string
+        && data.notes is string && data.notes.size() <= 20000;
     }
 
     // --- Collections ---
 
-    // 1. User Profiles
-    match /myth_users/{roll} {
-      // Authenticated users can view student profiles
+    // 0. Roll Claims (Anti-Squatting Registry)
+    // Only created once per roll by the authenticated Google UID who claims it.
+    match /myth_rolls/{roll} {
       allow read: if isAuthenticated();
-      // On create: must be authenticated and bind own uid
-      allow create: if isAuthenticated() && isValidUserPayload(request.resource.data, roll);
-      // On update: must match existing record uid and keep it unchanged
-      allow update: if isAuthenticated() 
-        && resource.data.uid == request.auth.uid 
-        && isValidUserPayload(request.resource.data, roll);
-      allow delete: if false; // Deletions strictly prohibited from client
-    }
-
-    // 2. User Learning Progress
-    match /myth_progress/{roll} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && isValidProgressPayload(request.resource.data, roll);
-      allow update: if isAuthenticated() 
-        && (resource == null || !resource.data.keys().hasAll(['uid']) || resource.data.uid == request.auth.uid)
-        && isValidProgressPayload(request.resource.data, roll);
+      allow create: if isAuthenticated()
+        && !exists(/databases/$(database)/documents/myth_rolls/$(roll))
+        && request.resource.data.keys().hasAll(['uid', 'roll', 'claimedAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.roll == roll;
+      allow update: if false; // Claims are immutable once created
       allow delete: if false;
     }
 
-    // 3. Global Leaderboard
+    // 1. User Profiles (PII Protected: readable only by verified roll owner)
+    match /myth_users/{roll} {
+      allow read: if isAuthenticated() && ownsRollClaim(roll);
+      allow create, update: if isAuthenticated()
+        && ownsRollClaim(roll)
+        && request.resource.data.uid == request.auth.uid
+        && isValidUserPayload(request.resource.data, roll);
+      allow delete: if false;
+    }
+
+    // 2. User Learning Progress (Private to student)
+    match /myth_progress/{roll} {
+      allow read: if isAuthenticated() && ownsRollClaim(roll);
+      allow create, update: if isAuthenticated()
+        && ownsRollClaim(roll)
+        && request.resource.data.uid == request.auth.uid
+        && isValidProgressPayload(request.resource.data);
+      allow delete: if false;
+    }
+
+    // 3. Global Leaderboard (Public to authenticated cohort, zero PII)
     match /myth_leaderboard/{roll} {
-      // Leaderboard is readable by all participants
-      allow read: if true;
-      // Write: user can create/update only their own record with their uid and valid bounds
-      allow create: if isAuthenticated() && isValidLeaderboardPayload(request.resource.data, roll);
-      allow update: if isAuthenticated() 
-        && (resource == null || !resource.data.keys().hasAll(['uid']) || resource.data.uid == request.auth.uid)
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated()
+        && ownsRollClaim(roll)
+        && request.resource.data.uid == request.auth.uid
         && isValidLeaderboardPayload(request.resource.data, roll);
       allow delete: if false;
     }
 
     // 4. Student Scratchpads (Code Editor) - Private to student
     match /myth_scratchpads/{docKey} {
-      allow read: if isAuthenticated() && isDocKeyOwner(resource.data, docKey);
-      allow create, update: if isAuthenticated() && isDocKeyOwner(request.resource.data, docKey)
-        && request.resource.data.keys().hasAll(['code', 'updatedAt'])
-        && request.resource.data.code is string
-        && request.resource.data.code.size() <= 50000;
-      allow delete: if isAuthenticated() && isDocKeyOwner(resource.data, docKey);
+      allow read, delete: if isAuthenticated()
+        && resource.data.uid == request.auth.uid
+        && ownsRollClaim(resource.data.roll);
+      allow create, update: if isAuthenticated()
+        && request.resource.data.uid == request.auth.uid
+        && ownsRollClaim(request.resource.data.roll)
+        && isValidScratchpadPayload(request.resource.data);
     }
 
     // 5. Student Problem Notes - Private to student
     match /myth_notes/{docKey} {
-      allow read: if isAuthenticated() && isDocKeyOwner(resource.data, docKey);
-      allow create, update: if isAuthenticated() && isDocKeyOwner(request.resource.data, docKey)
-        && request.resource.data.keys().hasAll(['notes', 'updatedAt'])
-        && request.resource.data.notes is string
-        && request.resource.data.notes.size() <= 20000;
-      allow delete: if isAuthenticated() && isDocKeyOwner(resource.data, docKey);
+      allow read, delete: if isAuthenticated()
+        && resource.data.uid == request.auth.uid
+        && ownsRollClaim(resource.data.roll);
+      allow create, update: if isAuthenticated()
+        && request.resource.data.uid == request.auth.uid
+        && ownsRollClaim(request.resource.data.roll)
+        && isValidNotesPayload(request.resource.data);
     }
 
     // Default deny for all other unmatched collections
