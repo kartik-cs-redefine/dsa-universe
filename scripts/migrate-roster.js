@@ -1,13 +1,13 @@
 /**
  * ============================================================================
- * MYTH DSA Platform — Roster & Roll Claims Migration Script (Firebase Admin SDK)
+ * MYTH DSA Platform — Roster Claim Migration Script (Firebase Admin SDK)
  * ============================================================================
  * Reads verified student roster (roster.csv: roll, email, name) and provisions:
- * 1. `myth_rolls/{roll}`: { roll, email, name, provisionedAt }
- * 2. `myth_roster/{email}`: { roll, email, name, provisionedAt }
+ * `myth_roster/{email}`: { roll, email, name, provisionedAt }
  * 
  * INVARIANTS:
  * - DRY_RUN=true by default. Zero database writes occur unless explicitly specified.
+ * - Emails are strictly lowercased and trimmed.
  * - Enforces 13-digit numeric roll format: ^[0-9]{13}$
  * - Zero service account credentials committed to git.
  */
@@ -52,9 +52,9 @@ const parseCSV = (content) => {
   for (let i = 1; i < lines.length; i++) {
     const parts = lines[i].split(',').map(p => p.trim());
     if (parts.length >= 2 && parts[rollIdx] && parts[emailIdx]) {
-      const roll = parts[rollIdx];
-      const email = parts[emailIdx].toLowerCase();
-      const name = nameIdx !== -1 && parts[nameIdx] ? parts[nameIdx] : '';
+      const roll = parts[rollIdx].trim();
+      const email = parts[emailIdx].toLowerCase().trim();
+      const name = nameIdx !== -1 && parts[nameIdx] ? parts[nameIdx].trim() : '';
 
       if (!rollRegex.test(roll)) {
         throw new Error(`Row ${i + 1}: Invalid roll number format '${roll}'. Must be exactly 13 digits.`);
@@ -71,15 +71,14 @@ const roster = parseCSV(rawContent);
 
 console.log(`✓ Parsed and validated ${roster.length} student entries from ${path.basename(ROSTER_PATH)}:`);
 roster.forEach((r, idx) => {
-  console.log(`  [${idx + 1}] Roll: ${r.roll} | Email: ${r.email.padEnd(32)} | Name: ${r.name}`);
+  console.log(`  [${idx + 1}] Roll: ${r.roll} | Email: ${r.email.padEnd(36)} | Name: ${r.name}`);
 });
 console.log('');
 
 if (DRY_RUN) {
-  console.log('🔍 [DRY-RUN] The following documents would be created in Firestore:');
+  console.log('🔍 [DRY-RUN] The following documents would be created in collection "myth_roster":');
   roster.forEach(r => {
-    console.log(`  -> doc('myth_rolls/${r.roll}'):  { roll: "${r.roll}", email: "${r.email}", name: "${r.name}" }`);
-    console.log(`  -> doc('myth_roster/${r.email}'): { roll: "${r.roll}", email: "${r.email}", name: "${r.name}" }`);
+    console.log(`  -> doc('myth_roster/${r.email}'): { roll: "${r.roll}", email: "${r.email}", name: "${r.name}", provisionedAt: "${new Date().toISOString()}" }`);
   });
   console.log('\n✅ Dry run completed successfully. Zero changes were written to Firestore.');
   console.log('To perform real database migration, set DRY_RUN="false" and provide FIREBASE_SERVICE_ACCOUNT_PATH.');
@@ -108,14 +107,6 @@ async function runLiveMigration() {
   let count = 0;
 
   for (const student of roster) {
-    const rollRef = db.collection('myth_rolls').doc(student.roll);
-    batch.set(rollRef, {
-      roll: student.roll,
-      email: student.email,
-      name: student.name,
-      provisionedAt: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-
     const rosterRef = db.collection('myth_roster').doc(student.email);
     batch.set(rosterRef, {
       roll: student.roll,
@@ -124,11 +115,11 @@ async function runLiveMigration() {
       provisionedAt: admin.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
 
-    count += 2;
+    count++;
   }
 
   await batch.commit();
-  console.log(`🚀 Successfully provisioned ${count} documents (${roster.length} students) into myth_rolls and myth_roster.`);
+  console.log(`🚀 Successfully provisioned ${count} student records into myth_roster.`);
 }
 
 runLiveMigration().catch(err => {

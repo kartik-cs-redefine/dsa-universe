@@ -1,6 +1,6 @@
 {
   "projects": {
-    "default": "myth-dsa-prod",
-    "staging": "myth-dsa-staging"
+    "default": "your-prod-project-id",
+    "staging": "your-staging-project-id"
   }
 }

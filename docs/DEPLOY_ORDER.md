@@ -2,6 +2,18 @@
 
 This runbook specifies the strict deployment sequence, migration steps, and rollback procedures for the MYTH DSA platform hardening release.
 
+### Environment Variable Configuration (Staging vs Production)
+To point the client at a staging or production Firebase instance, create a `.env.local` or `.env.staging` file (kept out of git):
+```env
+VITE_FIREBASE_API_KEY=AIzaSy...
+VITE_FIREBASE_AUTH_DOMAIN=your-staging-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=YOUR_STAGING_PROJECT_ID
+VITE_FIREBASE_STORAGE_BUCKET=your-staging-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=1234567890
+VITE_FIREBASE_APP_ID=1:1234567890:web:abcdef
+```
+Vite automatically hydrates `import.meta.env.VITE_FIREBASE_*` during build time (`npm run build -- --mode staging`).
+
 ---
 
 ## 1. Strict Deployment Sequence
@@ -43,6 +55,19 @@ flowchart TD
    ```bash
    firebase use default
    firebase deploy --only firestore:rules
+   ```
+
+### Phase 2.5: Legacy Leaderboard Cleanup
+*Run this after rules are deployed and before publishing the client, to ensure legacy roll-keyed records are purged:*
+1. Run dry-run cleanup:
+   ```bash
+   node scripts/cleanup-legacy-leaderboard.js
+   ```
+2. Execute live purge:
+   ```bash
+   $env:DRY_RUN="false"
+   $env:FIREBASE_SERVICE_ACCOUNT_PATH="./service-account.json"
+   node scripts/cleanup-legacy-leaderboard.js
    ```
 
 ### Phase 3: Client Deployment

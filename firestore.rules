@@ -21,9 +21,12 @@ service cloud.firestore {
 
     // Roll Claim Ownership: 13-digit university roll strictly linked to caller's roster entry
     function ownsRollClaim(roll) {
-      return isVerifiedCohortEmail()
+      return roll is string
         && roll.matches('^[0-9]{13}$')
-        && getRosterRecord(request.auth.token.email).roll == roll;
+        && isVerifiedCohortEmail()
+        && (exists(/databases/$(database)/documents/myth_roster/$(request.auth.token.email))
+            ? getRosterRecord(request.auth.token.email).roll == roll
+            : false);
     }
 
     // --- Payload Validation Helpers ---
@@ -33,6 +36,7 @@ service cloud.firestore {
 
     function isValidUserPayload(data, roll) {
       return data.keys().hasAll(['name', 'roll', 'uid', 'updatedAt'])
+        && data.keys().hasOnly(['name', 'roll', 'uid', 'email', 'authProvider', 'langTrack', 'codeMode', 'targetGoal', 'leetcode', 'leetcodeUser', 'theme', 'lang', 'avatar', 'updatedAt'])
         && data.name is string && data.name.size() > 0 && data.name.size() <= 80
         && data.roll is string && data.roll == roll && data.roll.matches('^[0-9]{13}$')
         && data.uid is string && data.uid == request.auth.uid
@@ -51,6 +55,7 @@ service cloud.firestore {
 
     function isValidProgressPayload(data) {
       return data.keys().hasAll(['uid', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'completedTopics', 'solvedProblems', 'bookmarkedProblems', 'updatedAt'])
         && data.uid == request.auth.uid
         && isValidTimestamp(data.updatedAt)
         && (!data.keys().hasAll(['completedTopics']) || (data.completedTopics is list && data.completedTopics.size() <= 100))
@@ -60,6 +65,7 @@ service cloud.firestore {
 
     function isValidLeaderboardPayload(data, uid) {
       return data.keys().hasAll(['name', 'uid', 'lcSolved', 'platformSolved', 'compositePoints', 'updatedAt'])
+        && data.keys().hasOnly(['name', 'uid', 'lcSolved', 'lcEasy', 'lcMedium', 'lcHard', 'lcRanking', 'platformSolved', 'compositePoints', 'badge', 'updatedAt'])
         && data.uid is string && data.uid == request.auth.uid && uid == request.auth.uid
         && data.name is string && data.name.size() > 0 && data.name.size() <= 80
         && data.lcSolved is number && data.lcSolved >= 0 && data.lcSolved <= 5000
@@ -70,12 +76,12 @@ service cloud.firestore {
         && (!data.keys().hasAll(['lcMedium']) || (data.lcMedium is number && data.lcMedium >= 0))
         && (!data.keys().hasAll(['lcHard']) || (data.lcHard is number && data.lcHard >= 0))
         && (!data.keys().hasAll(['lcRanking']) || data.lcRanking is number)
-        && (!data.keys().hasAll(['badge']) || (data.badge is string && data.badge.size() <= 30))
-        && (!data.keys().hasAny(['roll', 'email'])); // Strict privacy: NO roll or email in leaderboard
+        && (!data.keys().hasAll(['badge']) || (data.badge is string && data.badge.size() <= 30));
     }
 
     function isValidScratchpadPayload(data) {
       return data.keys().hasAll(['roll', 'probId', 'codeMode', 'code', 'uid', 'updatedAt'])
+        && data.keys().hasOnly(['roll', 'probId', 'codeMode', 'code', 'uid', 'updatedAt'])
         && data.uid == request.auth.uid
         && data.roll is string && data.roll.matches('^[0-9]{13}$')
         && data.probId is string && data.probId.size() > 0 && data.probId.size() <= 60
@@ -86,6 +92,7 @@ service cloud.firestore {
 
     function isValidNotesPayload(data) {
       return data.keys().hasAll(['roll', 'probId', 'notes', 'uid', 'updatedAt'])
+        && data.keys().hasOnly(['roll', 'probId', 'notes', 'uid', 'updatedAt'])
         && data.uid == request.auth.uid
         && data.roll is string && data.roll.matches('^[0-9]{13}$')
         && data.probId is string && data.probId.size() > 0 && data.probId.size() <= 60
@@ -95,13 +102,7 @@ service cloud.firestore {
 
     // --- Collections ---
 
-    // 0a. Roll Claims (Provisioned strictly via Admin SDK)
-    match /myth_rolls/{roll} {
-      allow read: if ownsRollClaim(roll);
-      allow write: if false; // Client writes strictly prohibited
-    }
-
-    // 0b. Roster Email Registry (Provisioned strictly via Admin SDK)
+    // 0. Roster Email Registry (Provisioned strictly via Admin SDK)
     match /myth_roster/{email} {
       allow read: if isAuthenticated()
         && request.auth.token.email_verified == true
@@ -133,43 +134,30 @@ service cloud.firestore {
       allow create, update: if isVerifiedCohortEmail()
         && request.auth.uid == uid
         && isValidLeaderboardPayload(request.resource.data, uid)
-        && request.resource.data.name == getRosterRecord(request.auth.token.email).name;
+        && (exists(/databases/$(database)/documents/myth_roster/$(request.auth.token.email))
+            ? getRosterRecord(request.auth.token.email).name == request.resource.data.name
+            : false);
       allow delete: if false;
     }
 
-    // 4. Student Scratchpads (Code Editor) - Private to student; read does not rely on resource.data
+    // 4. Student Scratchpads (Code Editor) - Private to student; no resource.data dependency on update
     match /myth_scratchpads/{docKey} {
       allow read, delete: if ownsRollClaim(docKey.split('_')[0]);
 
-      allow create: if ownsRollClaim(request.resource.data.roll)
+      allow create, update: if request.resource.data.keys().hasAll(['roll', 'probId', 'codeMode', 'code', 'uid', 'updatedAt'])
+        && ownsRollClaim(request.resource.data.roll)
         && docKey == request.resource.data.roll + '_' + request.resource.data.probId + '_' + request.resource.data.codeMode
-        && request.resource.data.uid == request.auth.uid
-        && isValidScratchpadPayload(request.resource.data);
-
-      allow update: if ownsRollClaim(request.resource.data.roll)
-        && docKey == request.resource.data.roll + '_' + request.resource.data.probId + '_' + request.resource.data.codeMode
-        && resource.data.uid == request.auth.uid
-        && resource.data.roll == request.resource.data.roll
-        && resource.data.probId == request.resource.data.probId
-        && resource.data.codeMode == request.resource.data.codeMode
         && request.resource.data.uid == request.auth.uid
         && isValidScratchpadPayload(request.resource.data);
     }
 
-    // 5. Student Problem Notes - Private to student; read does not rely on resource.data
+    // 5. Student Problem Notes - Private to student; no resource.data dependency on update
     match /myth_notes/{docKey} {
       allow read, delete: if ownsRollClaim(docKey.split('_')[0]);
 
-      allow create: if ownsRollClaim(request.resource.data.roll)
+      allow create, update: if request.resource.data.keys().hasAll(['roll', 'probId', 'notes', 'uid', 'updatedAt'])
+        && ownsRollClaim(request.resource.data.roll)
         && docKey == request.resource.data.roll + '_' + request.resource.data.probId
-        && request.resource.data.uid == request.auth.uid
-        && isValidNotesPayload(request.resource.data);
-
-      allow update: if ownsRollClaim(request.resource.data.roll)
-        && docKey == request.resource.data.roll + '_' + request.resource.data.probId
-        && resource.data.uid == request.auth.uid
-        && resource.data.roll == request.resource.data.roll
-        && resource.data.probId == request.resource.data.probId
         && request.resource.data.uid == request.auth.uid
         && isValidNotesPayload(request.resource.data);
     }

@@ -7,6 +7,17 @@
  * target milestone with animated runner mascots, dust particles, and live HUD.
  */
 
+function escapeHtml(str) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/[&<>"']/g, (m) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[m]);
+}
+
 export class RaceArenaEngine {
     constructor() {
       this.currentWeather = "obsidian"; // 'dawn' | 'obsidian' | 'golden'
@@ -181,7 +192,7 @@ export class RaceArenaEngine {
                       <div class="standings-racer-meta">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                           <span class="standings-racer-name">
-                            ${racer.name} ${racer.isUser ? '<span class="you-pill">YOU</span>' : ''}
+                            ${escapeHtml(racer.name)} ${racer.isUser ? '<span class="you-pill">YOU</span>' : ''}
                           </span>
                           <span class="standings-solved-number" style="color:${racer.colorHex}; font-weight:900;">
                             ${racer.solved} Q
@@ -230,7 +241,7 @@ export class RaceArenaEngine {
           <div class="track-runner-actor" style="left:${racer.progressPct}%;">
             <!-- Floating Overhead Pilot Tag -->
             <div class="runner-overhead-tag" style="border-color:${racer.colorHex};">
-              <span class="runner-name-text">${racer.name} ${racer.isUser ? '(YOU)' : ''}</span>
+              <span class="runner-name-text">${escapeHtml(racer.name)} ${racer.isUser ? '(YOU)' : ''}</span>
               <span class="runner-telemetry">${racer.solved}/${targetMilestone} (${racer.progressPct}%)</span>
             </div>
 

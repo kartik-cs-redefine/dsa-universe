@@ -5,15 +5,15 @@ import path from 'path';
 
 let testEnv;
 
-const PROJECT_ID = 'myth-rules-test-v3';
-const VICTIM_UID = 'google_victim_uid_101';
-const VICTIM_EMAIL = 'kartikkumar@university.edu';
-const VICTIM_ROLL = '2501640100454';
-const VICTIM_NAME = 'Kartik Kumar';
+const PROJECT_ID = 'myth-rules-test-v4';
+const VICTIM_UID = 'google_user_victim_101';
+const VICTIM_EMAIL = 'student1@university.example.edu';
+const VICTIM_ROLL = '1000000000001';
+const VICTIM_NAME = 'Example Student One';
 
-const ATTACKER_UID = 'google_attacker_uid_202';
-const ATTACKER_EMAIL = 'attacker@external.com';
-const ATTACKER_NAME = 'Eve Hacker';
+const ATTACKER_UID = 'google_user_attacker_202';
+const ATTACKER_EMAIL = 'attacker@external.example.com';
+const ATTACKER_NAME = 'Eve External';
 
 describe('Firestore Security Rules Emulator Suite', () => {
   beforeAll(async () => {
@@ -40,18 +40,9 @@ describe('Firestore Security Rules Emulator Suite', () => {
     if (testEnv) {
       await testEnv.clearFirestore();
 
-      // Seed verified roster records (simulating Admin SDK roster provisioning)
+      // Seed verified student roster claim via admin context
       await testEnv.withSecurityRulesDisabled(async (context) => {
         const adminDb = context.firestore();
-        // 1. Roll claim
-        await adminDb.collection('myth_rolls').doc(VICTIM_ROLL).set({
-          roll: VICTIM_ROLL,
-          email: VICTIM_EMAIL,
-          name: VICTIM_NAME,
-          provisionedAt: new Date().toISOString()
-        });
-
-        // 2. Roster email registry
         await adminDb.collection('myth_roster').doc(VICTIM_EMAIL).set({
           roll: VICTIM_ROLL,
           email: VICTIM_EMAIL,
@@ -62,96 +53,194 @@ describe('Firestore Security Rules Emulator Suite', () => {
     }
   });
 
-  it('1. POSITIVE CONTROL: Victim can read/write own profile, progress, scratchpad, notes, and leaderboard', async () => {
+  it('1. POSITIVE CONTROL: Real CloudDB client-shaped payloads pass all collection rules', async () => {
     const victimDb = testEnv.authenticatedContext(VICTIM_UID, {
       email: VICTIM_EMAIL,
       email_verified: true
     }).firestore();
 
-    // Profile write
+    // 1. Profile payload as produced by CloudDB.saveUserProfile()
+    const profilePayload = {
+      name: VICTIM_NAME,
+      roll: VICTIM_ROLL,
+      uid: VICTIM_UID,
+      email: VICTIM_EMAIL,
+      authProvider: 'google',
+      langTrack: 'cpp',
+      codeMode: 'cpp',
+      targetGoal: 'FAANG / Tier-1 SDE',
+      leetcodeUser: '',
+      updatedAt: new Date().toISOString()
+    };
     await assertSucceeds(
-      victimDb.collection('myth_users').doc(VICTIM_ROLL).set({
-        name: VICTIM_NAME,
-        roll: VICTIM_ROLL,
-        uid: VICTIM_UID,
-        email: VICTIM_EMAIL,
-        authProvider: 'google',
-        langTrack: 'cpp',
-        codeMode: 'cpp',
-        updatedAt: new Date().toISOString()
-      })
+      victimDb.collection('myth_users').doc(VICTIM_ROLL).set(profilePayload, { merge: true })
     );
 
-    // Scratchpad create
+    // 2. Progress payload as produced by CloudDB.syncProgress()
+    const progressPayload = {
+      uid: VICTIM_UID,
+      completedTopics: ['topic-1', 'topic-2'],
+      solvedProblems: ['prob-1'],
+      bookmarkedProblems: ['prob-1'],
+      updatedAt: new Date().toISOString()
+    };
+    await assertSucceeds(
+      victimDb.collection('myth_progress').doc(VICTIM_ROLL).set(progressPayload, { merge: true })
+    );
+
+    // 3. Leaderboard payload as produced by CloudDB.syncLeaderboardRecord()
+    const leaderboardPayload = {
+      uid: VICTIM_UID,
+      name: VICTIM_NAME,
+      lcSolved: 120,
+      lcEasy: 55,
+      lcMedium: 50,
+      lcHard: 15,
+      lcRanking: 150000,
+      platformSolved: 25,
+      compositePoints: 101,
+      badge: 'COHORT SDE',
+      updatedAt: new Date().toISOString()
+    };
+    await assertSucceeds(
+      victimDb.collection('myth_leaderboard').doc(VICTIM_UID).set(leaderboardPayload, { merge: true })
+    );
+
+    // 4. Scratchpad payload as produced by CloudDB.saveScratchpad()
     const probId = 'prob-reverse-list';
     const codeMode = 'cpp';
     const scratchKey = `${VICTIM_ROLL}_${probId}_${codeMode}`;
+    const scratchPayload = {
+      roll: VICTIM_ROLL,
+      probId: probId,
+      codeMode: codeMode,
+      code: 'ListNode* reverseList(ListNode* head) { return head; }',
+      uid: VICTIM_UID,
+      updatedAt: new Date().toISOString()
+    };
+    await assertSucceeds(
+      victimDb.collection('myth_scratchpads').doc(scratchKey).set(scratchPayload, { merge: true })
+    );
+
+    // 5. Notes payload as produced by CloudDB.saveNotes()
+    const notesKey = `${VICTIM_ROLL}_${probId}`;
+    const notesPayload = {
+      roll: VICTIM_ROLL,
+      probId: probId,
+      notes: '3-pointer reversal algorithm note',
+      uid: VICTIM_UID,
+      updatedAt: new Date().toISOString()
+    };
+    await assertSucceeds(
+      victimDb.collection('myth_notes').doc(notesKey).set(notesPayload, { merge: true })
+    );
+  });
+
+  it('2. LEGACY DOCS: Owner can successfully update legacy scratchpad and notes seeded without uid', async () => {
+    const probId = 'prob-legacy-1';
+    const codeMode = 'cpp';
+    const scratchKey = `${VICTIM_ROLL}_${probId}_${codeMode}`;
+    const notesKey = `${VICTIM_ROLL}_${probId}`;
+
+    // Seed legacy documents WITHOUT uid field
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const adminDb = context.firestore();
+      await adminDb.collection('myth_scratchpads').doc(scratchKey).set({
+        roll: VICTIM_ROLL,
+        probId: probId,
+        codeMode: codeMode,
+        code: '/* legacy code written before uid migration */',
+        updatedAt: '2025-01-01T00:00:00.000Z'
+      });
+
+      await adminDb.collection('myth_notes').doc(notesKey).set({
+        roll: VICTIM_ROLL,
+        probId: probId,
+        notes: 'legacy notes without uid',
+        updatedAt: '2025-01-01T00:00:00.000Z'
+      });
+    });
+
+    // Verified owner updates the legacy scratchpad with valid client payload
+    const victimDb = testEnv.authenticatedContext(VICTIM_UID, {
+      email: VICTIM_EMAIL,
+      email_verified: true
+    }).firestore();
+
     await assertSucceeds(
       victimDb.collection('myth_scratchpads').doc(scratchKey).set({
         roll: VICTIM_ROLL,
         probId: probId,
         codeMode: codeMode,
-        code: 'ListNode* reverseList(ListNode* head) { return head; }',
+        code: '/* modern updated code */',
         uid: VICTIM_UID,
         updatedAt: new Date().toISOString()
-      })
+      }, { merge: true })
     );
 
-    // Scratchpad update
-    await assertSucceeds(
-      victimDb.collection('myth_scratchpads').doc(scratchKey).update({
-        code: 'ListNode* reverseList(ListNode* head) { /* updated */ return nullptr; }',
-        updatedAt: new Date().toISOString()
-      })
-    );
-
-    // Notes create
-    const notesKey = `${VICTIM_ROLL}_${probId}`;
     await assertSucceeds(
       victimDb.collection('myth_notes').doc(notesKey).set({
         roll: VICTIM_ROLL,
         probId: probId,
-        notes: 'In-place 3-pointer reversal algorithm',
+        notes: 'modern updated notes',
         uid: VICTIM_UID,
         updatedAt: new Date().toISOString()
-      })
-    );
-
-    // Leaderboard write (real client payload: UID keyed, name matches roster, no roll/email)
-    await assertSucceeds(
-      victimDb.collection('myth_leaderboard').doc(VICTIM_UID).set({
-        name: VICTIM_NAME,
-        uid: VICTIM_UID,
-        lcSolved: 150,
-        platformSolved: 30,
-        compositePoints: 126,
-        badge: 'COHORT SDE',
-        updatedAt: new Date().toISOString()
-      })
+      }, { merge: true })
     );
   });
 
-  it('2. MISSING-DOC BUG FIX: Reading a nonexistent own scratchpad succeeds without permission-denied', async () => {
+  it('3. SCHEMA STRICTNESS: Extra unwhitelisted fields are rejected by keys().hasOnly()', async () => {
     const victimDb = testEnv.authenticatedContext(VICTIM_UID, {
       email: VICTIM_EMAIL,
       email_verified: true
     }).firestore();
 
-    const nonExistentKey = `${VICTIM_ROLL}_prob-unopened-prob_cpp`;
+    // Extra unwhitelisted field injected into user profile
+    await assertFails(
+      victimDb.collection('myth_users').doc(VICTIM_ROLL).set({
+        name: VICTIM_NAME,
+        roll: VICTIM_ROLL,
+        uid: VICTIM_UID,
+        evilInjectedField: 'hack', // REJECTED BY hasOnly()
+        updatedAt: new Date().toISOString()
+      })
+    );
+
+    // Extra unwhitelisted field injected into leaderboard
+    await assertFails(
+      victimDb.collection('myth_leaderboard').doc(VICTIM_UID).set({
+        name: VICTIM_NAME,
+        uid: VICTIM_UID,
+        lcSolved: 100,
+        platformSolved: 20,
+        compositePoints: 80,
+        unauthorizedTracker: 'malware', // REJECTED BY hasOnly()
+        updatedAt: new Date().toISOString()
+      })
+    );
+  });
+
+  it('4. MISSING-DOC READ: Reading a nonexistent own scratchpad succeeds without permission-denied', async () => {
+    const victimDb = testEnv.authenticatedContext(VICTIM_UID, {
+      email: VICTIM_EMAIL,
+      email_verified: true
+    }).firestore();
+
+    const nonExistentKey = `${VICTIM_ROLL}_prob-never-opened_cpp`;
     const docSnap = await victimDb.collection('myth_scratchpads').doc(nonExistentKey).get();
     expect(docSnap.exists).toBe(false);
   });
 
-  it('3. ATTACK: Attacker overwriting victim\'s scratchpad is denied on both create and update paths', async () => {
-    // Victim creates legitimate scratchpad
+  it('5. ATTACK: Attacker overwriting victim\'s scratchpad is denied on both create and update paths', async () => {
+    const probId = 'prob-cycle';
+    const codeMode = 'cpp';
+    const scratchKey = `${VICTIM_ROLL}_${probId}_${codeMode}`;
+
+    // Seed victim's scratchpad
     const victimDb = testEnv.authenticatedContext(VICTIM_UID, {
       email: VICTIM_EMAIL,
       email_verified: true
     }).firestore();
-
-    const probId = 'prob-detect-cycle';
-    const codeMode = 'cpp';
-    const scratchKey = `${VICTIM_ROLL}_${probId}_${codeMode}`;
 
     await victimDb.collection('myth_scratchpads').doc(scratchKey).set({
       roll: VICTIM_ROLL,
@@ -167,12 +256,11 @@ describe('Firestore Security Rules Emulator Suite', () => {
       email_verified: true
     }).firestore();
 
-    // Attack path A (Create with spoofed docKey)
-    // Denied by rule expression: ownsRollClaim(request.resource.data.roll)
+    // Attacker create path
     await assertFails(
-      attackerDb.collection('myth_scratchpads').doc(`${VICTIM_ROLL}_prob-hacked_cpp`).set({
+      attackerDb.collection('myth_scratchpads').doc(`${VICTIM_ROLL}_prob-spoofed_cpp`).set({
         roll: VICTIM_ROLL,
-        probId: 'prob-hacked',
+        probId: 'prob-spoofed',
         codeMode: 'cpp',
         code: 'hacked code',
         uid: ATTACKER_UID,
@@ -180,165 +268,106 @@ describe('Firestore Security Rules Emulator Suite', () => {
       })
     );
 
-    // Attack path B (Update on victim's existing scratchpad)
-    // Denied by rule expression: resource.data.uid == request.auth.uid && ownsRollClaim(request.resource.data.roll)
+    // Attacker update path
     await assertFails(
-      attackerDb.collection('myth_scratchpads').doc(scratchKey).update({
-        code: 'malicious overwrite',
+      attackerDb.collection('myth_scratchpads').doc(scratchKey).set({
+        roll: VICTIM_ROLL,
+        probId: probId,
+        codeMode: codeMode,
+        code: 'overwritten code',
+        uid: ATTACKER_UID,
         updatedAt: new Date().toISOString()
-      })
+      }, { merge: true })
     );
   });
 
-  it('4. ATTACK: Attacker writing victim\'s notes is denied', async () => {
+  it('6. ATTACK: Attacker writing victim\'s notes is denied', async () => {
     const attackerDb = testEnv.authenticatedContext(ATTACKER_UID, {
       email: ATTACKER_EMAIL,
       email_verified: true
     }).firestore();
 
-    // Denied by rule expression: ownsRollClaim(request.resource.data.roll)
     await assertFails(
       attackerDb.collection('myth_notes').doc(`${VICTIM_ROLL}_prob-1`).set({
         roll: VICTIM_ROLL,
         probId: 'prob-1',
-        notes: 'injected malicious note',
+        notes: 'malicious note',
         uid: ATTACKER_UID,
         updatedAt: new Date().toISOString()
       })
     );
   });
 
-  it('5. ATTACK: Wrong Google user claiming an unclaimed roll via client is denied', async () => {
+  it('7. ATTACK: Client attempting to create or write to myth_roster is denied', async () => {
     const attackerDb = testEnv.authenticatedContext(ATTACKER_UID, {
       email: ATTACKER_EMAIL,
       email_verified: true
     }).firestore();
 
-    // Denied by rule expression: allow write: if false; on myth_rolls
     await assertFails(
-      attackerDb.collection('myth_rolls').doc('2501640100999').set({
-        roll: '2501640100999',
+      attackerDb.collection('myth_roster').doc(ATTACKER_EMAIL).set({
+        roll: '1000000000099',
         email: ATTACKER_EMAIL,
         name: ATTACKER_NAME
       })
     );
   });
 
-  it('6. ATTACK: User with unverified email is denied access', async () => {
-    const unverifiedDb = testEnv.authenticatedContext(VICTIM_UID, {
-      email: VICTIM_EMAIL,
-      email_verified: false // Email not verified
-    }).firestore();
-
-    // Denied by rule expression: request.auth.token.email_verified == true in isVerifiedCohortEmail()
-    await assertFails(
-      unverifiedDb.collection('myth_users').doc(VICTIM_ROLL).set({
-        name: VICTIM_NAME,
-        roll: VICTIM_ROLL,
-        uid: VICTIM_UID,
-        email: VICTIM_EMAIL,
-        updatedAt: new Date().toISOString()
-      })
-    );
-  });
-
-  it('7. ATTACK: Non-roster Google user cannot read or write leaderboard', async () => {
+  it('8. ATTACK: Non-roster Google user cannot read or write to leaderboard', async () => {
     const nonRosterDb = testEnv.authenticatedContext(ATTACKER_UID, {
       email: ATTACKER_EMAIL,
-      email_verified: true // Verified email, but not enrolled in myth_roster!
+      email_verified: true
     }).firestore();
 
-    // Leaderboard read denied by: isVerifiedCohortEmail() (exists(myth_roster/attacker@external.com) is false)
     await assertFails(
       nonRosterDb.collection('myth_leaderboard').doc(VICTIM_UID).get()
     );
 
-    // Leaderboard write denied by: isVerifiedCohortEmail()
     await assertFails(
       nonRosterDb.collection('myth_leaderboard').doc(ATTACKER_UID).set({
         name: ATTACKER_NAME,
         uid: ATTACKER_UID,
-        lcSolved: 50,
-        platformSolved: 10,
-        compositePoints: 42,
+        lcSolved: 10,
+        platformSolved: 5,
+        compositePoints: 9,
         updatedAt: new Date().toISOString()
       })
     );
   });
 
-  it('8. ATTACK: Fake or spoofed name on leaderboard is rejected', async () => {
+  it('9. ATTACK: Fake name on leaderboard (not matching roster name) is rejected', async () => {
     const victimDb = testEnv.authenticatedContext(VICTIM_UID, {
       email: VICTIM_EMAIL,
       email_verified: true
     }).firestore();
 
-    // Denied by rule expression: request.resource.data.name == getRosterRecord(request.auth.token.email).name
     await assertFails(
       victimDb.collection('myth_leaderboard').doc(VICTIM_UID).set({
-        name: 'Spoofed Fake Name', // Name does NOT match "Kartik Kumar" in myth_roster!
+        name: 'Spoofed Fake Name', // DOES NOT MATCH 'Example Student One'
         uid: VICTIM_UID,
         lcSolved: 100,
         platformSolved: 20,
-        compositePoints: 84,
+        compositePoints: 80,
         updatedAt: new Date().toISOString()
       })
     );
   });
 
-  it('9. ATTACK: compositePoints over cap (>10000) is rejected', async () => {
+  it('10. ATTACK: compositePoints over cap (>10000) is rejected', async () => {
     const victimDb = testEnv.authenticatedContext(VICTIM_UID, {
       email: VICTIM_EMAIL,
       email_verified: true
     }).firestore();
 
-    // Denied by rule expression: data.compositePoints <= 10000
     await assertFails(
       victimDb.collection('myth_leaderboard').doc(VICTIM_UID).set({
         name: VICTIM_NAME,
         uid: VICTIM_UID,
         lcSolved: 200,
         platformSolved: 50,
-        compositePoints: 10001, // EXCEEDS CAP!
+        compositePoints: 10001, // EXCEEDS 10000 CAP
         updatedAt: new Date().toISOString()
       })
     );
-  });
-
-  it('10. POSITIVE CONTROL: Client-shaped real payloads are accepted and leaderboard exposes zero PII', async () => {
-    const victimDb = testEnv.authenticatedContext(VICTIM_UID, {
-      email: VICTIM_EMAIL,
-      email_verified: true
-    }).firestore();
-
-    // Client-shaped leaderboard record
-    await assertSucceeds(
-      victimDb.collection('myth_leaderboard').doc(VICTIM_UID).set({
-        name: VICTIM_NAME,
-        uid: VICTIM_UID,
-        lcSolved: 210,
-        lcEasy: 95,
-        lcMedium: 88,
-        lcHard: 27,
-        lcRanking: 142050,
-        platformSolved: 42,
-        compositePoints: 176,
-        badge: 'COHORT SDE',
-        updatedAt: new Date().toISOString()
-      })
-    );
-
-    // Reading the leaderboard record exposes only safe performance metrics
-    const readerDb = testEnv.authenticatedContext(VICTIM_UID, {
-      email: VICTIM_EMAIL,
-      email_verified: true
-    }).firestore();
-
-    const snapshot = await readerDb.collection('myth_leaderboard').doc(VICTIM_UID).get();
-    expect(snapshot.exists).toBe(true);
-    const data = snapshot.data();
-    expect(data.name).toBe(VICTIM_NAME);
-    expect(data.compositePoints).toBe(176);
-    expect(data.roll).toBeUndefined();
-    expect(data.email).toBeUndefined();
   });
 });

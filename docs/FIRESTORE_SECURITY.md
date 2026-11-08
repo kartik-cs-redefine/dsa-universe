@@ -44,13 +44,10 @@ The table below lists every collection and path touched across the entire codeba
 ## 3. Known Limitations
 
 > [!WARNING]
-> **Client-Writable Score Fields (Current Limitation)**:
-> In the current client-direct Firestore architecture (without a backend server), the fields `lcSolved`, `platformSolved`, and `compositePoints` in `myth_leaderboard/{roll}` are written directly by the client browser.
-> 
-> Although `firestore.rules` enforces hard boundary conditions (`lcSolved <= 5000`, `platformSolved <= 500`, non-negative bounds, matching roll ID), a technically savvy user could alter their client JavaScript memory to send an inflated valid number (e.g. `4500`).
->
-> **Production Fix Roadmap (Step 6)**:
-> In Step 6 of our hardening plan, all LeetCode GraphQL verification and composite score calculations will be moved to a protected **Vercel Serverless Function** using the **Firebase Admin SDK**. Once deployed, `myth_leaderboard` write access will be completely locked down (`allow write: if false;`), making score spoofing impossible.
+> **Client-Writable Score Fields (Known Limitation)**:
+> In the current client-direct Firestore architecture (prior to Step 6 serverless proxy deployment):
+> - Verified cohort members can write their own scores up to the enforced schema caps (`lcSolved <= 5000`, `platformSolved <= 500`, `compositePoints <= 10000`).
+> - LeetCode statistics are fetched client-side and remain technically untrusted until Step 6 moves verification to a protected Vercel Serverless Function using the Firebase Admin SDK.
 
 ---
 

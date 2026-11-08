@@ -91,15 +91,18 @@ export class CloudDBEngine {
   // Verify whether the logged in student email exists in the roster
   async verifyRosterClaim(roll) {
     if (!this.isCloudActive || !this.db || !this.auth?.currentUser) return null;
+    const email = (this.auth.currentUser.email || "").toLowerCase().trim();
+    if (!email) throw new Error("No verified email associated with Google session.");
     try {
-      const doc = await this.db.collection("myth_rolls").doc(roll).get();
+      const doc = await this.db.collection("myth_roster").doc(email).get();
       if (doc.exists) {
-        return doc.data();
+        const data = doc.data();
+        if (data.roll === roll) return data;
+        throw new Error(`Your Google account (${email}) is enrolled under roll ${data.roll}, not ${roll}.`);
       }
-      return null;
+      throw new Error(`Your Google account (${email}) is not enrolled in the verified student roster.`);
     } catch (err) {
       if (err.code === "permission-denied") {
-        console.warn(`[CloudDB] Access denied for roll ${roll}. Google account is not in the verified roster.`);
         throw new Error("Your Google account is not enrolled in the verified student roster. Please contact the administrator.");
       }
       throw err;
