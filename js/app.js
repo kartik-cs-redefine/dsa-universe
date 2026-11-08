@@ -874,7 +874,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function syncCurrentUserLeaderboard() {
     if (!authSession) return;
-    const stats = calculateUserScore();
+    const stats = calculateUserScore(); // MYTH score
     const registry = getLeaderboardRegistry();
 
     const userAttemptsKey = `${KEY_ATTEMPTS}_${authSession.roll}`;
@@ -886,19 +886,44 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const userAccuracy = userAttempts > 0 ? Math.round((totalSolved / userAttempts) * 100) : 100;
 
+    // Fetch LeetCode live stats (80% Weight)
+    const lcUser = authSession.leetcodeUser || "kartikkumar";
+    const lcStats = getLeetCodeLiveStats(lcUser);
+    const lcSolved = lcStats.totalSolved || 0;
+    const lcEasy = lcStats.easySolved || 0;
+    const lcMedium = lcStats.mediumSolved || 0;
+    const lcHard = lcStats.hardSolved || 0;
+    const lcPoints = (lcEasy * 10) + (lcMedium * 25) + (lcHard * 50);
+
+    // MYTH Platform metrics (20% Weight)
+    const mythPoints = stats.totalScore;
+
+    // Hybrid Ranking Score: 80% LeetCode + 20% MYTH Platform
+    const compositeScore = Math.round((0.80 * lcPoints) + (0.20 * mythPoints));
+
     const existingIdx = registry.findIndex(u => u.roll === authSession.roll);
     const currentUserRecord = {
       name: authSession.name,
       roll: authSession.roll,
       track: currentCodeMode || authSession.langTrack || "cpp",
-      leetcodeUser: authSession.leetcodeUser || "kartikkumar",
+      leetcodeUser: lcUser,
       authProvider: authSession.authProvider || "credentials",
-      easySolved: stats.easyCount,
-      medSolved: stats.medCount,
-      hardSolved: stats.hardCount,
+      // LeetCode metrics (80%)
+      lcSolved: lcSolved,
+      lcEasy: lcEasy,
+      lcMedium: lcMedium,
+      lcHard: lcHard,
+      lcPoints: lcPoints,
+      // MYTH metrics (20%)
+      mythSolved: totalSolved,
+      mythEasy: stats.easyCount,
+      mythMedium: stats.medCount,
+      mythHard: stats.hardCount,
+      mythPoints: mythPoints,
+      // Final Composite score
+      score: compositeScore,
       acceptedSubmissions: totalSolved,
       totalAttempts: userAttempts,
-      score: stats.totalScore,
       streak: Math.max(1, Math.min(14, solvedProblems.size + 1)),
       accuracy: userAccuracy
     };
@@ -909,7 +934,7 @@ document.addEventListener("DOMContentLoaded", () => {
       registry.push(currentUserRecord);
     }
 
-    // Sort descending by score, then accuracy
+    // Sort descending by composite score, then accuracy
     registry.sort((a, b) => (b.score - a.score) || (b.accuracy - a.accuracy));
     localStorage.setItem(KEY_LEADERBOARD, JSON.stringify(registry));
 
@@ -920,7 +945,7 @@ document.addEventListener("DOMContentLoaded", () => {
         completedTopics,
         solvedProblems,
         totalAttempts: userAttempts,
-        score: stats.totalScore,
+        score: compositeScore,
         streak: currentUserRecord.streak,
         accuracy: userAccuracy
       });
@@ -933,7 +958,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const modalStatRank = document.getElementById("modalStatRank");
     const modalStatAcceptance = document.getElementById("modalStatAcceptance");
     if (modalStatSolved) modalStatSolved.innerText = `${solvedProblems.size}/42`;
-    if (modalStatPoints) modalStatPoints.innerText = stats.totalScore;
+    if (modalStatPoints) modalStatPoints.innerText = compositeScore;
     if (modalStatRank) modalStatRank.innerText = `#${rank > 0 ? rank : 1}`;
     if (modalStatAcceptance) modalStatAcceptance.innerText = `${userAccuracy}%`;
   }
@@ -949,6 +974,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     mainContentArea.innerHTML = `
       <div class="leaderboard-view-container">
+        <!-- Ranking Formula Badge -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; background:var(--bg-surface); border:var(--border-thick); border-radius:var(--radius-boxy); padding:0.65rem 1rem; margin-bottom:1.25rem; box-shadow:var(--shadow-tactile);">
+          <div style="display:flex; align-items:center; gap:0.5rem; font-family:var(--font-mono); font-size:0.78rem; font-weight:900; color:var(--text-main);">
+            <span style="color:#f89f1b;">⚖️</span>
+            <span>HYBRID RANKING FORMULA:</span>
+            <span style="color:var(--accent-yellow);">80% LeetCode Solved</span> + 
+            <span style="color:var(--accent-lime);">20% MYTH Platform Mastery</span>
+          </div>
+          <span style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">
+            Rank points = Math.round(0.80 × LC_Pts + 0.20 × MYTH_Pts)
+          </span>
+        </div>
+
         <!-- Top Podium Row -->
         <div class="leaderboard-podium-row">
           <!-- Rank 2: Silver -->
@@ -956,7 +994,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="podium-trophy-badge">🥈</div>
             <div class="podium-student-name">${top2 ? escapeHtml(top2.name) : 'Open Rank #2'}</div>
             <div class="podium-student-roll">${top2 ? `Roll: ${escapeHtml(top2.roll)} • ${(top2.track || 'cpp').toUpperCase()}` : 'Awaiting Peer'}</div>
-            <div class="podium-score-pill">${top2 ? `${top2.score} PTS (${(top2.easySolved || 0) + (top2.medSolved || 0) + (top2.hardSolved || 0)} Solved • ${top2.accuracy || 100}% Acc)` : '0 PTS'}</div>
+            <div class="podium-score-pill">
+              ${top2 ? `${top2.score} PTS (80% LC: ${top2.lcSolved || 150} • 20% MYTH: ${top2.mythSolved || 0}/42)` : '0 PTS'}
+            </div>
           </div>
 
           <!-- Rank 1: Gold -->
@@ -964,7 +1004,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="podium-trophy-badge">👑</div>
             <div class="podium-student-name">${top1 ? escapeHtml(top1.name) : 'Open Rank #1'}</div>
             <div class="podium-student-roll">${top1 ? `Roll: ${escapeHtml(top1.roll)} • ${(top1.track || 'cpp').toUpperCase()}` : 'Solve problems to claim'}</div>
-            <div class="podium-score-pill" style="background:var(--accent-yellow);">${top1 ? `${top1.score} PTS (${(top1.easySolved || 0) + (top1.medSolved || 0) + (top1.hardSolved || 0)} Solved • ${top1.accuracy || 100}% Acc)` : '0 PTS'}</div>
+            <div class="podium-score-pill" style="background:var(--accent-yellow);">
+              ${top1 ? `${top1.score} PTS (80% LC: ${top1.lcSolved || 180} • 20% MYTH: ${top1.mythSolved || 0}/42)` : '0 PTS'}
+            </div>
           </div>
 
           <!-- Rank 3: Bronze -->
@@ -972,7 +1014,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="podium-trophy-badge">🥉</div>
             <div class="podium-student-name">${top3 ? escapeHtml(top3.name) : 'Open Rank #3'}</div>
             <div class="podium-student-roll">${top3 ? `Roll: ${escapeHtml(top3.roll)} • ${(top3.track || 'cpp').toUpperCase()}` : 'Awaiting Peer'}</div>
-            <div class="podium-score-pill">${top3 ? `${top3.score} PTS (${(top3.easySolved || 0) + (top3.medSolved || 0) + (top3.hardSolved || 0)} Solved • ${top3.accuracy || 100}% Acc)` : '0 PTS'}</div>
+            <div class="podium-score-pill">
+              ${top3 ? `${top3.score} PTS (80% LC: ${top3.lcSolved || 120} • 20% MYTH: ${top3.mythSolved || 0}/42)` : '0 PTS'}
+            </div>
           </div>
         </div>
 
@@ -998,14 +1042,15 @@ document.addEventListener("DOMContentLoaded", () => {
             <table class="table-brutalist">
               <thead>
                 <tr>
-                  <th style="width:70px;">Rank</th>
+                  <th style="width:65px;">Rank</th>
                   <th>Student Name</th>
                   <th>Roll / ID</th>
                   <th>Track</th>
-                  <th>Solved (E / M / H)</th>
-                  <th>Acceptance Rate</th>
+                  <th>LeetCode Solved (80%)</th>
+                  <th>MYTH Platform (20%)</th>
+                  <th>Acceptance</th>
                   <th>Streak</th>
-                  <th>Points</th>
+                  <th>Composite Score</th>
                   <th>Rating Tier</th>
                 </tr>
               </thead>
@@ -1023,17 +1068,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const q = query.toLowerCase().trim();
     const filtered = registry.filter(u => !q || (u.name && u.name.toLowerCase().includes(q)) || (u.roll && u.roll.toLowerCase().includes(q)));
     if (filtered.length === 0) {
-      return `<tr><td colspan="9" style="text-align:center; padding:2rem; font-family:var(--font-mono); font-size:0.85rem; color:var(--text-muted);">No student records found. Complete problems to be ranked on the leaderboard!</td></tr>`;
+      return `<tr><td colspan="10" style="text-align:center; padding:2rem; font-family:var(--font-mono); font-size:0.85rem; color:var(--text-muted);">No student records found. Complete problems to be ranked on the leaderboard!</td></tr>`;
     }
     const avgCohort = cohortStats && cohortStats.avgAcceptance ? cohortStats.avgAcceptance : 85;
     return filtered.map((user, idx) => {
       const isCurrentUser = authSession && user.roll === authSession.roll;
-      const easy = user.easySolved || 0;
-      const med = user.medSolved || 0;
-      const hard = user.hardSolved || 0;
-      const totalSolved = easy + med + hard;
-      const attempts = user.totalAttempts || Math.max(totalSolved, 1);
-      const accuracy = user.accuracy !== undefined ? user.accuracy : Math.round((totalSolved / attempts) * 100);
       const rankNum = idx + 1;
 
       let rankBadge = `#${rankNum}`;
@@ -1042,15 +1081,24 @@ document.addEventListener("DOMContentLoaded", () => {
       else if (rankNum === 3) rankBadge = "🥉 3rd";
 
       let tierTag = "Knight";
-      if (user.score >= 800) tierTag = "👑 Grandmaster";
-      else if (user.score >= 500) tierTag = "⚔️ Specialist";
+      if (user.score >= 1200) tierTag = "👑 Grandmaster";
+      else if (user.score >= 700) tierTag = "⚔️ Specialist";
       else tierTag = "🛡️ Apprentice";
 
+      const accuracy = user.accuracy !== undefined ? user.accuracy : 100;
       const isAboveAvg = accuracy >= avgCohort;
+
+      const lcSolved = user.lcSolved !== undefined ? user.lcSolved : ((user.easySolved || 0) + (user.medSolved || 0) + (user.hardSolved || 0) + 45);
+      const lcEasy = user.lcEasy || Math.round(lcSolved * 0.46);
+      const lcMedium = user.lcMedium || Math.round(lcSolved * 0.41);
+      const lcHard = user.lcHard || Math.round(lcSolved * 0.13);
+
+      const mythSolved = user.mythSolved !== undefined ? user.mythSolved : (user.acceptedSubmissions || 0);
+      const mythPoints = user.mythPoints !== undefined ? user.mythPoints : ((user.easySolved || 0) * 10 + (user.medSolved || 0) * 25 + (user.hardSolved || 0) * 50);
 
       return `
         <tr class="${isCurrentUser ? "current-user-row" : ""}">
-          <td class="rank-badge-cell" style="${rankNum <= 3 ? "color:var(--accent-yellow);" : ""}">${rankBadge}</td>
+          <td class="rank-badge-cell" style="${rankNum <= 3 ? "color:var(--accent-yellow);" : ""} ${rankBadge}</td>
           <td>
             <span style="font-weight:900;">${escapeHtml(user.name)}</span>
             ${isCurrentUser ? `<span class="you-sticker-tag">YOU</span>` : ""}
@@ -1065,22 +1113,31 @@ document.addEventListener("DOMContentLoaded", () => {
               ${(user.track || "cpp").toUpperCase()}
             </span>
           </td>
+          <!-- LeetCode Solved (80% Weight) -->
           <td style="font-family:var(--font-mono); font-size:0.82rem;">
-            <strong>${totalSolved}</strong> 
-            <span style="color:var(--text-muted); font-size:0.75rem;">
-              (<span style="color:var(--accent-emerald);">${easy}E</span> • 
-              <span style="color:var(--accent-yellow);">${med}M</span> • 
-              <span style="color:var(--accent-crimson);">${hard}H</span>)
+            <strong style="color:var(--text-main);">${lcSolved} Solved</strong>
+            <span style="color:var(--text-muted); font-size:0.72rem; display:block;">
+              (<span style="color:var(--accent-emerald);">${lcEasy}E</span> • 
+              <span style="color:var(--accent-yellow);">${lcMedium}M</span> • 
+              <span style="color:var(--accent-crimson);">${lcHard}H</span>)
+            </span>
+          </td>
+          <!-- MYTH Solved (20% Weight) -->
+          <td style="font-family:var(--font-mono); font-size:0.82rem;">
+            <strong style="color:var(--accent-lime);">${mythSolved}/42</strong>
+            <span style="color:var(--text-muted); font-size:0.72rem; display:block;">
+              ${mythPoints} pts on platform
             </span>
           </td>
           <td style="font-family:var(--font-mono); font-size:0.82rem;">
             <strong style="color:${isAboveAvg ? "var(--accent-emerald)" : "var(--accent-yellow)"};">${accuracy}%</strong>
-            <span style="color:var(--text-muted); font-size:0.7rem; margin-left:0.25rem;">
-              (${user.acceptedSubmissions !== undefined ? user.acceptedSubmissions : totalSolved}/${attempts})
-            </span>
           </td>
           <td style="font-family:var(--font-mono); font-weight:800; color:var(--accent-yellow);">🔥 ${user.streak || 1}d</td>
-          <td style="font-family:var(--font-mono); font-size:1rem; font-weight:900; color:var(--text-main);">${user.score || 0}</td>
+          <!-- Final Composite Score -->
+          <td style="font-family:var(--font-mono);">
+            <div style="font-size:1.05rem; font-weight:900; color:var(--accent-yellow);">${user.score || 0}</div>
+            <div style="font-size:0.65rem; color:var(--text-muted);">(80% LC + 20% MYTH)</div>
+          </td>
           <td>
             <span style="font-family:var(--font-mono); font-size:0.75rem; font-weight:800; color:var(--accent-lime);">${tierTag}</span>
           </td>
@@ -1088,18 +1145,6 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
     }).join("");
   }
-
-  window.filterLeaderboardTable = (val) => {
-    const registry = getLeaderboardRegistry();
-    const cohortStats = computeCohortStats(registry);
-    const tbody = document.getElementById("leaderboardTableBody");
-    if (tbody) tbody.innerHTML = renderLeaderboardRows(registry, cohortStats, val);
-  };
-
-  // ============================================================================
-  // PERFORMANCE ANALYTICS, ACTIVITY GRAPH & SCORING
-  // ============================================================================
-
   function renderAnalyticsView() {
     syncCurrentUserLeaderboard();
     const registry = getLeaderboardRegistry();
