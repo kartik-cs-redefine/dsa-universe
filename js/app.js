@@ -908,6 +908,7 @@ document.addEventListener("DOMContentLoaded", () => {
             authSession = {
               name: googleName,
               roll: roll,
+              uid: user.uid,
               email: googleEmail,
               authProvider: "google",
               langTrack: currentCodeMode || "cpp",
@@ -917,7 +918,15 @@ document.addEventListener("DOMContentLoaded", () => {
               loggedInAt: new Date().toISOString()
             };
             localStorage.setItem(KEY_AUTH, JSON.stringify(authSession));
-            if (window.CloudDB) await window.CloudDB.saveUserProfile(authSession);
+            if (window.CloudDB) {
+              try {
+                await window.CloudDB.verifyRosterClaim(roll);
+                await window.CloudDB.saveUserProfile(authSession);
+              } catch (claimErr) {
+                alert(claimErr.message || "Failed to verify student roster claim.");
+                return;
+              }
+            }
             checkAuthAndInitialize();
             return;
           }
@@ -1288,7 +1297,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const avgCohort = cohortStats && cohortStats.avgAcceptance ? cohortStats.avgAcceptance : 85;
     return filtered.map((user, idx) => {
-      const isCurrentUser = authSession && user.roll === authSession.roll;
+      const isCurrentUser = authSession && ((user.uid && authSession.uid && user.uid === authSession.uid) || (user.name === authSession.name));
       const rankNum = idx + 1;
 
       let rankBadge = `#${rankNum}`;

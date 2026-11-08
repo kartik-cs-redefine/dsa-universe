@@ -2,19 +2,14 @@
  * ============================================================================
  * MYTH DSA Platform — Roster & Roll Claims Migration Script (Firebase Admin SDK)
  * ============================================================================
- * Reads a verified student roster (roster.csv: roll, email, name) and provisions
- * immutable claims in `myth_rolls/{roll}`.
+ * Reads verified student roster (roster.csv: roll, email, name) and provisions:
+ * 1. `myth_rolls/{roll}`: { roll, email, name, provisionedAt }
+ * 2. `myth_roster/{email}`: { roll, email, name, provisionedAt }
  * 
- * SAFETY INVARIANTS:
- * - Runs in DRY-RUN mode by default (DRY_RUN=true). No database writes occur unless explicitly specified.
+ * INVARIANTS:
+ * - DRY_RUN=true by default. Zero database writes occur unless explicitly specified.
+ * - Enforces 13-digit numeric roll format: ^[0-9]{13}$
  * - Zero service account credentials committed to git.
- * - Verifies input integrity (valid roll number, valid university email format).
- * 
- * USAGE:
- *   Dry run:
- *     node scripts/migrate-roster.js
- *   Live migration:
- *     $env:DRY_RUN="false"; $env:FIREBASE_SERVICE_ACCOUNT_PATH="./service-account.json"; node scripts/migrate-roster.js
  */
 
 import fs from 'fs';
@@ -52,14 +47,20 @@ const parseCSV = (content) => {
   }
 
   const records = [];
+  const rollRegex = /^[0-9]{13}$/;
+
   for (let i = 1; i < lines.length; i++) {
     const parts = lines[i].split(',').map(p => p.trim());
     if (parts.length >= 2 && parts[rollIdx] && parts[emailIdx]) {
-      records.push({
-        roll: parts[rollIdx],
-        email: parts[emailIdx].toLowerCase(),
-        name: nameIdx !== -1 && parts[nameIdx] ? parts[nameIdx] : ''
-      });
+      const roll = parts[rollIdx];
+      const email = parts[emailIdx].toLowerCase();
+      const name = nameIdx !== -1 && parts[nameIdx] ? parts[nameIdx] : '';
+
+      if (!rollRegex.test(roll)) {
+        throw new Error(`Row ${i + 1}: Invalid roll number format '${roll}'. Must be exactly 13 digits.`);
+      }
+
+      records.push({ roll, email, name });
     }
   }
   return records;
@@ -68,16 +69,17 @@ const parseCSV = (content) => {
 const rawContent = fs.readFileSync(ROSTER_PATH, 'utf8');
 const roster = parseCSV(rawContent);
 
-console.log(`✓ Parsed ${roster.length} student entries from ${path.basename(ROSTER_PATH)}:`);
+console.log(`✓ Parsed and validated ${roster.length} student entries from ${path.basename(ROSTER_PATH)}:`);
 roster.forEach((r, idx) => {
-  console.log(`  [${idx + 1}] Roll: ${r.roll.padEnd(16)} | Email: ${r.email.padEnd(32)} | Name: ${r.name}`);
+  console.log(`  [${idx + 1}] Roll: ${r.roll} | Email: ${r.email.padEnd(32)} | Name: ${r.name}`);
 });
 console.log('');
 
 if (DRY_RUN) {
-  console.log('🔍 [DRY-RUN] The following documents would be created in collection "myth_rolls":');
+  console.log('🔍 [DRY-RUN] The following documents would be created in Firestore:');
   roster.forEach(r => {
-    console.log(`  -> doc('myth_rolls/${r.roll}'): { roll: "${r.roll}", email: "${r.email}", name: "${r.name}", provisionedAt: "${new Date().toISOString()}" }`);
+    console.log(`  -> doc('myth_rolls/${r.roll}'):  { roll: "${r.roll}", email: "${r.email}", name: "${r.name}" }`);
+    console.log(`  -> doc('myth_roster/${r.email}'): { roll: "${r.roll}", email: "${r.email}", name: "${r.name}" }`);
   });
   console.log('\n✅ Dry run completed successfully. Zero changes were written to Firestore.');
   console.log('To perform real database migration, set DRY_RUN="false" and provide FIREBASE_SERVICE_ACCOUNT_PATH.');
@@ -106,18 +108,27 @@ async function runLiveMigration() {
   let count = 0;
 
   for (const student of roster) {
-    const docRef = db.collection('myth_rolls').doc(student.roll);
-    batch.set(docRef, {
+    const rollRef = db.collection('myth_rolls').doc(student.roll);
+    batch.set(rollRef, {
       roll: student.roll,
       email: student.email,
       name: student.name,
       provisionedAt: admin.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
-    count++;
+
+    const rosterRef = db.collection('myth_roster').doc(student.email);
+    batch.set(rosterRef, {
+      roll: student.roll,
+      email: student.email,
+      name: student.name,
+      provisionedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    count += 2;
   }
 
   await batch.commit();
-  console.log(`🚀 Successfully provisioned ${count} verified student claims into "myth_rolls".`);
+  console.log(`🚀 Successfully provisioned ${count} documents (${roster.length} students) into myth_rolls and myth_roster.`);
 }
 
 runLiveMigration().catch(err => {
