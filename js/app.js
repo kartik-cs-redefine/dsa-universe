@@ -325,6 +325,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const tabPracticeBtn = document.getElementById("tabPracticeBtn");
   const tabAnalyticsBtn = document.getElementById("tabAnalyticsBtn");
   const tabLeaderboardBtn = document.getElementById("tabLeaderboardBtn");
+  const tabRaceArenaBtn = document.getElementById("tabRaceArenaBtn");
+  const mascotStudioBtn = document.getElementById("mascotStudioBtn");
+  const mascotStudioModal = document.getElementById("mascotStudioModal");
+  const closeMascotStudioModal = document.getElementById("closeMascotStudioModal");
+  const closeMascotStudioBtn = document.getElementById("closeMascotStudioBtn");
+  const equipMascotBtn = document.getElementById("equipMascotBtn");
+  const mascotPreviewMount = document.getElementById("mascotPreviewMount");
+  const mascotPreviewName = document.getElementById("mascotPreviewName");
+  const mascotPreviewRole = document.getElementById("mascotPreviewRole");
+  const mascotPreviewRarity = document.getElementById("mascotPreviewRarity");
+  const mascotPreviewQuote = document.getElementById("mascotPreviewQuote");
+  const mascotPalettePicker = document.getElementById("mascotPalettePicker");
+  const mascotSelectorGrid = document.getElementById("mascotSelectorGrid");
+  const mascotModalAuraHalo = document.getElementById("mascotModalAuraHalo");
   const comingSoonModal = document.getElementById("comingSoonModal");
   const closeComingSoonModal = document.getElementById("closeComingSoonModal");
   const closeComingSoonBtn = document.getElementById("closeComingSoonBtn");
@@ -818,6 +832,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const modalInputLeetCode = document.getElementById("modalInputLeetCode");
     if (modalInputLeetCode) modalInputLeetCode.value = authSession.leetcodeUser || "kartikkumar";
+
+    const modalMascotAvatarMount = document.getElementById("modalMascotAvatarMount");
+    const modalMascotTitle = document.getElementById("modalMascotTitle");
+    if (window.MascotEngine) {
+      const eq = window.MascotEngine.getEquipped(authSession.roll);
+      const ch = window.MascotEngine.getCharacter(eq.charId);
+      if (modalMascotAvatarMount) modalMascotAvatarMount.innerHTML = window.MascotEngine.renderSvg(eq.charId, eq.colorHex, 44, true);
+      if (modalMascotTitle) modalMascotTitle.innerText = `${ch.name} (${ch.badge})`;
+    }
   }
 
   // ============================================================================
@@ -992,6 +1015,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <!-- Rank 2: Silver -->
           <div class="podium-card rank-2" style="${!top2 ? 'opacity:0.6; border-style:dashed;' : ''}">
             <div class="podium-trophy-badge">🥈</div>
+            ${top2 && window.MascotEngine ? `<div style="display:flex; justify-content:center; margin-bottom:0.35rem;">${window.MascotEngine.renderSvg(window.MascotEngine.getEquipped(top2.roll).charId, window.MascotEngine.getEquipped(top2.roll).colorHex, 48, true)}</div>` : ''}
             <div class="podium-student-name">${top2 ? escapeHtml(top2.name) : 'Open Rank #2'}</div>
             <div class="podium-student-roll">${top2 ? `Roll: ${escapeHtml(top2.roll)} • ${(top2.track || 'cpp').toUpperCase()}` : 'Awaiting Peer'}</div>
             <div class="podium-score-pill">
@@ -1002,6 +1026,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <!-- Rank 1: Gold -->
           <div class="podium-card rank-1" style="${!top1 ? 'opacity:0.6; border-style:dashed;' : ''}">
             <div class="podium-trophy-badge">👑</div>
+            ${top1 && window.MascotEngine ? `<div style="display:flex; justify-content:center; margin-bottom:0.35rem;">${window.MascotEngine.renderSvg(window.MascotEngine.getEquipped(top1.roll).charId, window.MascotEngine.getEquipped(top1.roll).colorHex, 54, true)}</div>` : ''}
             <div class="podium-student-name">${top1 ? escapeHtml(top1.name) : 'Open Rank #1'}</div>
             <div class="podium-student-roll">${top1 ? `Roll: ${escapeHtml(top1.roll)} • ${(top1.track || 'cpp').toUpperCase()}` : 'Solve problems to claim'}</div>
             <div class="podium-score-pill" style="background:var(--accent-yellow);">
@@ -1012,6 +1037,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <!-- Rank 3: Bronze -->
           <div class="podium-card rank-3" style="${!top3 ? 'opacity:0.6; border-style:dashed;' : ''}">
             <div class="podium-trophy-badge">🥉</div>
+            ${top3 && window.MascotEngine ? `<div style="display:flex; justify-content:center; margin-bottom:0.35rem;">${window.MascotEngine.renderSvg(window.MascotEngine.getEquipped(top3.roll).charId, window.MascotEngine.getEquipped(top3.roll).colorHex, 48, true)}</div>` : ''}
             <div class="podium-student-name">${top3 ? escapeHtml(top3.name) : 'Open Rank #3'}</div>
             <div class="podium-student-roll">${top3 ? `Roll: ${escapeHtml(top3.roll)} • ${(top3.track || 'cpp').toUpperCase()}` : 'Awaiting Peer'}</div>
             <div class="podium-score-pill">
@@ -1100,12 +1126,17 @@ document.addEventListener("DOMContentLoaded", () => {
         <tr class="${isCurrentUser ? "current-user-row" : ""}">
           <td class="rank-badge-cell" style="${rankNum <= 3 ? "color:var(--accent-yellow);" : ""} ${rankBadge}</td>
           <td>
-            <span style="font-weight:900;">${escapeHtml(user.name)}</span>
+            <div style="display:flex; align-items:center; gap:0.55rem;">
+              ${window.MascotEngine ? `<div style="width:28px; height:28px; flex-shrink:0;">${window.MascotEngine.renderSvg(window.MascotEngine.getEquipped(user.roll).charId, window.MascotEngine.getEquipped(user.roll).colorHex, 28, false)}</div>` : ''}
+              <div>
+                <span style="font-weight:900;">${escapeHtml(user.name)}</span>
             ${isCurrentUser ? `<span class="you-sticker-tag">YOU</span>` : ""}
             ${user.authProvider === 'google' ? `<span class="google-verified-badge" style="font-size:0.65rem;">Google</span>` : ""}
             <a href="https://leetcode.com/u/${user.leetcodeUser || 'kartikkumar'}/" target="_blank" rel="noopener noreferrer" style="font-family:var(--font-mono); font-size:0.68rem; color:var(--accent-yellow); margin-left:0.45rem; text-decoration:none; background:var(--bg-panel-elevated); padding:0.15rem 0.45rem; border-radius:2px; border:1px solid var(--border-color); display:inline-block;" title="View Live LeetCode Profile">
               @${user.leetcodeUser || 'kartikkumar'} ↗
             </a>
+              </div>
+            </div>
           </td>
           <td style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted);">${escapeHtml(user.roll)}</td>
           <td>
@@ -1640,6 +1671,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (tabConceptBtn) tabConceptBtn.addEventListener("click", () => switchTab("concept"));
   if (tabVisualizerBtn) tabVisualizerBtn.addEventListener("click", () => switchTab("visualizer"));
   if (tabPracticeBtn) tabPracticeBtn.addEventListener("click", () => switchTab("practice"));
+  if (tabRaceArenaBtn) tabRaceArenaBtn.addEventListener("click", () => switchTab("arena"));
   if (tabAnalyticsBtn) tabAnalyticsBtn.addEventListener("click", () => switchTab("analytics"));
   if (tabLeaderboardBtn) tabLeaderboardBtn.addEventListener("click", () => switchTab("leaderboard"));
 
@@ -1647,7 +1679,7 @@ document.addEventListener("DOMContentLoaded", () => {
     activeTab = tabName;
 
     // Update Tab Button States
-    [tabModulesBtn, tabConceptBtn, tabVisualizerBtn, tabPracticeBtn, tabAnalyticsBtn, tabLeaderboardBtn].forEach(btn => {
+    [tabModulesBtn, tabConceptBtn, tabVisualizerBtn, tabPracticeBtn, tabRaceArenaBtn, tabAnalyticsBtn, tabLeaderboardBtn].forEach(btn => {
       if (btn) btn.classList.remove("active");
     });
 
@@ -1655,6 +1687,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (tabName === "concept" && tabConceptBtn) tabConceptBtn.classList.add("active");
     if (tabName === "visualizer" && tabVisualizerBtn) tabVisualizerBtn.classList.add("active");
     if (tabName === "practice" && tabPracticeBtn) tabPracticeBtn.classList.add("active");
+    if (tabName === "arena" && tabRaceArenaBtn) tabRaceArenaBtn.classList.add("active");
     if (tabName === "analytics" && tabAnalyticsBtn) tabAnalyticsBtn.classList.add("active");
     if (tabName === "leaderboard" && tabLeaderboardBtn) tabLeaderboardBtn.classList.add("active");
 
@@ -1666,6 +1699,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (tabName === "modules") {
       renderModulesHub();
+    } else if (tabName === "arena") {
+      if (window.RaceArenaInstance) {
+        window.RaceArenaInstance.renderArenaView(mainContentArea, getLeaderboardRegistry(), authSession);
+      }
     } else if (tabName === "analytics") {
       renderAnalyticsView();
     } else if (tabName === "leaderboard") {
@@ -2645,3 +2682,123 @@ document.addEventListener("DOMContentLoaded", () => {
   // Check auth and initialize the app
   checkAuthAndInitialize();
 });
+
+  // ============================================================================
+  // MASCOT STUDIO & UNIVERSAL MODAL ENGINE (Gehna-3D & CharacterVerse)
+  // ============================================================================
+
+  let selectedMascotId = "buster-blitz";
+  let selectedMascotColor = "#00f0ff";
+
+  function openMascotStudioModal() {
+    if (!authSession) return;
+    const equipped = window.MascotEngine ? window.MascotEngine.getEquipped(authSession.roll) : { charId: "buster-blitz", colorHex: "#00f0ff" };
+    selectedMascotId = equipped.charId || "buster-blitz";
+    selectedMascotColor = equipped.colorHex || "#00f0ff";
+    renderMascotStudio();
+    if (mascotStudioModal) mascotStudioModal.classList.add("active");
+  }
+  window.openMascotStudioModal = openMascotStudioModal;
+
+  function renderMascotStudio() {
+    if (!window.MascotEngine) return;
+    const char = window.MascotEngine.getCharacter(selectedMascotId);
+    if (mascotPreviewName) mascotPreviewName.innerText = char.name;
+    if (mascotPreviewRole) mascotPreviewRole.innerText = char.role;
+    if (mascotPreviewRarity) {
+      mascotPreviewRarity.innerText = char.rarity;
+      mascotPreviewRarity.style.background = selectedMascotColor;
+      mascotPreviewRarity.style.color = "#000000";
+    }
+    if (mascotPreviewQuote) mascotPreviewQuote.innerText = `"${char.quote}"`;
+    if (mascotModalAuraHalo) {
+      mascotModalAuraHalo.style.background = `radial-gradient(circle, ${selectedMascotColor}44 0%, transparent 70%)`;
+    }
+
+    if (mascotPreviewMount) {
+      mascotPreviewMount.innerHTML = window.MascotEngine.renderSvg(selectedMascotId, selectedMascotColor, 96, true);
+    }
+
+    // Render palettes
+    if (mascotPalettePicker) {
+      mascotPalettePicker.innerHTML = window.MascotEngine.palettes.map(p => `
+        <div 
+          class="mascot-palette-circle ${p.hex === selectedMascotColor ? 'active' : ''}" 
+          style="background:${p.hex};" 
+          title="${p.name}" 
+          onclick="window.selectMascotPalette('${p.hex}')"
+        ></div>
+      `).join("");
+    }
+
+    // Render selector cards
+    if (mascotSelectorGrid) {
+      mascotSelectorGrid.innerHTML = window.MascotEngine.characters.map(c => `
+        <div 
+          class="mascot-choice-card ${c.id === selectedMascotId ? 'selected' : ''}" 
+          onclick="window.selectMascotCharacter('${c.id}')"
+          style="padding:0.65rem; border:2px solid ${c.id === selectedMascotId ? selectedMascotColor : 'var(--border-color)'}; border-radius:var(--radius-boxy); background:var(--bg-surface); cursor:pointer; text-align:center;"
+        >
+          <div style="width:50px; height:50px; margin:0 auto 0.4rem;">
+            ${window.MascotEngine.renderSvg(c.id, c.id === selectedMascotId ? selectedMascotColor : c.themeColor, 48, false)}
+          </div>
+          <div style="font-weight:900; font-size:0.8rem; color:var(--text-main);">${escapeHtml(c.name)}</div>
+          <div style="font-family:var(--font-mono); font-size:0.68rem; color:var(--text-muted);">${escapeHtml(c.badge)}</div>
+        </div>
+      `).join("");
+    }
+  }
+
+  window.selectMascotPalette = function(hex) {
+    selectedMascotColor = hex;
+    renderMascotStudio();
+  };
+
+  window.selectMascotCharacter = function(charId) {
+    selectedMascotId = charId;
+    renderMascotStudio();
+  };
+
+  if (equipMascotBtn) {
+    equipMascotBtn.addEventListener("click", () => {
+      if (!authSession || !window.MascotEngine) return;
+      window.MascotEngine.equip(authSession.roll, selectedMascotId, selectedMascotColor);
+      if (mascotStudioModal) mascotStudioModal.classList.remove("active");
+      showNotification(`Mascot equipped: ${window.MascotEngine.getCharacter(selectedMascotId).name}! ⚡`);
+      updateProfileDisplay();
+      if (activeTab === "arena" && window.RaceArenaInstance) {
+        window.RaceArenaInstance.renderArenaView(mainContentArea, getLeaderboardRegistry(), authSession);
+      } else if (activeTab === "leaderboard") {
+        renderLeaderboardView();
+      }
+    });
+  }
+
+  if (mascotStudioBtn) {
+    mascotStudioBtn.addEventListener("click", openMascotStudioModal);
+  }
+  if (closeMascotStudioModal) {
+    closeMascotStudioModal.addEventListener("click", () => mascotStudioModal.classList.remove("active"));
+  }
+  if (closeMascotStudioBtn) {
+    closeMascotStudioBtn.addEventListener("click", () => mascotStudioModal.classList.remove("active"));
+  }
+
+  // Universal Modal Dismissal on Escape & Overlay Click (Gehna-3D Pattern)
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      document.querySelectorAll(".tactile-modal-overlay.active").forEach(m => {
+        if (m.id === "authGatekeeperModal" && !authSession) return;
+        m.classList.remove("active");
+      });
+    }
+  });
+
+  document.querySelectorAll(".tactile-modal-overlay").forEach(overlay => {
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) {
+        if (overlay.id === "authGatekeeperModal" && !authSession) return;
+        overlay.classList.remove("active");
+      }
+    });
+  });

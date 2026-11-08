@@ -1571,15 +1571,19 @@ body:not(.dark) .hint-toggle-head {
 .tactile-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
+  background: rgba(4, 7, 13, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   z-index: 200;
   display: none;
   place-items: center;
+  opacity: 0;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .tactile-modal-overlay.active {
   display: grid;
+  opacity: 1;
 }
 
 .tactile-modal-card {
@@ -1590,6 +1594,13 @@ body:not(.dark) .hint-toggle-head {
   padding: 2.2rem;
   box-shadow: var(--shadow-tactile-lg);
   position: relative;
+  transform: scale(0.95) translateY(12px);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.tactile-modal-overlay.active .tactile-modal-card {
+  transform: scale(1) translateY(0);
 }
 
 .modal-header-row {
@@ -2888,4 +2899,559 @@ body:not(.dark) .hint-toggle-head {
   padding: 0.85rem 1.25rem;
   margin-bottom: 1.25rem;
   box-shadow: var(--shadow-tactile);
+}
+
+/* =========================================================
+   LIVE RACE ARENA & ANIMATED MASCOT ENGINE (Gehna-3D & Daily DSA Tracker)
+   ========================================================= */
+
+/* Mascot Running Keyframes */
+.mascot-running .mascot-leg-left {
+  transform-origin: 42px 72px;
+  animation: mascotLegLeft 0.38s infinite ease-in-out;
+}
+
+.mascot-running .mascot-leg-right {
+  transform-origin: 58px 72px;
+  animation: mascotLegRight 0.38s infinite ease-in-out;
+}
+
+.mascot-running .mascot-arm-left {
+  transform-origin: 35px 48px;
+  animation: mascotArmLeft 0.38s infinite ease-in-out;
+}
+
+.mascot-running .mascot-arm-right {
+  transform-origin: 65px 48px;
+  animation: mascotArmRight 0.38s infinite ease-in-out;
+}
+
+.mascot-running {
+  animation: mascotBobbing 0.38s infinite ease-in-out;
+}
+
+/* Pace Multipliers */
+.pace-cruise .mascot-running { animation-duration: 0.65s; }
+.pace-cruise .mascot-leg-left, .pace-cruise .mascot-leg-right,
+.pace-cruise .mascot-arm-left, .pace-cruise .mascot-arm-right { animation-duration: 0.65s; }
+
+.pace-sprint .mascot-running { animation-duration: 0.38s; }
+.pace-sprint .mascot-leg-left, .pace-sprint .mascot-leg-right,
+.pace-sprint .mascot-arm-left, .pace-sprint .mascot-arm-right { animation-duration: 0.38s; }
+
+.pace-turbo .mascot-running { animation-duration: 0.22s; }
+.pace-turbo .mascot-leg-left, .pace-turbo .mascot-leg-right,
+.pace-turbo .mascot-arm-left, .pace-turbo .mascot-arm-right { animation-duration: 0.22s; }
+
+@keyframes mascotLegLeft {
+  0% { transform: rotate(-32deg); }
+  50% { transform: rotate(38deg); }
+  100% { transform: rotate(-32deg); }
+}
+
+@keyframes mascotLegRight {
+  0% { transform: rotate(38deg); }
+  50% { transform: rotate(-32deg); }
+  100% { transform: rotate(38deg); }
+}
+
+@keyframes mascotArmLeft {
+  0% { transform: rotate(35deg); }
+  50% { transform: rotate(-40deg); }
+  100% { transform: rotate(35deg); }
+}
+
+@keyframes mascotArmRight {
+  0% { transform: rotate(-40deg); }
+  50% { transform: rotate(35deg); }
+  100% { transform: rotate(-40deg); }
+}
+
+@keyframes mascotBobbing {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
+
+/* Race Arena Container Layout */
+.race-arena-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.race-arena-hud-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: var(--bg-surface);
+  border: var(--border-thick);
+  border-radius: var(--radius-boxy);
+  padding: 0.85rem 1.25rem;
+  box-shadow: var(--shadow-tactile);
+}
+
+.hud-left-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.arena-live-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: #0284c7;
+  color: #ffffff;
+  border: 1.5px solid #000000;
+  box-shadow: 2px 2px 0px #000000;
+  padding: 0.25rem 0.65rem;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+
+.arena-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 6px #38bdf8;
+  animation: pulseLiveDot 1.2s infinite ease-in-out;
+}
+
+@keyframes pulseLiveDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.hud-milestone-capsule {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-mono);
+}
+
+.milestone-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.milestone-value {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: var(--accent-yellow);
+}
+
+.hud-controls-cluster {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.hud-toggle-group {
+  display: flex;
+  background: var(--bg-panel-elevated);
+  border: var(--border-thick);
+  border-radius: var(--radius-boxy);
+  padding: 2px;
+}
+
+.hud-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.35rem 0.7rem;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hud-toggle-btn.active {
+  background: var(--accent-yellow);
+  color: #000000;
+  box-shadow: 1px 1px 0px #000000;
+}
+
+/* Arena Layout Grid */
+.race-arena-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .race-arena-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Multi-Lane Circuit Card */
+.race-track-circuit-card {
+  background: #090d14;
+  border: var(--border-thick);
+  border-radius: var(--radius-boxy);
+  padding: 1.5rem 1.25rem;
+  box-shadow: var(--shadow-tactile-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Weather Themes */
+.weather-dawn .race-track-circuit-card {
+  background: linear-gradient(180deg, #1e1b4b 0%, #090d14 100%);
+}
+
+.weather-golden .race-track-circuit-card {
+  background: linear-gradient(180deg, #2a1b05 0%, #090d14 100%);
+}
+
+/* Distance Ruler */
+.track-distance-grid-ruler {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px dashed rgba(255, 255, 255, 0.15);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+/* Track Lanes Board */
+.track-lanes-board {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.track-single-lane {
+  position: relative;
+  height: 84px;
+  background: #111726;
+  border: 1.5px solid #232d42;
+  border-radius: var(--radius-boxy);
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.track-single-lane.user-lane {
+  background: #141e33;
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+.track-single-lane.focused-lane {
+  border-color: var(--accent-yellow);
+  box-shadow: 0 0 12px rgba(255, 199, 0, 0.35);
+}
+
+.lane-identifier-badge {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: var(--text-muted);
+  z-index: 2;
+}
+
+.lane-number {
+  background: #1e293b;
+  color: #94a3b8;
+  padding: 0.1rem 0.35rem;
+  border-radius: 2px;
+}
+
+.lane-racer-rank {
+  color: var(--accent-yellow);
+}
+
+.track-asphalt-ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 14px;
+  height: 20px;
+  background: #0d121c;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.track-dashed-line {
+  position: absolute;
+  top: 9px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2) 15px, transparent 15px, transparent 30px);
+}
+
+/* Moving Runner Actor */
+.track-runner-actor {
+  position: absolute;
+  bottom: 12px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: left 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10;
+}
+
+.runner-overhead-tag {
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(8px);
+  border: 1.5px solid var(--accent-yellow);
+  border-radius: 4px;
+  padding: 0.2rem 0.55rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2px;
+  box-shadow: 2px 2px 0px #000000;
+  white-space: nowrap;
+}
+
+.runner-name-text {
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-size: 0.72rem;
+  color: #ffffff;
+}
+
+.runner-telemetry {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--accent-lime);
+  font-weight: 800;
+}
+
+.runner-dust-cloud {
+  position: absolute;
+  bottom: 0px;
+  left: -12px;
+  width: 14px;
+  height: 8px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: dustPuff 0.4s infinite ease-out;
+}
+
+@keyframes dustPuff {
+  0% { transform: scale(0.5); opacity: 0.8; }
+  100% { transform: scale(1.6) translateX(-10px); opacity: 0; }
+}
+
+/* Standings Card */
+.race-standings-card {
+  background: var(--bg-surface);
+  border: var(--border-thick);
+  border-radius: var(--radius-boxy);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-tactile);
+}
+
+.standings-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: var(--border-thick);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.standings-lap-tag {
+  background: var(--bg-panel-elevated);
+  color: var(--accent-yellow);
+  border: 1.5px solid var(--border-color);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 900;
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+}
+
+.standings-racers-scroll-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.standings-racer-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--bg-panel-elevated);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-boxy);
+  padding: 0.65rem 0.85rem;
+  cursor: pointer;
+  transition: transform 0.1s ease, border-color 0.1s ease, box-shadow 0.1s ease;
+}
+
+.standings-racer-card:hover {
+  transform: translateX(3px);
+  border-color: var(--accent-yellow);
+  box-shadow: 2px 2px 0px #000000;
+}
+
+.standings-racer-card.current-user-card {
+  border-color: var(--accent-lime);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.standings-racer-card.focused-racer {
+  border-color: var(--accent-yellow);
+  box-shadow: 3px 3px 0px #000000;
+}
+
+.standings-rank-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 900;
+  font-size: 0.72rem;
+  flex-shrink: 0;
+  border: 1.5px solid #000000;
+}
+
+.standings-rank-badge.rank-1 { background: #fef08a; color: #854d0e; }
+.standings-rank-badge.rank-2 { background: #bae6fd; color: #0369a1; }
+.standings-rank-badge.rank-3 { background: #fed7aa; color: #9a3412; }
+.standings-rank-badge:not(.rank-1):not(.rank-2):not(.rank-3) { background: #334155; color: #cbd5e1; }
+
+.standings-racer-avatar-mini {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #000000;
+  border-radius: 4px;
+  background: #0f172a;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.standings-racer-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.standings-racer-name {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.you-pill {
+  background: var(--accent-yellow);
+  color: #000000;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 900;
+  padding: 0.1rem 0.35rem;
+  border-radius: 2px;
+  margin-left: 0.3rem;
+}
+
+.standings-progress-frame {
+  width: 100%;
+  height: 5px;
+  background: #1e293b;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.standings-progress-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+/* Mascot Studio Modal (Gehna-3D Inspired Spring Physics) */
+.mascot-select-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.mascot-choice-card {
+  background: var(--bg-panel-elevated);
+  border: var(--border-thick);
+  border-radius: var(--radius-boxy);
+  padding: 1rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.mascot-choice-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 4px 4px 0px #000000;
+  border-color: var(--accent-yellow);
+}
+
+.mascot-choice-card.selected {
+  border-color: var(--accent-yellow);
+  background: rgba(255, 199, 0, 0.08);
+  box-shadow: 3px 3px 0px #000000;
+}
+
+.mascot-palette-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.mascot-palette-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #000000;
+  box-shadow: 1.5px 1.5px 0px #000000;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.mascot-palette-circle:hover {
+  transform: scale(1.2);
+}
+
+.mascot-palette-circle.active {
+  transform: scale(1.25);
+  box-shadow: 0 0 8px currentColor;
 }
