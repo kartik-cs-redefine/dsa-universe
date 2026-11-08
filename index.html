@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Linked List Zero to Advanced Mastery | C++ & Java Coding Interview Platform</title>
+  <title>MYTH DSA Master Platform | C++ & Java Complete Engineering Curriculum</title>
   
   <!-- Custom Artisanal Linked List Crest Favicon (Zero AI / Gemini branding) -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -24,11 +24,18 @@
   <!-- Topbar / Navbar -->
   <header class="app-topbar">
     <div class="brand-crest-wrapper">
-      <div class="brand-badge-box">LL</div>
+      <div class="brand-badge-box">MYTH</div>
       <div class="brand-title-group">
-        <span class="brand-title-text">Linked List Mastery</span>
-        <span class="brand-tagline-text">C++ & Java • CompleteInterview Platform</span>
+        <span class="brand-title-text">MYTH DSA Mastery</span>
+        <span class="brand-tagline-text">C++ & Java • Engineering Grade Learning Engine</span>
       </div>
+    </div>
+
+    <!-- Active Track Selector (Expandable to All DSA Tracks) -->
+    <div class="track-selector-box" id="topbarTrackBtn" title="Current DSA Track • Click to view full Roadmap">
+      <span class="track-indicator-dot"></span>
+      <span id="activeTrackTitle">🔗 Linked Lists (15 Modules Active)</span>
+      <span style="font-size:0.68rem; color:var(--text-muted); margin-left:0.25rem;">▾</span>
     </div>
 
     <!-- Center Progress Capsule -->
@@ -42,7 +49,7 @@
     <!-- Right Control Bar -->
     <div class="topbar-controls-row">
       <!-- C++ vs Java Dual-Engine Switcher -->
-      <div class="code-mode-toggle">
+      <div class="code-mode-toggle" title="Switch programming language for all code & solutions">
         <button class="code-mode-btn active" id="codeModeCppBtn">C++</button>
         <button class="code-mode-btn" id="codeModeJavaBtn">Java</button>
       </div>
@@ -55,17 +62,17 @@
       </select>
 
       <!-- Theme Switcher -->
-      <button class="tactile-btn" id="themeToggleBtn">
+      <button class="tactile-btn" id="themeToggleBtn" title="Toggle Light/Dark Theme">
         <span>☀️</span> Light Mode
       </button>
 
       <!-- Git / Deployment Guide -->
-      <button class="tactile-btn btn-yellow" id="deployGuideBtn">
+      <button class="tactile-btn btn-yellow" id="deployGuideBtn" title="GitHub & Vercel deployment instructions">
         <span>🚀</span> Git & Deploy
       </button>
 
-      <!-- Student Profile (MYTH Mode) -->
-      <div class="student-avatar-pill" id="profileOpenBtn" title="Click to customize User Profile">
+      <!-- Student Profile Pill (Click to view Profile / Logout) -->
+      <div class="student-avatar-pill" id="profileOpenBtn" title="Student Session • Click to View Stats or Logout">
         <div class="avatar-initial-box" id="topbarProfileAvatar">K</div>
         <span class="avatar-name-text" id="topbarProfileName">Kartik Kumar</span>
       </div>
@@ -75,19 +82,19 @@
   <!-- Main Viewport Layout -->
   <div class="app-viewport-layout">
     <!-- Sidebar -->
-    <aside class="sidebar-curriculum-panel">
+    <aside class="sidebar-curriculum-panel" id="curriculumSidebar">
       <div class="sidebar-search-sticky-box">
         <input 
           type="text" 
           id="sidebarSearchInput" 
           class="tactile-search-input" 
-          placeholder="Search topics (e.g. cycle, reverse, LRU)..."
+          placeholder="Search modules (e.g. cycle, reverse, LRU)..."
         >
       </div>
 
       <div class="sidebar-section-header">
-        <span>Curriculum Roadmap</span>
-        <span>15 MODULES</span>
+        <span id="sidebarTrackLabel">Linked List Curriculum</span>
+        <span id="sidebarModulesCount">15 MODULES</span>
       </div>
       <ul class="curriculum-module-list" id="sidebarTopicsList">
         <!-- Injected dynamically by app.js -->
@@ -108,60 +115,159 @@
           <button class="stealth-tab-button" id="tabPracticeBtn">
             <span>🎯</span> Practice Arena
           </button>
+          <button class="stealth-tab-button" id="tabAnalyticsBtn">
+            <span>📊</span> LeetCode Analytics
+          </button>
+          <button class="stealth-tab-button" id="tabLeaderboardBtn">
+            <span>🏆</span> Leaderboard
+          </button>
+          <button class="stealth-tab-button" id="tabRoadmapBtn">
+            <span>🗺️</span> DSA Roadmap
+          </button>
         </div>
 
         <div style="font-family:var(--font-mono); font-size:0.75rem; font-weight:800; color:var(--text-muted);">
-          <span>STANDARDS: </span><span style="color:var(--accent-yellow);">LeetCode • GFG • Striver A2Z</span>
+          <span>BENCHMARKS: </span><span style="color:var(--accent-yellow);">LeetCode • GFG • Striver A2Z • CompleteInterview</span>
         </div>
       </div>
 
-      <!-- Dynamic Content Injection -->
+      <!-- Dynamic Content Injection Area -->
       <div id="mainContentArea">
-        <!-- Rendered by app.js -->
+        <!-- Rendered dynamically by app.js -->
       </div>
     </main>
   </div>
 
-  <!-- User Onboarding / Profile Modal -->
+  <!-- COMPULSORY AUTH GATEKEEPER MODAL (Blocks App until Logged In) -->
+  <div class="auth-gatekeeper-overlay" id="authGatekeeperModal" style="display:none;">
+    <div class="auth-gatekeeper-card">
+      <div class="auth-gatekeeper-badge">
+        <span>🔒</span> Authentication Required • Zero Demo
+      </div>
+      <h1 class="auth-gatekeeper-title">MYTH DSA Master Login</h1>
+      <p class="auth-gatekeeper-subtitle">
+        Enter your student details to initialize your personalized curriculum, live LeetCode score tracking, streak counter, and leaderboard ranking.
+      </p>
+
+      <form id="authLoginForm" class="auth-form-grid" onsubmit="event.preventDefault(); window.handleAuthLogin();">
+        <div class="auth-input-group">
+          <label>Full Student Name *</label>
+          <input 
+            type="text" 
+            id="authInputName" 
+            class="auth-input-field" 
+            placeholder="e.g. Kartik Kumar" 
+            required 
+            autocomplete="name"
+          >
+        </div>
+
+        <div class="auth-input-group">
+          <label>College Roll Number / Student ID *</label>
+          <input 
+            type="text" 
+            id="authInputRoll" 
+            class="auth-input-field" 
+            placeholder="e.g. 2501640100454" 
+            required
+          >
+        </div>
+
+        <div class="auth-input-group">
+          <label>Primary Language Track</label>
+          <select id="authInputLangTrack" class="auth-input-field tactile-select" style="padding:0.75rem 1rem;">
+            <option value="cpp">C++ (Pointers, Memory Management & STL)</option>
+            <option value="java">Java (OOP References, JVM & Collections)</option>
+          </select>
+        </div>
+
+        <div class="auth-input-group">
+          <label>Target Career Milestone</label>
+          <select id="authInputTargetGoal" class="auth-input-field tactile-select" style="padding:0.75rem 1rem;">
+            <option value="FAANG / Tier-1 Software Engineer">FAANG / Tier-1 Software Engineer (Google, Meta, Uber)</option>
+            <option value="Product Engineering Placements">Product Engineering Placements (Amazon, Microsoft)</option>
+            <option value="Competitive Programming & ICPC">Competitive Programming & Codeforces 1600+</option>
+            <option value="Semester DSA Exam Distinction">B.Tech Semester DSA Exam 100% Mastery</option>
+          </select>
+        </div>
+
+        <div id="authErrorAlert" class="auth-error-msg">
+          ⚠️ Please provide your real Name and Roll Number to continue.
+        </div>
+
+        <button type="submit" class="tactile-btn btn-yellow" style="width:100%; justify-content:center; padding:0.9rem; font-size:0.95rem; margin-top:0.5rem;">
+          INITIALIZE PROFILE & ENTER PLATFORM 🚀
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- STUDENT PROFILE & SESSION HUB MODAL -->
   <div class="tactile-modal-overlay" id="profileModal">
     <div class="tactile-modal-card">
       <div class="modal-header-row">
-        <div class="modal-header-title">MYTH User Profile & Login</div>
+        <div class="modal-header-title">Student Profile & Stats Hub</div>
         <button class="modal-close-cross" id="closeProfileModal">×</button>
       </div>
 
-      <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.25rem;">
-        Apna name aur roll number enter karo. Poora content, personalized mentor greetings, aur learning progress tumhare account me autosave hoga.
-      </p>
-
-      <label class="modal-field-label">Student Name</label>
-      <input type="text" id="inputUserName" class="modal-text-input" placeholder="e.g. Kartik Kumar">
-
-      <label class="modal-field-label">Roll Number</label>
-      <input type="text" id="inputUserRoll" class="modal-text-input" placeholder="e.g. 2501640100454">
-
-      <label class="modal-field-label">Quick Switch Presets:</label>
-      <div class="presets-cluster-row">
-        <button class="preset-switch-btn" onclick="selectPresetProfile('Kartik Kumar', '2501640100454')">
-          Kartik Kumar (Primary)
-        </button>
-        <button class="preset-switch-btn" onclick="selectPresetProfile('Tanmay Awasthi', '2501640100945')">
-          Tanmay Awasthi
-        </button>
-        <button class="preset-switch-btn" onclick="selectPresetProfile('Krish Chaddha', '2501640100471')">
-          Krish Chaddha
-        </button>
+      <div style="display:flex; align-items:center; gap:1.25rem; margin-bottom:1.5rem; background:var(--bg-panel-elevated); padding:1.25rem; border:var(--border-thick); border-radius:var(--radius-boxy); box-shadow:var(--shadow-tactile);">
+        <div class="analytics-user-avatar" id="modalProfileAvatar" style="width:52px; height:52px; font-size:1.4rem;">K</div>
+        <div>
+          <h3 id="modalProfileName" style="font-size:1.2rem; font-weight:900; color:var(--text-main);">Kartik Kumar</h3>
+          <p id="modalProfileRoll" style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted); font-weight:800;">Roll: 2501640100454</p>
+        </div>
       </div>
 
-      <button class="tactile-btn btn-yellow" id="saveProfileBtn" style="width:100%; justify-content:center; padding:0.8rem;">
-        Save Profile & Continue Learning
-      </button>
+      <div class="analytics-stat-chips-row" style="margin-bottom:1.75rem; justify-content:space-between;">
+        <div class="stat-metric-badge" style="flex:1;">
+          <span class="metric-label">LC Solved</span>
+          <span class="metric-value" id="modalStatSolved">0/42</span>
+        </div>
+        <div class="stat-metric-badge" style="flex:1;">
+          <span class="metric-label">Points</span>
+          <span class="metric-value" id="modalStatPoints">0</span>
+        </div>
+        <div class="stat-metric-badge" style="flex:1;">
+          <span class="metric-label">Leaderboard</span>
+          <span class="metric-value" id="modalStatRank">#1</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom:1.5rem; font-family:var(--font-mono); font-size:0.82rem; color:var(--text-muted);">
+        <p>• Language Track: <strong style="color:var(--text-main);" id="modalProfileTrack">C++</strong></p>
+        <p style="margin-top:0.35rem;">• Target Milestone: <strong style="color:var(--text-main);" id="modalProfileTarget">FAANG SDE</strong></p>
+      </div>
+
+      <div style="display:flex; gap:0.75rem;">
+        <button class="tactile-btn" id="closeProfileModalBtn" style="flex:1; justify-content:center; padding:0.75rem;">
+          Close
+        </button>
+        <button class="tactile-btn btn-yellow" id="logoutProfileBtn" style="flex:1; justify-content:center; padding:0.75rem; background:var(--accent-crimson); color:#fff; border-color:#000;">
+          Switch Student / Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MASTER DSA ROADMAP MODAL -->
+  <div class="tactile-modal-overlay" id="roadmapModal">
+    <div class="tactile-modal-card" style="width:min(760px, calc(100% - 32px)); max-height:85vh; overflow-y:auto;">
+      <div class="modal-header-row">
+        <div class="modal-header-title">Master DSA Curriculum Roadmap</div>
+        <button class="modal-close-cross" id="closeRoadmapModal">×</button>
+      </div>
+      <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.25rem;">
+        Complete FAANG interview syllabus spanning all standard data structures and algorithmic paradigms. Select a track to explore:
+      </p>
+      <div id="roadmapModalGrid" class="roadmap-domains-grid">
+        <!-- Injected dynamically by app.js -->
+      </div>
     </div>
   </div>
 
   <!-- Git & Deployment Guide Modal -->
   <div class="tactile-modal-overlay" id="deployModal">
-    <div class="tactile-modal-card" style="width:min(640px, calc(100% - 32px));">
+    <div class="tactile-modal-card" style="width:min(660px, calc(100% - 32px));">
       <div class="modal-header-row">
         <div class="modal-header-title">Git & One-Click Deployment Guide</div>
         <button class="modal-close-cross" id="closeDeployModal">×</button>
