@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const KEY_NOTES = "myth_problem_notes_v4";
   const KEY_SCRATCHPAD = "myth_scratchpad_v4";
   const KEY_LEADERBOARD = "myth_global_leaderboard_v4";
+  const KEY_ATTEMPTS = "myth_user_attempts_v4";
   const KEY_ACTIVITY = "myth_submission_activity_v4";
 
   // App State
@@ -258,7 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function getLeaderboardRegistry() {
     let registry = JSON.parse(localStorage.getItem(KEY_LEADERBOARD) || "null");
     if (!registry || !Array.isArray(registry) || registry.length === 0) {
-      // Seed initial realistic benchmark peers
+      // Seed initial realistic benchmark peers with verifiable submission history
       registry = [
         {
           name: "Tanmay Awasthi",
@@ -267,9 +268,11 @@ document.addEventListener("DOMContentLoaded", () => {
           easySolved: 14,
           medSolved: 18,
           hardSolved: 4,
+          acceptedSubmissions: 36,
+          totalAttempts: 39,
           score: 830,
           streak: 8,
-          accuracy: 94
+          accuracy: 92
         },
         {
           name: "Krish Chaddha",
@@ -278,9 +281,11 @@ document.addEventListener("DOMContentLoaded", () => {
           easySolved: 12,
           medSolved: 16,
           hardSolved: 3,
+          acceptedSubmissions: 31,
+          totalAttempts: 35,
           score: 720,
           streak: 6,
-          accuracy: 91
+          accuracy: 89
         },
         {
           name: "Priya Sharma",
@@ -289,9 +294,11 @@ document.addEventListener("DOMContentLoaded", () => {
           easySolved: 11,
           medSolved: 14,
           hardSolved: 2,
+          acceptedSubmissions: 27,
+          totalAttempts: 31,
           score: 610,
           streak: 5,
-          accuracy: 89
+          accuracy: 87
         },
         {
           name: "Aryan Verma",
@@ -300,9 +307,11 @@ document.addEventListener("DOMContentLoaded", () => {
           easySolved: 10,
           medSolved: 11,
           hardSolved: 2,
+          acceptedSubmissions: 23,
+          totalAttempts: 28,
           score: 525,
           streak: 4,
-          accuracy: 88
+          accuracy: 82
         },
         {
           name: "Sneha Patel",
@@ -311,13 +320,28 @@ document.addEventListener("DOMContentLoaded", () => {
           easySolved: 9,
           medSolved: 9,
           hardSolved: 1,
+          acceptedSubmissions: 19,
+          totalAttempts: 24,
           score: 445,
           streak: 3,
-          accuracy: 85
+          accuracy: 79
         }
       ];
     }
     return registry;
+  }
+
+  function computeCohortStats(registry) {
+    let totalAccepted = 0;
+    let totalAttempts = 0;
+    registry.forEach(u => {
+      const acc = u.acceptedSubmissions !== undefined ? u.acceptedSubmissions : (u.easySolved + u.medSolved + u.hardSolved || 0);
+      const att = u.totalAttempts !== undefined ? u.totalAttempts : Math.max(acc, Math.round(acc * 1.12));
+      totalAccepted += acc;
+      totalAttempts += att;
+    });
+    const avgAcceptance = Math.round((totalAccepted / Math.max(1, totalAttempts)) * 100);
+    return { totalAccepted, totalAttempts, avgAcceptance, totalStudents: registry.length };
   }
 
   function calculateUserScore() {
@@ -346,6 +370,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const stats = calculateUserScore();
     const registry = getLeaderboardRegistry();
 
+    const userAttemptsKey = `${KEY_ATTEMPTS}_${authSession.roll}`;
+    let userAttempts = parseInt(localStorage.getItem(userAttemptsKey) || "0", 10);
+    const totalSolved = solvedProblems.size;
+    if (userAttempts < totalSolved) {
+      userAttempts = totalSolved;
+      localStorage.setItem(userAttemptsKey, userAttempts);
+    }
+    const userAccuracy = userAttempts > 0 ? Math.round((totalSolved / userAttempts) * 100) : 100;
+
     const existingIdx = registry.findIndex(u => u.roll === authSession.roll);
     const currentUserRecord = {
       name: authSession.name,
@@ -354,9 +387,11 @@ document.addEventListener("DOMContentLoaded", () => {
       easySolved: stats.easyCount,
       medSolved: stats.medCount,
       hardSolved: stats.hardCount,
+      acceptedSubmissions: totalSolved,
+      totalAttempts: userAttempts,
       score: stats.totalScore,
       streak: Math.max(1, Math.min(14, solvedProblems.size + 1)),
-      accuracy: 92
+      accuracy: userAccuracy
     };
 
     if (existingIdx >= 0) {
@@ -374,14 +409,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const modalStatSolved = document.getElementById("modalStatSolved");
     const modalStatPoints = document.getElementById("modalStatPoints");
     const modalStatRank = document.getElementById("modalStatRank");
+    const modalStatAcceptance = document.getElementById("modalStatAcceptance");
     if (modalStatSolved) modalStatSolved.innerText = `${solvedProblems.size}/42`;
     if (modalStatPoints) modalStatPoints.innerText = stats.totalScore;
     if (modalStatRank) modalStatRank.innerText = `#${rank}`;
+    if (modalStatAcceptance) modalStatAcceptance.innerText = `${userAccuracy}%`;
   }
 
   function renderLeaderboardView() {
     syncCurrentUserLeaderboard();
     const registry = getLeaderboardRegistry();
+    const cohortStats = computeCohortStats(registry);
 
     const top1 = registry[0] || { name: "-", roll: "-", score: 0, easySolved: 0, medSolved: 0, hardSolved: 0 };
     const top2 = registry[1] || { name: "-", roll: "-", score: 0, easySolved: 0, medSolved: 0, hardSolved: 0 };
@@ -396,7 +434,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="podium-trophy-badge">🥈</div>
             <div class="podium-student-name">${escapeHtml(top2.name)}</div>
             <div class="podium-student-roll">Roll: ${escapeHtml(top2.roll)} • ${top2.track.toUpperCase()}</div>
-            <div class="podium-score-pill">${top2.score} PTS (${top2.easySolved + top2.medSolved + top2.hardSolved} Solved)</div>
+            <div class="podium-score-pill">${top2.score} PTS (${top2.easySolved + top2.medSolved + top2.hardSolved} Solved • ${top2.accuracy || 89}% Acc)</div>
           </div>
 
           <!-- Rank 1: Gold -->
@@ -404,7 +442,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="podium-trophy-badge">👑</div>
             <div class="podium-student-name">${escapeHtml(top1.name)}</div>
             <div class="podium-student-roll">Roll: ${escapeHtml(top1.roll)} • ${top1.track.toUpperCase()}</div>
-            <div class="podium-score-pill" style="background:var(--accent-yellow);">${top1.score} PTS (${top1.easySolved + top1.medSolved + top1.hardSolved} Solved)</div>
+            <div class="podium-score-pill" style="background:var(--accent-yellow);">${top1.score} PTS (${top1.easySolved + top1.medSolved + top1.hardSolved} Solved • ${top1.accuracy || 92}% Acc)</div>
           </div>
 
           <!-- Rank 3: Bronze -->
@@ -412,7 +450,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="podium-trophy-badge">🥉</div>
             <div class="podium-student-name">${escapeHtml(top3.name)}</div>
             <div class="podium-student-roll">Roll: ${escapeHtml(top3.roll)} • ${top3.track.toUpperCase()}</div>
-            <div class="podium-score-pill">${top3.score} PTS (${top3.easySolved + top3.medSolved + top3.hardSolved} Solved)</div>
+            <div class="podium-score-pill">${top3.score} PTS (${top3.easySolved + top3.medSolved + top3.hardSolved} Solved • ${top3.accuracy || 87}% Acc)</div>
           </div>
         </div>
 
@@ -422,7 +460,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div>
               <h2 style="font-size:1.35rem; font-weight:900; color:var(--text-main);">Live Student Hall of Fame</h2>
               <p style="font-size:0.85rem; color:var(--text-muted); font-family:var(--font-mono);">
-                Ranked dynamically by verified algorithmic points, module completion bonuses & active day streak.
+                Ranked dynamically across ${cohortStats.totalStudents} registered students • Cohort Acceptance Avg: <strong style="color:var(--accent-lime);">${cohortStats.avgAcceptance}%</strong>
               </p>
             </div>
             <input 
@@ -443,13 +481,14 @@ document.addEventListener("DOMContentLoaded", () => {
                   <th>Roll / ID</th>
                   <th>Track</th>
                   <th>Solved (E / M / H)</th>
+                  <th>Acceptance Rate</th>
                   <th>Streak</th>
                   <th>Points</th>
                   <th>Rating Tier</th>
                 </tr>
               </thead>
               <tbody id="leaderboardTableBody">
-                ${renderLeaderboardRows(registry, "")}
+                ${renderLeaderboardRows(registry, cohortStats, "")}
               </tbody>
             </table>
           </div>
@@ -458,13 +497,16 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   }
 
-  function renderLeaderboardRows(registry, query = "") {
+  function renderLeaderboardRows(registry, cohortStats, query = "") {
     const q = query.toLowerCase().trim();
+    const avgCohort = cohortStats && cohortStats.avgAcceptance ? cohortStats.avgAcceptance : 85;
     return registry
       .filter(u => !q || u.name.toLowerCase().includes(q) || u.roll.toLowerCase().includes(q))
       .map((user, idx) => {
         const isCurrentUser = authSession && user.roll === authSession.roll;
         const totalSolved = user.easySolved + user.medSolved + user.hardSolved;
+        const attempts = user.totalAttempts || Math.max(totalSolved, 1);
+        const accuracy = user.accuracy !== undefined ? user.accuracy : Math.round((totalSolved / attempts) * 100);
         const rankNum = idx + 1;
 
         let rankBadge = `#${rankNum}`;
@@ -476,6 +518,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (user.score >= 800) tierTag = "👑 Grandmaster";
         else if (user.score >= 500) tierTag = "⚔️ Specialist";
         else tierTag = "🛡️ Apprentice";
+
+        const isAboveAvg = accuracy >= avgCohort;
 
         return `
           <tr class="${isCurrentUser ? "current-user-row" : ""}">
@@ -498,6 +542,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 <span style="color:var(--accent-crimson);">${user.hardSolved}H</span>)
               </span>
             </td>
+            <td style="font-family:var(--font-mono); font-size:0.82rem;">
+              <strong style="color:${isAboveAvg ? "var(--accent-emerald)" : "var(--accent-yellow)"};">${accuracy}%</strong>
+              <span style="color:var(--text-muted); font-size:0.7rem; margin-left:0.25rem;">
+                (${user.acceptedSubmissions !== undefined ? user.acceptedSubmissions : totalSolved}/${attempts})
+              </span>
+            </td>
             <td style="font-family:var(--font-mono); font-weight:800; color:var(--accent-yellow);">🔥 ${user.streak}d</td>
             <td style="font-family:var(--font-mono); font-size:1rem; font-weight:900; color:var(--text-main);">${user.score}</td>
             <td>
@@ -510,8 +560,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.filterLeaderboardTable = (val) => {
     const registry = getLeaderboardRegistry();
+    const cohortStats = computeCohortStats(registry);
     const tbody = document.getElementById("leaderboardTableBody");
-    if (tbody) tbody.innerHTML = renderLeaderboardRows(registry, val);
+    if (tbody) tbody.innerHTML = renderLeaderboardRows(registry, cohortStats, val);
   };
 
   // ============================================================================
@@ -520,6 +571,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderAnalyticsView() {
     syncCurrentUserLeaderboard();
+    const registry = getLeaderboardRegistry();
+    const cohortStats = computeCohortStats(registry);
+    const currentUserRecord = registry.find(u => authSession && u.roll === authSession.roll) || {};
+    const userAccuracy = currentUserRecord.accuracy !== undefined ? currentUserRecord.accuracy : 100;
     const stats = calculateUserScore();
     const totalPossible = 42;
     const easyTotal = 14;
@@ -594,9 +649,12 @@ document.addEventListener("DOMContentLoaded", () => {
               <span class="metric-label">Day Streak</span>
               <span class="metric-value" style="color:var(--accent-crimson);">🔥 ${Math.max(1, solvedProblems.size + 1)}d</span>
             </div>
-            <div class="stat-metric-badge">
+            <div class="stat-metric-badge" style="min-width:125px;">
               <span class="metric-label">Acceptance</span>
-              <span class="metric-value" style="color:var(--accent-emerald);">94.8%</span>
+              <span class="metric-value" style="color:var(--accent-emerald);">${userAccuracy}%</span>
+              <span style="font-family:var(--font-mono); font-size:0.65rem; color:var(--text-muted); display:block; margin-top:2px;">
+                Cohort Avg: ${cohortStats.avgAcceptance}%
+              </span>
             </div>
           </div>
         </div>
@@ -1511,6 +1569,12 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   window.runTestSimulation = (probId) => {
+    if (authSession) {
+      const userAttemptsKey = `${KEY_ATTEMPTS}_${authSession.roll}`;
+      let attempts = parseInt(localStorage.getItem(userAttemptsKey) || "0", 10) + 1;
+      localStorage.setItem(userAttemptsKey, attempts);
+      syncCurrentUserLeaderboard();
+    }
     const consoleBox = document.getElementById(`console-${probId}`);
     if (!consoleBox) return;
 
@@ -1533,6 +1597,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.submitProblemSolution = (probId) => {
     if (!authSession) return;
+    const userAttemptsKey = `${KEY_ATTEMPTS}_${authSession.roll}`;
+    let attempts = parseInt(localStorage.getItem(userAttemptsKey) || "0", 10) + 1;
+    localStorage.setItem(userAttemptsKey, attempts);
     solvedProblems.add(probId);
     localStorage.setItem(`${KEY_SOLVED_PROBS}_${authSession.roll}`, JSON.stringify(Array.from(solvedProblems)));
     updateProgress();
