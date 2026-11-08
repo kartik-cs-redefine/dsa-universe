@@ -2430,6 +2430,144 @@ body:not(.dark) .hint-toggle-head {
   color: var(--text-main);
 }
 
+/* =========================================================
+   LEETCODE LIVE CONNECT & SYNC HUB
+   ========================================================= */
+.leetcode-sync-card {
+  background: var(--bg-surface);
+  border: var(--border-thick);
+  border-radius: var(--radius-boxy);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-tactile-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.leetcode-sync-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  border-bottom: var(--border-thick);
+  padding-bottom: 1rem;
+}
+
+.leetcode-sync-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.leetcode-crest-badge {
+  background: #f89f1b;
+  color: #000000;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  padding: 0.35rem 0.65rem;
+  border: 1.5px solid #000000;
+  box-shadow: 2px 2px 0px #000000;
+  border-radius: 2px;
+  font-size: 0.85rem;
+}
+
+.leetcode-sync-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.sync-spin-icon {
+  display: inline-block;
+  transition: transform 0.5s ease;
+}
+
+.syncing .sync-spin-icon {
+  animation: spinKeyframe 0.8s linear infinite;
+}
+
+@keyframes spinKeyframe {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.leetcode-sync-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1rem;
+}
+
+.leetcode-sync-stat-box {
+  background: var(--bg-panel-elevated);
+  border: var(--border-thick);
+  border-radius: var(--radius-boxy);
+  padding: 1rem 1.15rem;
+  box-shadow: var(--shadow-tactile);
+}
+
+.leetcode-sync-stat-box .stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  display: block;
+}
+
+.leetcode-sync-stat-box .stat-number {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+  margin-top: 0.2rem;
+}
+
+.leetcode-submissions-feed-box {
+  background: #080a0f;
+  border: var(--border-thick);
+  border-radius: var(--radius-boxy);
+  padding: 1.25rem;
+}
+
+.leetcode-feed-header {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: var(--accent-yellow);
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.leetcode-feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.leetcode-feed-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: #11141d;
+  border: 1px solid #262c3b;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.lc-status-accepted {
+  background: #10b981;
+  color: #000000;
+  font-weight: 900;
+  padding: 0.15rem 0.45rem;
+  border-radius: 2px;
+  font-size: 0.7rem;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   aside.sidebar-curriculum-panel {

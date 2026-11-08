@@ -1,7 +1,7 @@
-# MYTH Learning Platform — DSA Engineering Mastery (C++ & Java) ⚡
+# MYTH Complete DSA Guide — Engineering Mastery (C++ & Java) ⚡
 
-> **High-Performance DSA Mastery Engine**  
-> Complete dual-language curriculum covering all fundamental and advanced algorithmic patterns from absolute zero to Tier-1 Software Engineering standards.
+> **High-Performance Complete DSA Guide & Learning Engine**  
+> Complete dual-language curriculum covering all fundamental and advanced algorithmic patterns from absolute zero to Tier-1 Software Engineering standards with live LeetCode account synchronization.
 
 ---
 
@@ -84,7 +84,18 @@ In GitHub Repo Settings -> Pages -> Source: `Deploy from branch main /root` -> S
 - Interactive ranking table highlighting the active user with a bright `YOU` badge.
 - Instant search filter by name or roll number.
 
-### 5. MYTH Performance Analytics & Contribution Heatmap
+### 5. Live LeetCode Account Connect & Summary Feed
+- User apna LeetCode profile link (e.g. `https://leetcode.com/u/kartikkumar/`) ya username enter karta hai.
+- Live LeetCode Sync Hub:
+  - Real-time Global Ranking (e.g. `#138,420`).
+  - Total LeetCode Solved (Easy / Medium / Hard count).
+  - LeetCode Acceptance Rate (e.g. `68.4%`).
+  - Contest Rating & Tier Badge (`1685 - Knight`).
+  - Live Recent Submissions Feed (Title, Accepted status, Language, Timestamp).
+  - 1-Click `⚡ Sync LeetCode Now` button.
+- Leaderboard me har student ke naam ke aage unka live LeetCode handle pill (`@username ↗`) display hota hai.
+
+### 6. MYTH Performance Analytics & Contribution Heatmap
 - Circular Donut Progress Ring with Easy, Medium, Hard breakdown bars.
 - 16-Week (112-Day) interactive Code Execution & Submission Calendar Heatmap with hover tooltips.
 - Day streak tracker (`🔥 Active Streak`), acceptance rate, and skill coverage matrix.

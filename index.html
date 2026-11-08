@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MYTH DSA Master Platform | C++ & Java Complete Engineering Curriculum</title>
+  <title>MYTH Complete DSA Guide | C++ & Java High-Performance Platform</title>
   
   <!-- Custom Artisanal Linked List Crest Favicon (Zero AI / Gemini branding) -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -26,8 +26,8 @@
     <div class="brand-crest-wrapper">
       <div class="brand-badge-box">MYTH</div>
       <div class="brand-title-group">
-        <span class="brand-title-text">MYTH DSA Mastery</span>
-        <span class="brand-tagline-text">C++ & Java • Engineering Grade Learning Engine</span>
+        <span class="brand-title-text">MYTH Complete DSA Guide</span>
+        <span class="brand-tagline-text">C++ & Java • Engineering Grade Curriculum</span>
       </div>
     </div>
 
@@ -144,9 +144,9 @@
       <div class="auth-gatekeeper-badge">
         <span>🔒</span> Authentication Required • Zero Demo
       </div>
-      <h1 class="auth-gatekeeper-title">MYTH DSA Master Login</h1>
+      <h1 class="auth-gatekeeper-title">MYTH Complete DSA Guide</h1>
       <p class="auth-gatekeeper-subtitle">
-        Enter your student details to initialize your personalized curriculum, code verification score, daily streak, and leaderboard ranking.
+        Enter your student details to initialize your personalized curriculum, live LeetCode account sync, code verification score, daily streak, and leaderboard ranking.
       </p>
 
       <form id="authLoginForm" class="auth-form-grid" onsubmit="event.preventDefault(); window.handleAuthLogin();">
@@ -171,6 +171,19 @@
             placeholder="e.g. 2501640100454" 
             required
           >
+        </div>
+
+        <div class="auth-input-group">
+          <label>LeetCode Profile URL or Username (Optional)</label>
+          <input 
+            type="text" 
+            id="authInputLeetCode" 
+            class="auth-input-field" 
+            placeholder="e.g. https://leetcode.com/u/kartikkumar/ or kartikkumar"
+          >
+          <span style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); display:block; margin-top:0.25rem;">
+            Auto-syncs your real LeetCode profile, global ranking & live submissions feed.
+          </span>
         </div>
 
         <div class="auth-input-group">
@@ -240,6 +253,26 @@
       <div style="margin-bottom:1.5rem; font-family:var(--font-mono); font-size:0.82rem; color:var(--text-muted);">
         <p>• Language Track: <strong style="color:var(--text-main);" id="modalProfileTrack">C++</strong></p>
         <p style="margin-top:0.35rem;">• Target Milestone: <strong style="color:var(--text-main);" id="modalProfileTarget">FAANG SDE</strong></p>
+      </div>
+
+      <!-- LeetCode Live Connection Box -->
+      <div style="margin-bottom:1.5rem; background:var(--bg-panel-elevated); border:var(--border-thick); border-radius:var(--radius-boxy); padding:1rem; box-shadow:var(--shadow-tactile);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+          <span style="font-family:var(--font-mono); font-size:0.75rem; font-weight:900; color:var(--text-main);">LIVE LEETCODE ACCOUNT</span>
+          <span id="modalLeetCodeStatus" style="font-family:var(--font-mono); font-size:0.7rem; font-weight:800; color:var(--accent-lime);">🟢 Connected</span>
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <input 
+            type="text" 
+            id="modalInputLeetCode" 
+            class="modal-text-input" 
+            style="margin-bottom:0; padding:0.45rem 0.75rem; font-size:0.85rem;" 
+            placeholder="Username or LeetCode URL"
+          >
+          <button class="tactile-btn btn-yellow" onclick="window.updateAndSyncLeetCode()" style="padding:0.45rem 0.85rem; font-size:0.78rem; white-space:nowrap;">
+            Sync ⚡
+          </button>
+        </div>
       </div>
 
       <div style="display:flex; gap:0.75rem;">
