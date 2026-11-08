@@ -1,82 +1,78 @@
 # Firestore Security & Deployment Guide
 
-This document outlines the security architecture and deployment procedure for the Cloud Firestore rules securing the MYTH DSA platform.
+This document outlines the security architecture, document ownership model, and deployment procedure for the Cloud Firestore rules securing the MYTH DSA platform.
 
 ---
 
-## 1. Security Audit & Threat Model
+## 1. Authentication & Identity Mapping Architecture
 
-Prior to this hardening, the platform lacked an explicit `firestore.rules` definition, exposing the system to:
-1. **Unrestricted Writes**: Any client could overwrite or wipe another student's progress or notes.
-2. **Score Spoofing**: Malicious requests could submit arbitrarily inflated `lcSolved` or `compositePoints` directly to `myth_leaderboard`.
-3. **Data Leakage**: Private student scratchpad code and notes could be read if rules were set to default public read.
+### How `request.auth` Maps to `roll`:
+1. **Google Auth Provider (`firebase.auth.GoogleAuthProvider`)**:
+   - Authenticated via `signInWithPopup(provider)`.
+   - Produces a Firebase auth user where `request.auth.uid` is the Google account UID (e.g. `google:1082...`).
+   - The student associates their university roll number (e.g. `2501640100454`) upon sign-in.
+   - When writing to `myth_users/{roll}`, the client sets `uid: request.auth.uid` in the document.
+   - The rule verifies:
+     `resource.data.uid == request.auth.uid && request.resource.data.uid == request.auth.uid`
+     This irreversibly locks the roll document to the Google account that initialized it. No other Google account can ever update or overwrite that roll document.
 
-### Enforced Rules Architecture (`firestore.rules`):
-- **Authentication Required (`isAuthenticated()`)**: Anonymous or authenticated session required for writes.
-- **Per-User Document Ownership (`isOwner(roll)`)**: Students can only write to their own profile, progress record, and leaderboard slot matching their authenticated identity.
-- **Strict Data Validation**:
-  - `name`: String, 1–80 characters.
-  - `roll`: String, 1–40 characters, must strictly equal the document ID.
-  - `leetcode`: String, max 60 characters.
-  - `codeMode`: Restricted to `'cpp' | 'java'`.
-  - `lcSolved`: Number between `0` and `5000`.
-  - `platformSolved`: Number between `0` and `500`.
-  - `compositePoints`: Non-negative number.
-  - `code` & `notes`: String bounds (50 KB max for scratchpad, 20 KB for notes).
-- **Private Data Isolation**: `myth_scratchpads` and `myth_notes` are strictly scoped to the document owner (`isDocKeyOwner(docKey)`).
-- **Default Deny**: All unmapped collections (`match /{document=**}`) have `allow read, write: if false;`.
+2. **Roll Number / Credentials Form**:
+   - When a student enters their roll number and name without Google Auth, the client triggers Firebase Anonymous Authentication (`firebase.auth().signInAnonymously()`).
+   - This provisions a cryptographically signed Firebase session with a persistent `request.auth.uid`.
+   - On document creation, the record is locked to that UID (`uid: request.auth.uid`).
+   - Any unauthenticated actor (`request.auth == null`) is rejected with permission denied.
 
 ---
 
-## 2. Deployment Instructions
+## 2. Complete Inventory of Firestore Collections
 
-### Method A: Deploy via Firebase CLI (Recommended)
+The table below lists every collection and path touched across the entire codebase (`js/cloud-db.js`, `js/app.js`, `js/race-arena.js`, `js/mascot-system.js`):
 
-1. **Install Firebase CLI**:
-   ```bash
-   npm install -g firebase-tools
-   ```
+| Collection Path | Read Rule | Write Rule | Fields Enforced | Purpose |
+| :--- | :--- | :--- | :--- | :--- |
+| `myth_users/{roll}` | `isAuthenticated()` | Owner only (`resource.data.uid == request.auth.uid`) | `name, roll, uid, updatedAt, email, leetcode, codeMode, langTrack` | Student profile, theme, and language track |
+| `myth_progress/{roll}` | `isAuthenticated()` | Owner only (`resource.data.uid == request.auth.uid`) | `completedTopics, solvedProblems, bookmarkedProblems, updatedAt` | Checkmarked topics and solved coding challenges |
+| `myth_leaderboard/{roll}` | Public (`true`) | Owner only (`resource.data.uid == request.auth.uid`) | `name, roll, lcSolved, platformSolved, compositePoints, updatedAt` | Public ranking table with 80/20 composite weighting |
+| `myth_scratchpads/{docKey}` | Owner only (`isDocKeyOwner`) | Owner only (`isDocKeyOwner`) | `code, updatedAt` (max 50,000 chars) | In-browser C++/Java code editor scratchpads |
+| `myth_notes/{docKey}` | Owner only (`isDocKeyOwner`) | Owner only (`isDocKeyOwner`) | `notes, updatedAt` (max 20,000 chars) | Private problem notes per user |
+| **All other collections** (`/{document=**}`) | **DENY** (`false`) | **DENY** (`false`) | None | Intentional default-deny against unauthorized probing |
 
-2. **Authenticate with Google**:
-   ```bash
-   firebase login
-   ```
-
-3. **Select / Link Your Firebase Project**:
-   ```bash
-   firebase use <YOUR_FIREBASE_PROJECT_ID>
-   ```
-
-4. **Deploy Rules to Production**:
-   ```bash
-   firebase deploy --only firestore:rules
-   ```
-
-5. **Verify in Terminal**:
-   The CLI will output:
-   ```text
-   ✔  firestore: released rules firestore.rules to cloud.firestore
-   ```
+*Note on Race Arena and Mascot*: `race-arena.js` operates purely client-side/in-memory with simulated lane physics. `mascot-system.js` persists equipped skins to `localStorage` and saves the avatar string to `myth_users/{roll}` via `CloudDB.saveUserProfile()`. Neither touches any undocumented Firestore collection.
 
 ---
 
-### Method B: Deploy via Firebase Web Console
+## 3. Known Limitations
 
-If you do not have the Firebase CLI installed:
-1. Open the [Firebase Console](https://console.firebase.google.com/).
-2. Select your project.
-3. In the left navigation, click **Build** -> **Firestore Database**.
-4. Click the **Rules** tab at the top.
-5. Copy the entire contents of [`firestore.rules`](../firestore.rules) from this repository.
-6. Paste into the console editor.
-7. Click **Publish**.
+> [!WARNING]
+> **Client-Writable Score Fields (Current Limitation)**:
+> In the current client-direct Firestore architecture (without a backend server), the fields `lcSolved`, `platformSolved`, and `compositePoints` in `myth_leaderboard/{roll}` are written directly by the client browser.
+> 
+> Although `firestore.rules` enforces hard boundary conditions (`lcSolved <= 5000`, `platformSolved <= 500`, non-negative bounds, matching roll ID), a technically savvy user could alter their client JavaScript memory to send an inflated valid number (e.g. `4500`).
+>
+> **Production Fix Roadmap (Step 6)**:
+> In Step 6 of our hardening plan, all LeetCode GraphQL verification and composite score calculations will be moved to a protected **Vercel Serverless Function** using the **Firebase Admin SDK**. Once deployed, `myth_leaderboard` write access will be completely locked down (`allow write: if false;`), making score spoofing impossible.
 
 ---
 
-## 3. Local Testing & Validation
+## 4. Deployment Instructions
 
-To test rules locally without affecting production data:
+### Option 1: Firebase CLI
 ```bash
-firebase emulators:start --only firestore
+# 1. Install CLI if not present
+npm install -g firebase-tools
+
+# 2. Login to Google
+firebase login
+
+# 3. Select project
+firebase use <YOUR_FIREBASE_PROJECT_ID>
+
+# 4. Deploy rules
+firebase deploy --only firestore:rules
 ```
-Run rule assertions against the local emulator port (`localhost:8080`).
+
+### Option 2: Firebase Web Console
+1. Open the [Firebase Console](https://console.firebase.google.com/).
+2. Select your project -> **Firestore Database** -> **Rules**.
+3. Replace the editor contents with [`firestore.rules`](../firestore.rules).
+4. Click **Publish**.
