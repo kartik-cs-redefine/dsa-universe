@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linked List Zero to Advanced Mastery | C++ & Java Coding Interview Platform</title>
+  
+  <!-- Custom Artisanal Linked List Crest Favicon (Zero AI / Gemini branding) -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Typography: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/visualizer.css">
+</head>
+<body class="dark">
+
+  <!-- Subtle Geometric Grid Texture -->
+  <div class="bg-grid-texture"></div>
+
+  <!-- Topbar / Navbar -->
+  <header class="app-topbar">
+    <div class="brand-crest-wrapper">
+      <div class="brand-badge-box">LL</div>
+      <div class="brand-title-group">
+        <span class="brand-title-text">Linked List Mastery</span>
+        <span class="brand-tagline-text">C++ & Java • CompleteInterview Platform</span>
+      </div>
+    </div>
+
+    <!-- Center Progress Capsule -->
+    <div class="topbar-progress-capsule">
+      <div class="progress-track-frame">
+        <div class="progress-bar-fill" id="overallProgressBar"></div>
+      </div>
+      <span class="progress-numeric-text" id="overallProgressLabel">0% • 0/15 TOPICS (0 LC SOLVED)</span>
+    </div>
+
+    <!-- Right Control Bar -->
+    <div class="topbar-controls-row">
+      <!-- C++ vs Java Dual-Engine Switcher -->
+      <div class="code-mode-toggle">
+        <button class="code-mode-btn active" id="codeModeCppBtn">C++</button>
+        <button class="code-mode-btn" id="codeModeJavaBtn">Java</button>
+      </div>
+
+      <!-- Tone / Persona Selector -->
+      <select class="tactile-select" id="toneSelector" title="Explanation Persona">
+        <option value="hinglish">Aap Ki Style (Hinglish Mentor)</option>
+        <option value="en">English (Interview Formal)</option>
+        <option value="tldr">TL;DR (Quick Exam Rules)</option>
+      </select>
+
+      <!-- Theme Switcher -->
+      <button class="tactile-btn" id="themeToggleBtn">
+        <span>☀️</span> Light Mode
+      </button>
+
+      <!-- Git / Deployment Guide -->
+      <button class="tactile-btn btn-yellow" id="deployGuideBtn">
+        <span>🚀</span> Git & Deploy
+      </button>
+
+      <!-- Student Profile (MYTH Mode) -->
+      <div class="student-avatar-pill" id="profileOpenBtn" title="Click to customize User Profile">
+        <div class="avatar-initial-box" id="topbarProfileAvatar">K</div>
+        <span class="avatar-name-text" id="topbarProfileName">Kartik Kumar</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Viewport Layout -->
+  <div class="app-viewport-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar-curriculum-panel">
+      <div class="sidebar-search-sticky-box">
+        <input 
+          type="text" 
+          id="sidebarSearchInput" 
+          class="tactile-search-input" 
+          placeholder="Search topics (e.g. cycle, reverse, LRU)..."
+        >
+      </div>
+
+      <div class="sidebar-section-header">
+        <span>Curriculum Roadmap</span>
+        <span>15 MODULES</span>
+      </div>
+      <ul class="curriculum-module-list" id="sidebarTopicsList">
+        <!-- Injected dynamically by app.js -->
+      </ul>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="primary-workspace-viewport">
+      <!-- Stealth Mode Switcher -->
+      <div class="stealth-view-switch-row">
+        <div class="stealth-pill-tabs">
+          <button class="stealth-tab-button active" id="tabConceptBtn">
+            <span>📖</span> Theory & Code
+          </button>
+          <button class="stealth-tab-button" id="tabVisualizerBtn">
+            <span>⚡</span> Live Visualizer
+          </button>
+          <button class="stealth-tab-button" id="tabPracticeBtn">
+            <span>🎯</span> Practice Arena
+          </button>
+        </div>
+
+        <div style="font-family:var(--font-mono); font-size:0.75rem; font-weight:800; color:var(--text-muted);">
+          <span>STANDARDS: </span><span style="color:var(--accent-yellow);">LeetCode • GFG • Striver A2Z</span>
+        </div>
+      </div>
+
+      <!-- Dynamic Content Injection -->
+      <div id="mainContentArea">
+        <!-- Rendered by app.js -->
+      </div>
+    </main>
+  </div>
+
+  <!-- User Onboarding / Profile Modal -->
+  <div class="tactile-modal-overlay" id="profileModal">
+    <div class="tactile-modal-card">
+      <div class="modal-header-row">
+        <div class="modal-header-title">MYTH User Profile & Login</div>
+        <button class="modal-close-cross" id="closeProfileModal">×</button>
+      </div>
+
+      <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.25rem;">
+        Apna name aur roll number enter karo. Poora content, personalized mentor greetings, aur learning progress tumhare account me autosave hoga.
+      </p>
+
+      <label class="modal-field-label">Student Name</label>
+      <input type="text" id="inputUserName" class="modal-text-input" placeholder="e.g. Kartik Kumar">
+
+      <label class="modal-field-label">Roll Number</label>
+      <input type="text" id="inputUserRoll" class="modal-text-input" placeholder="e.g. 2501640100454">
+
+      <label class="modal-field-label">Quick Switch Presets:</label>
+      <div class="presets-cluster-row">
+        <button class="preset-switch-btn" onclick="selectPresetProfile('Kartik Kumar', '2501640100454')">
+          Kartik Kumar (Primary)
+        </button>
+        <button class="preset-switch-btn" onclick="selectPresetProfile('Tanmay Awasthi', '2501640100945')">
+          Tanmay Awasthi
+        </button>
+        <button class="preset-switch-btn" onclick="selectPresetProfile('Krish Chaddha', '2501640100471')">
+          Krish Chaddha
+        </button>
+      </div>
+
+      <button class="tactile-btn btn-yellow" id="saveProfileBtn" style="width:100%; justify-content:center; padding:0.8rem;">
+        Save Profile & Continue Learning
+      </button>
+    </div>
+  </div>
+
+  <!-- Git & Deployment Guide Modal -->
+  <div class="tactile-modal-overlay" id="deployModal">
+    <div class="tactile-modal-card" style="width:min(640px, calc(100% - 32px));">
+      <div class="modal-header-row">
+        <div class="modal-header-title">Git & One-Click Deployment Guide</div>
+        <button class="modal-close-cross" id="closeDeployModal">×</button>
+      </div>
+
+      <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.1rem;">
+        Ye platform static production web app ke taur par structured hai. Tum ise GitHub repo me push karke Vercel, Netlify, ya GitHub Pages par 1 minute me live deploy kar sakte ho.
+      </p>
+
+      <div style="font-size:0.78rem; font-family:var(--font-mono); font-weight:800; color:var(--accent-yellow); margin-bottom:0.4rem;">
+        STEP 1: Push to your GitHub Repository (PowerShell)
+      </div>
+      <div class="terminal-deploy-shell">
+cd "D:\cpp-linked-list-mastery"<br>
+git add .<br>
+git commit -m "feat: complete C++ and Java linked list mastery platform"<br>
+git remote add origin https://github.com/&lt;your-username&gt;/cpp-linked-list-mastery.git<br>
+git branch -M main<br>
+git push -u origin main
+      </div>
+
+      <div style="font-size:0.78rem; font-family:var(--font-mono); font-weight:800; color:var(--accent-lime); margin-bottom:0.4rem;">
+        STEP 2: Instant Deployment (Vercel / Netlify)
+      </div>
+      <div class="terminal-deploy-shell">
+# Option A: With Vercel CLI<br>
+npx vercel<br>
+<br>
+# Option B: Vercel Web Dashboard<br>
+1. Go to https://vercel.com/new<br>
+2. Import your GitHub repo "cpp-linked-list-mastery"<br>
+3. Click "Deploy" (Zero configuration needed, vercel.json already present!)
+      </div>
+
+      <button class="tactile-btn btn-lime" onclick="document.getElementById('deployModal').classList.remove('active')" style="width:100%; justify-content:center; padding:0.75rem;">
+        Got it! Close Guide
+      </button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/content.js"></script>
+  <script src="js/visualizer.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
