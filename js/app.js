@@ -1,4 +1,132 @@
-// ==============================================================================
+
+  // ============================================================================
+  // MASTER DSA MODULES HUB (Module Selector Architecture)
+  // ============================================================================
+  function renderModulesHub() {
+    const totalTopics = window.COURSE_DATA.length;
+    const completedCount = completedTopics.size;
+    const llPct = Math.round((completedCount / totalTopics) * 100);
+
+    mainContentArea.innerHTML = `
+      <div class="roadmap-view-container">
+        <!-- Hero Banner -->
+        <div class="roadmap-header-hero">
+          <div style="display:inline-flex; align-items:center; gap:0.4rem; background:var(--accent-yellow); color:#000; font-family:var(--font-mono); font-size:0.75rem; font-weight:900; padding:0.25rem 0.65rem; border:1.5px solid #000; box-shadow:2px 2px 0px #000; border-radius:2px; margin-bottom:1rem; text-transform:uppercase;">
+            <span>📦</span> CURRICULUM ARCHITECTURE • 9 DOMAIN MODULES
+          </div>
+          <h1>MYTH Complete DSA Guide — Modules Hub</h1>
+          <p>
+            Choose a core data structure or algorithmic domain below to enter its dedicated deep-dive curriculum. 
+            <strong style="color:var(--accent-lime);">Module 01: Linked Lists</strong> is currently active and 100% unlocked with 15 units, live memory visualizers, and 42 verified problems.
+          </p>
+        </div>
+
+        <!-- Modules Grid -->
+        <div class="roadmap-domains-grid">
+          ${MASTER_ROADMAP.map(module => {
+            const isActive = module.status === "active";
+            return `
+              <div class="roadmap-domain-card ${isActive ? "active-track" : ""}" style="cursor:pointer;" onclick="window.handleModuleCardClick('${module.id}')">
+                <div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <span class="${isActive ? "module-badge-active" : "module-badge-coming-soon"}">
+                      ${isActive ? "🟢 ACTIVE MODULE" : "🔒 COMING SOON"}
+                    </span>
+                    <span style="font-family:var(--font-mono); font-size:0.75rem; font-weight:900; color:var(--text-muted);">
+                      MODULE ${module.moduleNum}
+                    </span>
+                  </div>
+
+                  <div class="roadmap-card-title">
+                    <span style="font-size:1.6rem;">${module.icon}</span>
+                    <span>${escapeHtml(module.title)}</span>
+                  </div>
+
+                  <p class="roadmap-card-desc">${escapeHtml(module.desc)}</p>
+
+                  <div class="roadmap-meta-chips">
+                    <span class="roadmap-chip">📚 ${module.modulesCount} Units</span>
+                    <span class="roadmap-chip">🎯 ${module.problemsCount} Problems</span>
+                    ${module.tags.map(t => `<span class="roadmap-chip" style="color:var(--accent-yellow);">#${t}</span>`).join("")}
+                  </div>
+
+                  ${isActive ? `
+                    <div style="margin:1rem 0;">
+                      <div style="display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:0.72rem; font-weight:800; color:var(--text-muted); margin-bottom:0.35rem;">
+                        <span>Learning Progress</span>
+                        <span style="color:var(--accent-lime);">${llPct}% (${completedCount}/${totalTopics} Completed)</span>
+                      </div>
+                      <div class="diff-bar-track" style="height:6px;">
+                        <div class="diff-bar-fill" style="width:${llPct}%; background:var(--accent-lime);"></div>
+                      </div>
+                    </div>
+                  ` : `
+                    <div style="margin:1rem 0; padding:0.6rem 0.85rem; background:var(--bg-panel-elevated); border:1px solid var(--border-color); border-radius:2px; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted);">
+                      Status: Under active production with visualizers
+                    </div>
+                  `}
+                </div>
+
+                <div style="margin-top:1.25rem;">
+                  ${isActive ? `
+                    <button class="tactile-btn btn-yellow" onclick="event.stopPropagation(); window.switchDsaModule('linked_list')" style="width:100%; justify-content:center; padding:0.85rem; font-size:0.9rem;">
+                      ENTER MODULE 🚀
+                    </button>
+                  ` : `
+                    <button class="tactile-btn" onclick="event.stopPropagation(); window.previewComingSoonModule('${module.id}')" style="width:100%; justify-content:center; padding:0.75rem; font-size:0.85rem;">
+                      Preview Syllabus (Coming Soon) 🔍
+                    </button>
+                  `}
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  window.handleModuleCardClick = (moduleId) => {
+    if (moduleId === "linked_list") {
+      window.switchDsaModule("linked_list");
+    } else {
+      window.previewComingSoonModule(moduleId);
+    }
+  };
+
+  window.switchDsaModule = (moduleId) => {
+    if (moduleId === "linked_list") {
+      if (comingSoonModal) comingSoonModal.classList.remove("active");
+      switchTab("concept");
+    }
+  };
+
+  window.previewComingSoonModule = (moduleId) => {
+    const mod = MASTER_ROADMAP.find(m => m.id === moduleId);
+    if (!mod) return;
+
+    if (comingSoonModalTitle) comingSoonModalTitle.innerText = `Module ${mod.moduleNum}: ${mod.title}`;
+    if (comingSoonModalDesc) comingSoonModalDesc.innerText = mod.desc;
+    if (comingSoonTopicsList) {
+      comingSoonTopicsList.innerHTML = (mod.topics || []).map((t, i) => `
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <span style="color:var(--accent-yellow); font-weight:900;">•</span>
+          <span>${escapeHtml(t)}</span>
+        </div>
+      `).join("");
+    }
+
+    if (comingSoonModal) comingSoonModal.classList.add("active");
+  };
+
+  if (closeComingSoonModal) {
+    closeComingSoonModal.addEventListener("click", () => comingSoonModal.classList.remove("active"));
+  }
+  if (closeComingSoonBtn) {
+    closeComingSoonBtn.addEventListener("click", () => comingSoonModal.classList.remove("active"));
+  }
+
+  // ==============================================================================
 // MYTH DSA APPLICATION ENGINE - PRODUCTION GRADE
 // Dual-Language (C++ & Java) • Multi-Tone • Dark/Light Neo-Brutalist • Auth Gatekeeper
 // Performance Analytics • Realtime Multi-User Leaderboard • Master DSA Roadmap
@@ -65,12 +193,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const overallProgressBar = document.getElementById("overallProgressBar");
   const overallProgressLabel = document.getElementById("overallProgressLabel");
 
+  const tabModulesBtn = document.getElementById("tabModulesBtn");
   const tabConceptBtn = document.getElementById("tabConceptBtn");
   const tabVisualizerBtn = document.getElementById("tabVisualizerBtn");
   const tabPracticeBtn = document.getElementById("tabPracticeBtn");
   const tabAnalyticsBtn = document.getElementById("tabAnalyticsBtn");
   const tabLeaderboardBtn = document.getElementById("tabLeaderboardBtn");
-  const tabRoadmapBtn = document.getElementById("tabRoadmapBtn");
+  const comingSoonModal = document.getElementById("comingSoonModal");
+  const closeComingSoonModal = document.getElementById("closeComingSoonModal");
+  const closeComingSoonBtn = document.getElementById("closeComingSoonBtn");
+  const comingSoonModalTitle = document.getElementById("comingSoonModalTitle");
+  const comingSoonModalDesc = document.getElementById("comingSoonModalDesc");
+  const comingSoonTopicsList = document.getElementById("comingSoonTopicsList");
 
   // User-dependent progress containers
   let completedTopics = new Set();
@@ -193,73 +327,175 @@ document.addEventListener("DOMContentLoaded", () => {
   const MASTER_ROADMAP = [
     {
       id: "linked_list",
-      title: "Linked Lists & Pointers",
+      moduleNum: "01",
+      title: "Linked Lists & Pointer Architecture",
       icon: "🔗",
       status: "active",
       modulesCount: 15,
       problemsCount: 42,
-      desc: "Zero-to-hero mastery of memory nodes, iterative/recursive reversals, cycle detection, Tortoise & Hare, and FAANG ListNode patterns.",
-      tags: ["Pointers", "Memory", "Two Pointers", "Fast & Slow", "Recursion"]
+      desc: "Zero-to-hero mastery of memory nodes, iterative/recursive reversals, cycle detection, Tortoise & Hare, and ListNode patterns in C++ and Java.",
+      tags: ["Pointers", "Memory", "Two Pointers", "Fast & Slow", "Recursion"],
+      topics: [
+        "Pointers, References & Dynamic Memory (new/delete vs GC)",
+        "Singly Linked List Creation, Traversal & Printing",
+        "Insertion & Deletion Operations (Head, Tail, Pos, Val)",
+        "3-Pointer Iterative & Recursive In-Place Reversal",
+        "Tortoise & Hare (Fast & Slow Pointer) & Floyd Cycle",
+        "Merge Sorted Lists, Palindrome & Intersection",
+        "Doubly & Circular Linked Lists Implementation"
+      ]
     },
     {
       id: "arrays_strings",
+      moduleNum: "02",
       title: "Arrays, Strings & Two Pointers",
       icon: "📊",
-      status: "upcoming",
+      status: "coming_soon",
       modulesCount: 18,
       problemsCount: 38,
       desc: "Kadane's algorithm, sliding window dynamic bounds, prefix sums, 2Sum/3Sum, Dutch National Flag, and Boyer-Moore Voting.",
-      tags: ["Sliding Window", "Prefix Sum", "Two Pointers", "Binary Search"]
+      tags: ["Sliding Window", "Prefix Sum", "Two Pointers", "Binary Search"],
+      topics: [
+        "Kadane's Algorithm for Maximum Subarray Sum",
+        "Two Pointers: 2Sum, 3Sum & Container With Most Water",
+        "Sliding Window (Fixed & Variable Length Substrings)",
+        "Prefix Sum & 2D Matrix Range Queries",
+        "Dutch National Flag 3-Way Partitioning (Sort Colors)",
+        "Trapping Rain Water (Two Pointers vs Prefix Arrays)"
+      ]
     },
     {
       id: "stacks_queues",
+      moduleNum: "03",
       title: "Stacks, Queues & Monotonic Deques",
       icon: "🥞",
-      status: "upcoming",
+      status: "coming_soon",
       modulesCount: 12,
       problemsCount: 28,
       desc: "Monotonic stacks, Next Greater Element, Largest Rectangle in Histogram, Min Stack, sliding window maximum, and LRU Cache.",
-      tags: ["Monotonic Stack", "LRU Cache", "Queue", "Deque"]
+      tags: ["Monotonic Stack", "LRU Cache", "Queue", "Deque"],
+      topics: [
+        "Stack & Queue Implementations using Array & List",
+        "Monotonic Stack: Next Greater Element I & II",
+        "Largest Rectangle in Histogram & Maximal Rectangle",
+        "Min Stack with O(1) Time & Space Optimizations",
+        "Sliding Window Maximum using Monotonic Deque",
+        "LRU Cache & LFU Cache Design with Hash + DLL"
+      ]
     },
     {
       id: "binary_trees",
-      title: "Binary Trees & BSTs",
+      moduleNum: "04",
+      title: "Binary Trees & Binary Search Trees",
       icon: "🌲",
-      status: "upcoming",
+      status: "coming_soon",
       modulesCount: 20,
       problemsCount: 45,
       desc: "DFS & BFS traversals, Lowest Common Ancestor (LCA), boundary traversal, Morris traversal, Tree serialization, and BST invariants.",
-      tags: ["DFS", "BFS", "Recursion", "Binary Search Tree"]
+      tags: ["DFS", "BFS", "Recursion", "BST"],
+      topics: [
+        "Preorder, Inorder, Postorder & Level-Order BFS",
+        "Lowest Common Ancestor (LCA) in Binary Tree & BST",
+        "Boundary Traversal & Vertical Order Views",
+        "Morris Inorder Traversal in O(1) Extra Space",
+        "Serialize and Deserialize Binary Tree",
+        "Validate BST, BST Iterator & Kth Smallest Element"
+      ]
     },
     {
       id: "heaps_greedy",
+      moduleNum: "05",
       title: "Heaps, Priority Queues & Greedy",
       icon: "⛰️",
-      status: "upcoming",
+      status: "coming_soon",
       modulesCount: 10,
       problemsCount: 24,
       desc: "Min/Max heaps from scratch, Top K Frequent Elements, Find Median from Data Stream, Merge K Sorted Lists, and Task Scheduler.",
-      tags: ["Min-Heap", "Greedy", "Priority Queue"]
+      tags: ["Min-Heap", "Greedy", "Priority Queue"],
+      topics: [
+        "Binary Heap Construction & Sift-Up/Sift-Down",
+        "Top K Frequent Elements & Kth Largest in Array",
+        "Find Median from Data Stream (Two Heaps)",
+        "Merge K Sorted Lists using Min-Heap",
+        "Greedy Interval Scheduling & Non-overlapping Intervals",
+        "Task Scheduler with Cool-down Periods"
+      ]
     },
     {
       id: "graphs_dsu",
+      moduleNum: "06",
       title: "Graphs, BFS/DFS & Disjoint Sets",
       icon: "🕸️",
-      status: "upcoming",
+      status: "coming_soon",
       modulesCount: 16,
       problemsCount: 36,
       desc: "Adjacency matrix/list, Kahn's Topological Sort, Dijkstra shortest path, Bellman-Ford, Disjoint Set Union (DSU) by rank & path compression.",
-      tags: ["Dijkstra", "BFS", "DFS", "DSU", "Topological Sort"]
+      tags: ["Dijkstra", "BFS", "DFS", "DSU", "Topological Sort"],
+      topics: [
+        "BFS & DFS Graph Traversals & Cycle Detection",
+        "Kahn's Algorithm for Topological Sort & Course Schedule",
+        "Dijkstra's Shortest Path Algorithm (Priority Queue)",
+        "Bellman-Ford Algorithm for Negative Weight Cycles",
+        "Disjoint Set Union (DSU) with Path Compression & Union by Rank",
+        "Bridges & Articulation Points (Tarjan's Algorithm)"
+      ]
     },
     {
       id: "dp_mastery",
+      moduleNum: "07",
       title: "Dynamic Programming (0 to Master)",
       icon: "🧩",
-      status: "upcoming",
+      status: "coming_soon",
       modulesCount: 22,
       problemsCount: 50,
       desc: "State definition, memoization vs tabulation, 1D DP, 2D Grid DP, 0/1 Knapsack, Longest Common Subsequence, and DP on Trees.",
-      tags: ["Memoization", "Tabulation", "Knapsack", "Subsequences"]
+      tags: ["Memoization", "Tabulation", "Knapsack", "Subsequences"],
+      topics: [
+        "State Space Definition & Recursion to Memoization & Tabulation",
+        "1D DP: Climbing Stairs, House Robber, Coin Change",
+        "2D Grid DP: Unique Paths, Minimum Path Sum",
+        "0/1 Knapsack & Unbounded Knapsack Patterns",
+        "Longest Common Subsequence (LCS) & Edit Distance",
+        "Longest Increasing Subsequence (LIS) in O(N log N)",
+        "Dynamic Programming on Trees & Bitmask DP"
+      ]
+    },
+    {
+      id: "trie_strings",
+      moduleNum: "08",
+      title: "Trie & String Pattern Matching",
+      icon: "🔤",
+      status: "coming_soon",
+      modulesCount: 8,
+      problemsCount: 20,
+      desc: "Prefix Trees, Auto-complete engines, Word Search II, KMP string matching, and Rabin-Karp rolling hashes.",
+      tags: ["Trie", "Prefix Tree", "KMP", "Strings"],
+      topics: [
+        "Trie Node Architecture, Insertion & Prefix Search",
+        "Word Search II (Backtracking with Trie Pruning)",
+        "Maximum XOR of Two Numbers in an Array",
+        "KMP String Matching Algorithm (LPS Array)",
+        "Rabin-Karp Rolling Hash Algorithm"
+      ]
+    },
+    {
+      id: "bit_math",
+      moduleNum: "09",
+      title: "Bit Manipulation & Mathematics",
+      icon: "⚡",
+      status: "coming_soon",
+      modulesCount: 9,
+      problemsCount: 22,
+      desc: "Bitwise operators, two's complement, power sets, Sieve of Eratosthenes, and modular inverse.",
+      tags: ["Bitwise", "XOR", "Math", "Number Theory"],
+      topics: [
+        "Bitwise Fundamentals: AND, OR, XOR, NOT, Bit Shifts",
+        "Power of Two, Counting Set Bits (Brian Kernighan's Algorithm)",
+        "Single Number I, II & III using XOR properties",
+        "Subsets Generation using Bitmasking",
+        "Sieve of Eratosthenes for Prime Factorization",
+        "Modular Arithmetic & Fast Exponentiation (O(log N))"
+      ]
     }
   ];
 
@@ -1073,34 +1309,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Topbar Track Dropdown Event
   if (topbarTrackBtn) {
-    topbarTrackBtn.addEventListener("click", () => switchTab("roadmap"));
+    topbarTrackBtn.addEventListener("click", () => switchTab("modules"));
   }
 
   // ============================================================================
   // TAB NAVIGATION & WORKSPACE VIEW SWITCHING
   // ============================================================================
 
+  if (tabModulesBtn) tabModulesBtn.addEventListener("click", () => switchTab("modules"));
   if (tabConceptBtn) tabConceptBtn.addEventListener("click", () => switchTab("concept"));
   if (tabVisualizerBtn) tabVisualizerBtn.addEventListener("click", () => switchTab("visualizer"));
   if (tabPracticeBtn) tabPracticeBtn.addEventListener("click", () => switchTab("practice"));
   if (tabAnalyticsBtn) tabAnalyticsBtn.addEventListener("click", () => switchTab("analytics"));
   if (tabLeaderboardBtn) tabLeaderboardBtn.addEventListener("click", () => switchTab("leaderboard"));
-  if (tabRoadmapBtn) tabRoadmapBtn.addEventListener("click", () => switchTab("roadmap"));
 
   function switchTab(tabName) {
     activeTab = tabName;
 
     // Update Tab Button States
-    [tabConceptBtn, tabVisualizerBtn, tabPracticeBtn, tabAnalyticsBtn, tabLeaderboardBtn, tabRoadmapBtn].forEach(btn => {
+    [tabModulesBtn, tabConceptBtn, tabVisualizerBtn, tabPracticeBtn, tabAnalyticsBtn, tabLeaderboardBtn].forEach(btn => {
       if (btn) btn.classList.remove("active");
     });
 
+    if (tabName === "modules" && tabModulesBtn) tabModulesBtn.classList.add("active");
     if (tabName === "concept" && tabConceptBtn) tabConceptBtn.classList.add("active");
     if (tabName === "visualizer" && tabVisualizerBtn) tabVisualizerBtn.classList.add("active");
     if (tabName === "practice" && tabPracticeBtn) tabPracticeBtn.classList.add("active");
     if (tabName === "analytics" && tabAnalyticsBtn) tabAnalyticsBtn.classList.add("active");
     if (tabName === "leaderboard" && tabLeaderboardBtn) tabLeaderboardBtn.classList.add("active");
-    if (tabName === "roadmap" && tabRoadmapBtn) tabRoadmapBtn.classList.add("active");
 
     // Show/Hide Sidebar for non-curriculum wide views
     const isCurriculumTab = (tabName === "concept" || tabName === "visualizer" || tabName === "practice");
@@ -1108,12 +1344,12 @@ document.addEventListener("DOMContentLoaded", () => {
       curriculumSidebar.style.display = isCurriculumTab ? "block" : "none";
     }
 
-    if (tabName === "analytics") {
+    if (tabName === "modules") {
+      renderModulesHub();
+    } else if (tabName === "analytics") {
       renderAnalyticsView();
     } else if (tabName === "leaderboard") {
       renderLeaderboardView();
-    } else if (tabName === "roadmap") {
-      renderRoadmapView();
     } else {
       // Concept, Visualizer, or Practice
       renderTopic(activeTopicIdx);
@@ -1306,6 +1542,20 @@ document.addEventListener("DOMContentLoaded", () => {
     mainContentArea.innerHTML = `
       <!-- CONCEPT VIEW -->
       <section id="conceptViewSection" style="${activeTab === 'concept' ? 'block' : 'none'};">
+        <!-- Module Breadcrumb Bar -->
+        <div class="module-breadcrumb-bar">
+          <div class="module-breadcrumb-path">
+            <a onclick="window.switchTab('modules')">📦 All Modules</a>
+            <span class="separator">/</span>
+            <span class="current">🔗 Module 01: Linked Lists & Pointers</span>
+            <span class="separator">/</span>
+            <span style="color:var(--accent-yellow);">Unit ${topic.number}: ${escapeHtml(topic.title)}</span>
+          </div>
+          <button class="tactile-btn" onclick="window.switchTab('modules')" style="padding:0.35rem 0.75rem; font-size:0.75rem; background:var(--bg-surface);">
+            ← Back to All Modules
+          </button>
+        </div>
+
         <div class="workspace-hero-header">
           <div class="topic-meta-row">
             <span class="topic-tag-pill">${topic.tag}</span>
@@ -1525,6 +1775,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
       <!-- PRACTICE ARENA VIEW -->
       <section id="practiceViewSection" style="${activeTab === 'practice' ? 'block' : 'none'};">
+        <div class="module-breadcrumb-bar">
+          <div class="module-breadcrumb-path">
+            <a onclick="window.switchTab('modules')">📦 All Modules</a>
+            <span class="separator">/</span>
+            <span class="current">🔗 Module 01: Linked Lists</span>
+            <span class="separator">/</span>
+            <span style="color:var(--accent-yellow);">Practice Arena</span>
+          </div>
+          <button class="tactile-btn" onclick="window.switchTab('modules')" style="padding:0.35rem 0.75rem; font-size:0.75rem; background:var(--bg-surface);">
+            ← Back to All Modules
+          </button>
+        </div>
+
         <div class="workspace-hero-header">
           <div class="topic-meta-row">
             <span class="topic-tag-pill">PRACTICE ARENA</span>

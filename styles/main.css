@@ -2568,6 +2568,81 @@ body:not(.dark) .hint-toggle-head {
   font-size: 0.7rem;
 }
 
+/* =========================================================
+   MODULES HUB & BREADCRUMB STYLING
+   ========================================================= */
+.module-breadcrumb-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-panel-elevated);
+  border: var(--border-thick);
+  border-radius: var(--radius-boxy);
+  padding: 0.65rem 1.15rem;
+  margin-bottom: 1.75rem;
+  box-shadow: var(--shadow-tactile);
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.module-breadcrumb-path {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.module-breadcrumb-path a {
+  color: var(--accent-yellow);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.module-breadcrumb-path a:hover {
+  text-decoration: underline;
+}
+
+.module-breadcrumb-path .separator {
+  color: var(--text-muted);
+}
+
+.module-breadcrumb-path .current {
+  color: var(--text-main);
+  font-weight: 900;
+}
+
+.module-badge-coming-soon {
+  background: #1e2433;
+  color: var(--accent-yellow);
+  border: 1.5px solid var(--border-color);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 0.2rem 0.6rem;
+  border-radius: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.4);
+}
+
+.module-badge-active {
+  background: var(--accent-lime);
+  color: #000000;
+  border: 1.5px solid #000000;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 0.2rem 0.6rem;
+  border-radius: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: 1.5px 1.5px 0px #000000;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   aside.sidebar-curriculum-panel {

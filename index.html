@@ -106,6 +106,9 @@
       <!-- Stealth Mode Switcher -->
       <div class="stealth-view-switch-row">
         <div class="stealth-pill-tabs">
+          <button class="stealth-tab-button" id="tabModulesBtn">
+            <span>📦</span> All Modules
+          </button>
           <button class="stealth-tab-button active" id="tabConceptBtn">
             <span>📖</span> Theory & Code
           </button>
@@ -120,9 +123,6 @@
           </button>
           <button class="stealth-tab-button" id="tabLeaderboardBtn">
             <span>🏆</span> Leaderboard
-          </button>
-          <button class="stealth-tab-button" id="tabRoadmapBtn">
-            <span>🗺️</span> DSA Roadmap
           </button>
         </div>
 
@@ -298,6 +298,42 @@
       </p>
       <div id="roadmapModalGrid" class="roadmap-domains-grid">
         <!-- Injected dynamically by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- COMING SOON MODULE MODAL -->
+  <div class="tactile-modal-overlay" id="comingSoonModal">
+    <div class="tactile-modal-card" style="width:min(620px, calc(100% - 32px));">
+      <div class="modal-header-row">
+        <div class="modal-header-title" id="comingSoonModalTitle">Module: Coming Soon</div>
+        <button class="modal-close-cross" id="closeComingSoonModal">×</button>
+      </div>
+
+      <div style="display:inline-flex; align-items:center; gap:0.4rem; background:rgba(255, 199, 0, 0.15); border:1.5px solid var(--accent-yellow); color:var(--accent-yellow); font-family:var(--font-mono); font-weight:900; font-size:0.75rem; padding:0.25rem 0.65rem; border-radius:2px; margin-bottom:1.25rem;">
+        <span>🔒</span> MODULE UNDER ACTIVE PRODUCTION • COMING SOON
+      </div>
+
+      <p id="comingSoonModalDesc" style="font-size:0.92rem; color:var(--text-body); line-height:1.6; margin-bottom:1.25rem;">
+        This DSA module is currently being authored with interactive memory visualizers, dry-runs, and verified solutions.
+      </p>
+
+      <div style="background:var(--bg-panel-elevated); border:var(--border-thick); border-radius:var(--radius-boxy); padding:1rem 1.25rem; margin-bottom:1.5rem;">
+        <span style="font-family:var(--font-mono); font-size:0.75rem; font-weight:900; color:var(--text-muted); display:block; margin-bottom:0.6rem;">
+          PLANNED SYLLABUS HIGHLIGHTS:
+        </span>
+        <div id="comingSoonTopicsList" style="display:flex; flex-direction:column; gap:0.45rem; font-family:var(--font-mono); font-size:0.82rem; color:var(--text-main);">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+      <div style="display:flex; gap:0.75rem;">
+        <button class="tactile-btn" id="closeComingSoonBtn" style="flex:1; justify-content:center; padding:0.75rem;">
+          Close Preview
+        </button>
+        <button class="tactile-btn btn-yellow" onclick="window.switchDsaModule('linked_list')" style="flex:1; justify-content:center; padding:0.75rem;">
+          Go to Active Module (Linked Lists) ⚡
+        </button>
       </div>
     </div>
   </div>
