@@ -27,7 +27,7 @@
       <div class="brand-badge-box">MYTH</div>
       <div class="brand-title-group">
         <span class="brand-title-text">MYTH Complete DSA Guide</span>
-        <span class="brand-tagline-text">C++ & Java • Engineering Grade Curriculum</span>
+        <span class="brand-tagline-text">C++ & Java • SDE Production Track</span>
       </div>
     </div>
 
@@ -127,7 +127,7 @@
         </div>
 
         <div style="font-family:var(--font-mono); font-size:0.75rem; font-weight:800; color:var(--text-muted);">
-          <span>CURRICULUM SPEC: </span><span style="color:var(--accent-yellow);">Production Architecture • Memory Safety • SDE Mastery</span>
+          <span>CURRICULUM SPEC: </span><span style="color:var(--accent-yellow);">Memory Safety • Pointers • SDE-1 Mastery</span>
         </div>
       </div>
 
@@ -142,16 +142,31 @@
   <div class="auth-gatekeeper-overlay" id="authGatekeeperModal" style="display:none;">
     <div class="auth-gatekeeper-card">
       <div class="auth-gatekeeper-badge">
-        <span>🔒</span> Authentication Required • Zero Demo
+        <span>🔒</span> Student Authentication
       </div>
       <h1 class="auth-gatekeeper-title">MYTH Complete DSA Guide</h1>
       <p class="auth-gatekeeper-subtitle">
-        Enter your student details to initialize your personalized curriculum, live LeetCode account sync, code verification score, daily streak, and leaderboard ranking.
+        Sign in to access your personal curriculum, live LeetCode sync, and cohort rank.
       </p>
+
+      <!-- Google Sign In Option -->
+      <button type="button" class="google-auth-btn" id="googleAuthBtn" onclick="window.handleGoogleAuth();">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>Continue with Google</span>
+      </button>
+
+      <div class="auth-divider-line">
+        <span>OR STUDENT ID</span>
+      </div>
 
       <form id="authLoginForm" class="auth-form-grid" onsubmit="event.preventDefault(); window.handleAuthLogin();">
         <div class="auth-input-group">
-          <label>Full Student Name *</label>
+          <label>Student Full Name *</label>
           <input 
             type="text" 
             id="authInputName" 
@@ -163,7 +178,7 @@
         </div>
 
         <div class="auth-input-group">
-          <label>College Roll Number / Student ID *</label>
+          <label>Roll Number / ID *</label>
           <input 
             type="text" 
             id="authInputRoll" 
@@ -174,44 +189,101 @@
         </div>
 
         <div class="auth-input-group">
-          <label>LeetCode Profile URL or Username (Optional)</label>
+          <label>LeetCode Username (Optional)</label>
           <input 
             type="text" 
             id="authInputLeetCode" 
             class="auth-input-field" 
-            placeholder="e.g. https://leetcode.com/u/kartikkumar/ or kartikkumar"
+            placeholder="e.g. kartikkumar"
           >
-          <span style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); display:block; margin-top:0.25rem;">
-            Auto-syncs your real LeetCode profile, global ranking & live submissions feed.
-          </span>
         </div>
 
-        <div class="auth-input-group">
-          <label>Primary Language Track</label>
-          <select id="authInputLangTrack" class="auth-input-field tactile-select" style="padding:0.75rem 1rem;">
-            <option value="cpp">C++ (Pointers, Memory Management & STL)</option>
-            <option value="java">Java (OOP References, JVM & Collections)</option>
-          </select>
-        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.65rem;">
+          <div class="auth-input-group">
+            <label>Language Track</label>
+            <select id="authInputLangTrack" class="auth-input-field tactile-select" style="padding:0.6rem 0.75rem; font-size:0.82rem;">
+              <option value="cpp">C++ (Pointers & STL)</option>
+              <option value="java">Java (OOP & JVM)</option>
+            </select>
+          </div>
 
-        <div class="auth-input-group">
-          <label>Target Career Milestone</label>
-          <select id="authInputTargetGoal" class="auth-input-field tactile-select" style="padding:0.75rem 1rem;">
-            <option value="FAANG / Tier-1 Software Engineer">FAANG / Tier-1 Software Engineer (Google, Meta, Uber)</option>
-            <option value="Product Engineering Placements">Product Engineering Placements (Amazon, Microsoft)</option>
-            <option value="Competitive Programming & ICPC">Competitive Programming & Codeforces 1600+</option>
-            <option value="Semester DSA Exam Distinction">B.Tech Semester DSA Exam 100% Mastery</option>
-          </select>
+          <div class="auth-input-group">
+            <label>Target Goal</label>
+            <select id="authInputTargetGoal" class="auth-input-field tactile-select" style="padding:0.6rem 0.75rem; font-size:0.82rem;">
+              <option value="FAANG / Tier-1 SDE">FAANG / Tier-1 SDE</option>
+              <option value="Product Placements">Product Placements</option>
+              <option value="CP & Codeforces">CP / Codeforces</option>
+              <option value="Semester Distinction">Semester Exams</option>
+            </select>
+          </div>
         </div>
 
         <div id="authErrorAlert" class="auth-error-msg">
-          ⚠️ Please provide your real Name and Roll Number to continue.
+          ⚠️ Please provide your Name and Roll Number to continue.
         </div>
 
-        <button type="submit" class="tactile-btn btn-yellow" style="width:100%; justify-content:center; padding:0.9rem; font-size:0.95rem; margin-top:0.5rem;">
-          INITIALIZE PROFILE & ENTER PLATFORM 🚀
+        <button type="submit" class="tactile-btn btn-yellow" style="width:100%; justify-content:center; padding:0.8rem; font-size:0.92rem; margin-top:0.35rem;">
+          INITIALIZE & ENTER PLATFORM 🚀
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- GOOGLE ACCOUNT SELECTOR MODAL -->
+  <div class="tactile-modal-overlay" id="googleAuthModal">
+    <div class="tactile-modal-card" style="width:min(440px, calc(100% - 32px));">
+      <div class="modal-header-row" style="margin-bottom:0.75rem;">
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <svg viewBox="0 0 24 24" width="20" height="20">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <span style="font-weight:900; font-size:1.05rem; color:var(--text-main);">Sign in with Google</span>
+        </div>
+        <button class="modal-close-cross" id="closeGoogleAuthModal">×</button>
+      </div>
+
+      <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem;">
+        Select verified student profile to continue:
+      </p>
+
+      <!-- Account 1: Kartik Kumar (Default per Rule 1) -->
+      <div class="google-account-select-card" onclick="window.selectGoogleAccount('Kartik Kumar', '2501640100454', 'kartik.kumar@student.edu', 'kartikkumar')">
+        <div class="google-avatar-circle" style="background:#4285F4; color:#fff;">K</div>
+        <div style="flex:1;">
+          <div style="font-weight:800; font-size:0.9rem; color:var(--text-main);">Kartik Kumar <span class="google-verified-badge">DEFAULT</span></div>
+          <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">kartik.kumar@student.edu • Roll: 2501640100454</div>
+        </div>
+        <span style="font-size:0.75rem; font-family:var(--font-mono); color:var(--accent-lime); font-weight:800;">SIGN IN →</span>
+      </div>
+
+      <!-- Account 2: Tanmay Awasthi -->
+      <div class="google-account-select-card" onclick="window.selectGoogleAccount('Tanmay Awasthi', '2501640100945', 'tanmay.awasthi@student.edu', 'tanmay_awasthi')">
+        <div class="google-avatar-circle" style="background:#34A853; color:#fff;">T</div>
+        <div style="flex:1;">
+          <div style="font-weight:800; font-size:0.9rem; color:var(--text-main);">Tanmay Awasthi</div>
+          <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">tanmay.awasthi@student.edu • Roll: 2501640100945</div>
+        </div>
+        <span style="font-size:0.75rem; font-family:var(--font-mono); color:var(--text-muted); font-weight:800;">SIGN IN →</span>
+      </div>
+
+      <!-- Account 3: Krish Chaddha -->
+      <div class="google-account-select-card" onclick="window.selectGoogleAccount('Krish Chaddha', '2501640100471', 'krish.chaddha@student.edu', 'krish_chaddha')">
+        <div class="google-avatar-circle" style="background:#FBBC05; color:#000;">K</div>
+        <div style="flex:1;">
+          <div style="font-weight:800; font-size:0.9rem; color:var(--text-main);">Krish Chaddha</div>
+          <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">krish.chaddha@student.edu • Roll: 2501640100471</div>
+        </div>
+        <span style="font-size:0.75rem; font-family:var(--font-mono); color:var(--text-muted); font-weight:800;">SIGN IN →</span>
+      </div>
+
+      <div style="margin-top:0.75rem; border-top:1px dashed var(--border-color); padding-top:0.75rem;">
+        <button class="tactile-btn" style="width:100%; justify-content:center; font-size:0.82rem; padding:0.6rem;" onclick="window.promptCustomGoogleAccount()">
+          ➕ Use Another Student Google Account
+        </button>
+      </div>
     </div>
   </div>
 
@@ -223,11 +295,14 @@
         <button class="modal-close-cross" id="closeProfileModal">×</button>
       </div>
 
-      <div style="display:flex; align-items:center; gap:1.25rem; margin-bottom:1.5rem; background:var(--bg-panel-elevated); padding:1.25rem; border:var(--border-thick); border-radius:var(--radius-boxy); box-shadow:var(--shadow-tactile);">
-        <div class="analytics-user-avatar" id="modalProfileAvatar" style="width:52px; height:52px; font-size:1.4rem;">K</div>
-        <div>
-          <h3 id="modalProfileName" style="font-size:1.2rem; font-weight:900; color:var(--text-main);">Kartik Kumar</h3>
-          <p id="modalProfileRoll" style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted); font-weight:800;">Roll: 2501640100454</p>
+      <div style="display:flex; align-items:center; gap:1.1rem; margin-bottom:1.25rem; background:var(--bg-panel-elevated); padding:1rem 1.25rem; border:var(--border-thick); border-radius:var(--radius-boxy); box-shadow:var(--shadow-tactile);">
+        <div class="analytics-user-avatar" id="modalProfileAvatar" style="width:48px; height:48px; font-size:1.3rem;">K</div>
+        <div style="flex:1;">
+          <div style="display:flex; align-items:center;">
+            <h3 id="modalProfileName" style="font-size:1.15rem; font-weight:900; color:var(--text-main);">Kartik Kumar</h3>
+            <span id="modalGoogleBadge" class="google-verified-badge" style="display:none;">Google Verified ✓</span>
+          </div>
+          <p id="modalProfileRoll" style="font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted); font-weight:800;">Roll: 2501640100454</p>
         </div>
       </div>
 
@@ -282,6 +357,16 @@
         <button class="tactile-btn btn-yellow" id="logoutProfileBtn" style="flex:1; justify-content:center; padding:0.75rem; background:var(--accent-crimson); color:#fff; border-color:#000;">
           Switch Student / Logout
         </button>
+      </div>
+      
+      <!-- Quick Profile Switcher (Rule 1 Support) -->
+      <div style="margin-top:1rem; padding-top:0.85rem; border-top:1px dashed var(--border-color); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+        <span style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted); font-weight:800;">PROFILE SWITCHER:</span>
+        <div style="display:flex; gap:0.35rem;">
+          <button class="tactile-btn" style="font-size:0.72rem; padding:0.25rem 0.55rem;" onclick="window.selectGoogleAccount('Kartik Kumar', '2501640100454', 'kartik.kumar@student.edu', 'kartikkumar')">Kartik</button>
+          <button class="tactile-btn" style="font-size:0.72rem; padding:0.25rem 0.55rem;" onclick="window.selectGoogleAccount('Tanmay Awasthi', '2501640100945', 'tanmay.awasthi@student.edu', 'tanmay_awasthi')">Tanmay</button>
+          <button class="tactile-btn" style="font-size:0.72rem; padding:0.25rem 0.55rem;" onclick="window.selectGoogleAccount('Krish Chaddha', '2501640100471', 'krish.chaddha@student.edu', 'krish_chaddha')">Krish</button>
+        </div>
       </div>
     </div>
   </div>
