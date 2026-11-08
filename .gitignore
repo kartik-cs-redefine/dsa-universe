@@ -7,3 +7,7 @@ dist/
 *.log
 .env
 .env.local
+roster.csv
+*service-account*.json
+*.pem
+firestore-debug.log

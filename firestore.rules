@@ -7,24 +7,30 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Roll Claim Ownership: Verifies that the caller owns the claim in myth_rolls
+    // Verified Roll Claim: Caller must be authenticated with verified email matching roster claim doc
     function ownsRollClaim(roll) {
       return isAuthenticated()
+        && request.auth.token.email_verified == true
         && exists(/databases/$(database)/documents/myth_rolls/$(roll))
-        && get(/databases/$(database)/documents/myth_rolls/$(roll)).data.uid == request.auth.uid;
+        && get(/databases/$(database)/documents/myth_rolls/$(roll)).data.email == request.auth.token.email;
     }
 
     // --- Payload Validation Helpers ---
+    function isValidTimestamp(val) {
+      return val is string && val.size() > 0 && val.size() <= 50;
+    }
+
     function isValidUserPayload(data, roll) {
       return data.keys().hasAll(['name', 'roll', 'uid', 'updatedAt'])
         && data.name is string && data.name.size() > 0 && data.name.size() <= 80
         && data.roll is string && data.roll == roll && data.roll.size() <= 40
         && data.uid is string && data.uid == request.auth.uid
-        && (!data.keys().hasAll(['email']) || data.email is string)
+        && isValidTimestamp(data.updatedAt)
+        && (!data.keys().hasAll(['email']) || (data.email is string && data.email.size() <= 100))
         && (!data.keys().hasAll(['leetcode']) || (data.leetcode is string && data.leetcode.size() <= 60))
         && (!data.keys().hasAll(['leetcodeUser']) || (data.leetcodeUser is string && data.leetcodeUser.size() <= 60))
-        && (!data.keys().hasAll(['theme']) || data.theme is string)
-        && (!data.keys().hasAll(['lang']) || data.lang is string)
+        && (!data.keys().hasAll(['theme']) || (data.theme is string && data.theme.size() <= 30))
+        && (!data.keys().hasAll(['lang']) || (data.lang is string && data.lang.size() <= 30))
         && (!data.keys().hasAll(['langTrack']) || data.langTrack in ['cpp', 'java'])
         && (!data.keys().hasAll(['codeMode']) || data.codeMode in ['cpp', 'java'])
         && (!data.keys().hasAll(['avatar']) || (data.avatar is string && data.avatar.size() <= 10))
@@ -34,57 +40,60 @@ service cloud.firestore {
     function isValidProgressPayload(data) {
       return data.keys().hasAll(['uid', 'updatedAt'])
         && data.uid == request.auth.uid
-        && (!data.keys().hasAll(['completedTopics']) || data.completedTopics is list)
-        && (!data.keys().hasAll(['solvedProblems']) || data.solvedProblems is list)
-        && (!data.keys().hasAll(['bookmarkedProblems']) || data.bookmarkedProblems is list);
+        && isValidTimestamp(data.updatedAt)
+        && (!data.keys().hasAll(['completedTopics']) || (data.completedTopics is list && data.completedTopics.size() <= 100))
+        && (!data.keys().hasAll(['solvedProblems']) || (data.solvedProblems is list && data.solvedProblems.size() <= 500))
+        && (!data.keys().hasAll(['bookmarkedProblems']) || (data.bookmarkedProblems is list && data.bookmarkedProblems.size() <= 200));
     }
 
-    function isValidLeaderboardPayload(data, roll) {
-      return data.keys().hasAll(['roll', 'name', 'uid', 'lcSolved', 'platformSolved', 'compositePoints', 'updatedAt'])
-        && data.roll is string && data.roll == roll
-        && data.uid is string && data.uid == request.auth.uid
+    function isValidLeaderboardPayload(data, uid) {
+      return data.keys().hasAll(['name', 'uid', 'lcSolved', 'platformSolved', 'compositePoints', 'updatedAt'])
+        && data.uid is string && data.uid == request.auth.uid && uid == request.auth.uid
         && data.name is string && data.name.size() > 0 && data.name.size() <= 80
         && data.lcSolved is number && data.lcSolved >= 0 && data.lcSolved <= 5000
         && data.platformSolved is number && data.platformSolved >= 0 && data.platformSolved <= 500
         && data.compositePoints is number && data.compositePoints >= 0
+        && isValidTimestamp(data.updatedAt)
         && (!data.keys().hasAll(['lcRanking']) || data.lcRanking is number)
-        && (!data.keys().hasAll(['email'])); // PII Protection: email strictly forbidden in leaderboard
+        && (!data.keys().hasAll(['badge']) || (data.badge is string && data.badge.size() <= 30))
+        && (!data.keys().hasAny(['roll', 'email'])); // Strict privacy: NO roll or email in leaderboard
     }
 
     function isValidScratchpadPayload(data) {
       return data.keys().hasAll(['roll', 'probId', 'codeMode', 'code', 'uid', 'updatedAt'])
         && data.uid == request.auth.uid
-        && data.roll is string
-        && data.code is string && data.code.size() <= 50000;
+        && data.roll is string && data.roll.size() <= 40
+        && data.probId is string && data.probId.size() > 0 && data.probId.size() <= 60
+        && data.codeMode in ['cpp', 'java']
+        && data.code is string && data.code.size() <= 50000
+        && isValidTimestamp(data.updatedAt);
     }
 
     function isValidNotesPayload(data) {
       return data.keys().hasAll(['roll', 'probId', 'notes', 'uid', 'updatedAt'])
         && data.uid == request.auth.uid
-        && data.roll is string
-        && data.notes is string && data.notes.size() <= 20000;
+        && data.roll is string && data.roll.size() <= 40
+        && data.probId is string && data.probId.size() > 0 && data.probId.size() <= 60
+        && data.notes is string && data.notes.size() <= 20000
+        && isValidTimestamp(data.updatedAt);
     }
 
     // --- Collections ---
 
-    // 0. Roll Claims (Anti-Squatting Registry)
-    // Only created once per roll by the authenticated Google UID who claims it.
+    // 0. Roll Claims (Provisioned strictly via Admin SDK from verified student roster)
     match /myth_rolls/{roll} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated()
-        && !exists(/databases/$(database)/documents/myth_rolls/$(roll))
-        && request.resource.data.keys().hasAll(['uid', 'roll', 'claimedAt'])
-        && request.resource.data.uid == request.auth.uid
-        && request.resource.data.roll == roll;
-      allow update: if false; // Claims are immutable once created
-      allow delete: if false;
+      // Readable ONLY by the student with verified email matching the claim
+      allow read: if isAuthenticated()
+        && request.auth.token.email_verified == true
+        && resource.data.email == request.auth.token.email;
+      // Client writes strictly prohibited
+      allow write: if false;
     }
 
-    // 1. User Profiles (PII Protected: readable only by verified roll owner)
+    // 1. User Profiles (PII Protected: readable/writable only by verified roll claim owner)
     match /myth_users/{roll} {
-      allow read: if isAuthenticated() && ownsRollClaim(roll);
-      allow create, update: if isAuthenticated()
-        && ownsRollClaim(roll)
+      allow read: if ownsRollClaim(roll);
+      allow create, update: if ownsRollClaim(roll)
         && request.resource.data.uid == request.auth.uid
         && isValidUserPayload(request.resource.data, roll);
       allow delete: if false;
@@ -92,21 +101,19 @@ service cloud.firestore {
 
     // 2. User Learning Progress (Private to student)
     match /myth_progress/{roll} {
-      allow read: if isAuthenticated() && ownsRollClaim(roll);
-      allow create, update: if isAuthenticated()
-        && ownsRollClaim(roll)
+      allow read: if ownsRollClaim(roll);
+      allow create, update: if ownsRollClaim(roll)
         && request.resource.data.uid == request.auth.uid
         && isValidProgressPayload(request.resource.data);
       allow delete: if false;
     }
 
-    // 3. Global Leaderboard (Public to authenticated cohort, zero PII)
-    match /myth_leaderboard/{roll} {
+    // 3. Global Leaderboard (Public to authenticated cohort, zero PII, keyed by user UID)
+    match /myth_leaderboard/{uid} {
       allow read: if isAuthenticated();
       allow create, update: if isAuthenticated()
-        && ownsRollClaim(roll)
-        && request.resource.data.uid == request.auth.uid
-        && isValidLeaderboardPayload(request.resource.data, roll);
+        && request.auth.uid == uid
+        && isValidLeaderboardPayload(request.resource.data, uid);
       allow delete: if false;
     }
 
@@ -115,7 +122,19 @@ service cloud.firestore {
       allow read, delete: if isAuthenticated()
         && resource.data.uid == request.auth.uid
         && ownsRollClaim(resource.data.roll);
-      allow create, update: if isAuthenticated()
+
+      allow create: if isAuthenticated()
+        && docKey == request.resource.data.roll + '_' + request.resource.data.probId + '_' + request.resource.data.codeMode
+        && request.resource.data.uid == request.auth.uid
+        && ownsRollClaim(request.resource.data.roll)
+        && isValidScratchpadPayload(request.resource.data);
+
+      allow update: if isAuthenticated()
+        && docKey == request.resource.data.roll + '_' + request.resource.data.probId + '_' + request.resource.data.codeMode
+        && resource.data.uid == request.auth.uid
+        && resource.data.roll == request.resource.data.roll
+        && resource.data.probId == request.resource.data.probId
+        && resource.data.codeMode == request.resource.data.codeMode
         && request.resource.data.uid == request.auth.uid
         && ownsRollClaim(request.resource.data.roll)
         && isValidScratchpadPayload(request.resource.data);
@@ -126,7 +145,18 @@ service cloud.firestore {
       allow read, delete: if isAuthenticated()
         && resource.data.uid == request.auth.uid
         && ownsRollClaim(resource.data.roll);
-      allow create, update: if isAuthenticated()
+
+      allow create: if isAuthenticated()
+        && docKey == request.resource.data.roll + '_' + request.resource.data.probId
+        && request.resource.data.uid == request.auth.uid
+        && ownsRollClaim(request.resource.data.roll)
+        && isValidNotesPayload(request.resource.data);
+
+      allow update: if isAuthenticated()
+        && docKey == request.resource.data.roll + '_' + request.resource.data.probId
+        && resource.data.uid == request.auth.uid
+        && resource.data.roll == request.resource.data.roll
+        && resource.data.probId == request.resource.data.probId
         && request.resource.data.uid == request.auth.uid
         && ownsRollClaim(request.resource.data.roll)
         && isValidNotesPayload(request.resource.data);
