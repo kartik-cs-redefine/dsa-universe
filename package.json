@@ -1,0 +1,21 @@
+{
+  "name": "myth-dsa-mastery",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Production-grade, gamified DSA curriculum and Linked List mastery platform",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "firebase": "^10.8.0"
+  },
+  "devDependencies": {
+    "vite": "^5.2.0",
+    "vitest": "^1.4.0"
+  }
+}
