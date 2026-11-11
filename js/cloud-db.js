@@ -115,6 +115,27 @@ export class CloudDBEngine {
     return this.auth?.currentUser || null;
   }
 
+  // Fetch enrolled roster record for the signed-in Google email (returns null if not found/denied)
+  async getRosterRecordByEmail() {
+    if (!this.isCloudActive || !this.db || !this.auth?.currentUser) return null;
+    const email = (this.auth.currentUser.email || "").toLowerCase().trim();
+    if (!email) return null;
+    try {
+      const doc = await this.db.collection("myth_roster").doc(email).get();
+      if (doc.exists) {
+        const data = doc.data();
+        if (data?.name) this.rosterName = data.name;
+        return data;
+      }
+      return null;
+    } catch (err) {
+      if (err.code !== "permission-denied") {
+        console.warn("[CloudDB] Roster email lookup warning:", err);
+      }
+      return null;
+    }
+  }
+
   // Verify whether the logged in student email exists in the roster
   async verifyRosterClaim(roll) {
     if (!this.isCloudActive || !this.db || !this.auth?.currentUser) return null;

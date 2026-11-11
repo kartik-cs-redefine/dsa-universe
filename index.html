@@ -3,15 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MYTH Complete DSA Guide | C++ & Java High-Performance Platform</title>
+  <title>TaskMesh DSA | C++ & Java Mastery + Messy AI</title>
   
-  <!-- Custom Artisanal Linked List Crest Favicon (Zero AI / Gemini branding) -->
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <!-- TaskMesh Main Brand Emblem & Favicon -->
+  <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/taskmesh-logo.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <!-- Typography: Plus Jakarta Sans & JetBrains Mono -->
+  <!-- Typography: Syne (Display), Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="styles/main.css">
   <link rel="stylesheet" href="styles/visualizer.css">
@@ -23,92 +25,97 @@
 
   <!-- Topbar / Navbar -->
   <header class="app-topbar">
-    <div class="brand-crest-wrapper">
-      <div class="brand-badge-box">MYTH</div>
-      <div class="brand-title-group">
-        <span class="brand-title-text">MYTH Complete DSA Guide</span>
-        <span class="brand-tagline-text">C++ & Java • SDE Production Track</span>
-      </div>
-    </div>
+    <div class="topbar-left-group">
+      <button class="tactile-btn mobile-drawer-btn" id="mobileCurriculumBtn" title="Open Curriculum Topics" aria-label="Toggle Topics Sidebar">
+        <span>☰</span>
+        <span class="hide-on-xs">Units</span>
+      </button>
 
-    <!-- Active Track Selector (Expandable to All DSA Tracks) -->
-    <div class="track-selector-box" id="topbarTrackBtn" title="Current DSA Track • Click to view full Roadmap">
-      <span class="track-indicator-dot"></span>
-      <span id="activeTrackTitle">🔗 Linked Lists (15 Modules Active)</span>
-      <span style="font-size:0.68rem; color:var(--text-muted); margin-left:0.25rem;">▾</span>
+      <div class="brand-crest-wrapper" id="brandHomeBtn" title="TaskMesh DSA • Back to Theory & Code">
+        <div class="brand-badge-box has-logo" aria-hidden="true">
+          <img src="/taskmesh-logo.png" alt="TaskMesh" class="brand-logo-img">
+        </div>
+        <div class="brand-title-group">
+          <div style="display:flex; align-items:center; gap:0.4rem;">
+            <span class="brand-parent-chip">TASKMESH</span>
+            <span class="brand-title-text">DSA Studio</span>
+          </div>
+          <span class="brand-tagline-text">Complete DSA • C++ &amp; Java</span>
+        </div>
+      </div>
     </div>
 
     <!-- Center Progress Capsule -->
-    <div class="topbar-progress-capsule">
+    <div class="topbar-progress-capsule" title="Overall Module & Problem Progress">
       <div class="progress-track-frame">
         <div class="progress-bar-fill" id="overallProgressBar"></div>
       </div>
-      <span class="progress-numeric-text" id="overallProgressLabel">0% • 0/15 TOPICS (0 SOLVED)</span>
+      <span class="progress-numeric-text" id="overallProgressLabel">0% • 0/15 (0 SOLVED)</span>
     </div>
 
-    <!-- Right Control Bar -->
+    <!-- Right Control Bar (Uniform Height Controls) -->
     <div class="topbar-controls-row">
-      <!-- Cross-Device Cloud Sync Status -->
-      <button class="tactile-btn" id="cloudSyncStatusBtn" title="Cross-Device Cloud Database Status • Click to Setup / Test">
-        <span id="cloudStatusDot" style="width:8px; height:8px; border-radius:50%; background:#eab308; display:inline-block;"></span>
-        <span id="cloudStatusText" style="font-family:var(--font-mono); font-size:0.75rem; font-weight:800;">Cloud: Standby</span>
-      </button>
-
       <!-- C++ vs Java Dual-Engine Switcher -->
       <div class="code-mode-toggle" title="Switch programming language for all code & solutions">
-        <button class="code-mode-btn active" id="codeModeCppBtn">C++</button>
-        <button class="code-mode-btn" id="codeModeJavaBtn">Java</button>
+        <button type="button" class="code-mode-btn active" id="codeModeCppBtn">C++</button>
+        <button type="button" class="code-mode-btn" id="codeModeJavaBtn">Java</button>
       </div>
 
       <!-- Tone / Persona Selector -->
-      <select class="tactile-select" id="toneSelector" title="Explanation Persona">
-        <option value="hinglish">Aap Ki Style (Hinglish Mentor)</option>
-        <option value="en">English (Interview Formal)</option>
-        <option value="tldr">TL;DR (Quick Exam Rules)</option>
+      <select class="tactile-select topbar-tone-select" id="toneSelector" title="Explanation Style" aria-label="Explanation Tone">
+        <option value="hinglish">Hinglish Mentor</option>
+        <option value="en">English Formal</option>
+        <option value="tldr">TL;DR Rules</option>
       </select>
 
       <!-- Theme Switcher -->
-      <button class="tactile-btn" id="themeToggleBtn" title="Toggle Light/Dark Theme">
-        <span>☀️</span> Light Mode
+      <button type="button" class="tactile-btn topbar-action-btn" id="themeToggleBtn" title="Toggle Light/Dark Theme">
+        <span>☀️</span>
+        <span class="hide-on-lg">Light</span>
+      </button>
+
+      <!-- Sound Toggle -->
+      <button type="button" class="tactile-btn topbar-icon-btn" id="soundToggleBtn" title="Toggle UI Sound Effects">
+        🔊
       </button>
 
       <!-- Mascot Studio Button -->
-      <button class="tactile-btn" id="mascotStudioBtn" title="Customize Your Running Mascot & Palette">
-        <span>🎭</span> Mascot
+      <button type="button" class="tactile-btn topbar-action-btn" id="mascotStudioBtn" title="Customize Your Runner Mascot">
+        <span>🎭</span>
+        <span class="hide-on-lg">Mascot</span>
       </button>
 
-      <!-- Git / Deployment Guide -->
-      <button class="tactile-btn btn-yellow" id="deployGuideBtn" title="GitHub & Vercel deployment instructions">
-        <span>🚀</span> Git & Deploy
-      </button>
-
-      <!-- Cloud Sync Alert Banner -->
-      <span id="cloudSyncAlertBanner" class="cloud-sync-alert-banner" title="Cloud sync failed. Operating in offline cache mode.">⚠️ Cloud Not Synced</span>
-
-      <!-- Student Profile Pill (Click to view Profile / Logout) -->
-      <div class="student-avatar-pill" id="profileOpenBtn" title="Student Session • Click to View Stats or Logout">
+      <!-- Student Profile Pill -->
+      <button type="button" class="student-avatar-pill" id="profileOpenBtn" title="Student Profile & Session">
         <div class="avatar-initial-box" id="topbarProfileAvatar">S</div>
         <span class="avatar-name-text" id="topbarProfileName">Student</span>
-      </div>
+      </button>
     </div>
   </header>
 
+  <!-- Mobile Sidebar Backdrop -->
+  <div class="sidebar-mobile-backdrop" id="sidebarBackdrop"></div>
+
   <!-- Main Viewport Layout -->
-  <div class="app-viewport-layout">
+  <div class="app-viewport-layout" id="appViewportLayout">
     <!-- Sidebar -->
     <aside class="sidebar-curriculum-panel" id="curriculumSidebar">
       <div class="sidebar-search-sticky-box">
+        <div class="sidebar-mobile-header">
+          <span>Linked List Curriculum</span>
+          <button type="button" class="modal-close-cross" id="closeMobileSidebarBtn" aria-label="Close Sidebar">×</button>
+        </div>
         <input 
           type="text" 
           id="sidebarSearchInput" 
           class="tactile-search-input" 
-          placeholder="Search modules (e.g. cycle, reverse, LRU)..."
+          placeholder="Search units (e.g. cycle, reverse, DLL)..."
         >
       </div>
 
       <div class="sidebar-section-header">
         <span id="sidebarTrackLabel">Linked List Curriculum</span>
-        <span id="sidebarModulesCount">15 MODULES</span>
+        <span id="sidebarModulesCount">15 UNITS</span>
       </div>
       <ul class="curriculum-module-list" id="sidebarTopicsList">
         <!-- Injected dynamically by app.js -->
@@ -117,53 +124,228 @@
 
     <!-- Main Workspace -->
     <main class="primary-workspace-viewport">
-      <!-- Stealth Mode Switcher -->
-      <div class="stealth-view-switch-row">
-        <div class="stealth-pill-tabs">
-          <button class="stealth-tab-button" id="tabModulesBtn">
-            <span>📦</span> All Modules
-          </button>
-          <button class="stealth-tab-button active" id="tabConceptBtn">
-            <span>📖</span> Theory & Code
-          </button>
-          <button class="stealth-tab-button" id="tabVisualizerBtn">
-            <span>⚡</span> Live Visualizer
-          </button>
-          <button class="stealth-tab-button" id="tabPracticeBtn">
-            <span>🎯</span> Practice Arena
-          </button>
-          <button class="stealth-tab-button" id="tabRaceArenaBtn">
-            <span>🏃</span> Race Arena
-          </button>
-          <button class="stealth-tab-button" id="tabAnalyticsBtn">
-            <span>📊</span> Performance Analytics
-          </button>
-          <button class="stealth-tab-button" id="tabLeaderboardBtn">
-            <span>🏆</span> Leaderboard
-          </button>
+      <!-- Logical Progressive Learning Flow Navigation -->
+      <nav class="workspace-flow-bar" aria-label="Platform Navigation">
+        <div class="flow-group">
+          <span class="flow-group-label">STUDY FLOW</span>
+          <div class="stealth-pill-tabs">
+            <button type="button" class="stealth-tab-button" id="tabModulesBtn">
+              <span class="tab-step-num">1</span>
+              <span>📦 All Modules</span>
+            </button>
+            <span class="flow-arrow" aria-hidden="true">→</span>
+            <button type="button" class="stealth-tab-button active" id="tabConceptBtn">
+              <span class="tab-step-num">2</span>
+              <span>📖 Theory & Code</span>
+            </button>
+            <span class="flow-arrow" aria-hidden="true">→</span>
+            <button type="button" class="stealth-tab-button" id="tabVisualizerBtn">
+              <span class="tab-step-num">3</span>
+              <span>⚡ Visualizer</span>
+            </button>
+            <span class="flow-arrow" aria-hidden="true">→</span>
+            <button type="button" class="stealth-tab-button" id="tabPracticeBtn">
+              <span class="tab-step-num">4</span>
+              <span>🎯 Practice</span>
+            </button>
+          </div>
         </div>
 
-        <div style="font-family:var(--font-mono); font-size:0.75rem; font-weight:800; color:var(--text-muted);">
-          <span>CURRICULUM SPEC: </span><span style="color:var(--accent-yellow);">Memory Safety • Pointers • SDE-1 Mastery</span>
+        <div class="flow-group">
+          <span class="flow-group-label">TRACK & COMPETE</span>
+          <div class="stealth-pill-tabs">
+            <button type="button" class="stealth-tab-button" id="tabAnalyticsBtn">
+              <span>📊 Analytics</span>
+            </button>
+            <button type="button" class="stealth-tab-button" id="tabRaceArenaBtn">
+              <span>🏃 Race Arena</span>
+            </button>
+            <button type="button" class="stealth-tab-button" id="tabLeaderboardBtn">
+              <span>🏆 Leaderboard</span>
+            </button>
+            <button type="button" class="stealth-tab-button" id="tabAboutBtn">
+              <span>ℹ️ About</span>
+            </button>
+          </div>
         </div>
-      </div>
+      </nav>
 
       <!-- Dynamic Content Injection Area -->
       <div id="mainContentArea">
         <!-- Rendered dynamically by app.js -->
       </div>
+
+      <!-- Platform Engineering & Authorship Footer -->
+      <footer class="workspace-footer">
+        <div class="workspace-footer-inner">
+          <span>⚡ TaskMesh DSA • Part of the TaskMesh Ecosystem</span>
+          <span>•</span>
+          <span>Authors: Kartik Kumar, Tanmay Awasthi, Krish Chaddha</span>
+        </div>
+      </footer>
     </main>
   </div>
 
-  <!-- COMPULSORY AUTH GATEKEEPER MODAL (Blocks App until Logged In) -->
+  <!-- Stealth Screen-Edge Quick Flow Rail (Blends at extreme right screen edge) -->
+  <aside class="stealth-edge-rail" id="stealthEdgeDock" aria-label="Quick Tab Switcher">
+    <button type="button" class="stealth-edge-btn" data-tab="modules" title="1. All Modules">📦</button>
+    <button type="button" class="stealth-edge-btn active" data-tab="concept" title="2. Theory & Code">📖</button>
+    <button type="button" class="stealth-edge-btn" data-tab="visualizer" title="3. Live Visualizer">⚡</button>
+    <button type="button" class="stealth-edge-btn" data-tab="practice" title="4. Practice Arena">🎯</button>
+    <div class="stealth-edge-divider"></div>
+    <button type="button" class="stealth-edge-btn" data-tab="analytics" title="Analytics">📊</button>
+    <button type="button" class="stealth-edge-btn" data-tab="arena" title="Race Arena">🏃</button>
+    <button type="button" class="stealth-edge-btn" data-tab="leaderboard" title="Leaderboard">🏆</button>
+    <button type="button" class="stealth-edge-btn" data-tab="about" title="About TaskMesh">ℹ️</button>
+  </aside>
+
+  <!-- FULL-PAGE CONCEPT & VISION LANDING PAGE (Shown First Before Sign-In) -->
+  <section class="concept-landing-overlay" id="conceptLandingScreen" aria-label="TaskMesh DSA Studio Overview" style="display:none;">
+    <div class="landing-shell">
+      <!-- Sticky Top Navigation Bar -->
+      <header class="landing-topbar">
+        <div class="landing-brand">
+          <div class="brand-badge-box has-logo" aria-hidden="true">
+            <img src="/taskmesh-logo.png" alt="TaskMesh" class="brand-logo-img">
+          </div>
+          <div class="landing-brand-text">
+            <span class="landing-brand-name">TaskMesh Ecosystem</span>
+            <span class="landing-brand-sub">C++ &amp; Java DSA Learning Platform</span>
+          </div>
+        </div>
+        <div class="landing-topbar-actions">
+          <a href="#landingFounderVision" class="landing-nav-link">Founder &amp; Vision</a>
+          <button type="button" class="tactile-btn landing-theme-btn" id="landingThemeToggleBtn" title="Switch Light / Dark Theme">
+            ☀️
+          </button>
+          <button type="button" class="tactile-btn landing-signin-ghost" id="landingHeaderSignInBtn">
+            Sign In
+          </button>
+        </div>
+      </header>
+
+      <!-- Section 1: Editorial Hero + 8-Track DSA Architecture -->
+      <div class="landing-hero-grid">
+        <div class="landing-hero-copy">
+          <div class="landing-masthead">
+            <p class="landing-presents-line">TaskMesh presents —</p>
+            <h1 class="landing-display-title">DSA Studio</h1>
+          </div>
+
+          <h2 class="landing-value-headline">
+            Complete Data Structures &amp; Algorithms — built for visual understanding, not rote memorization.
+          </h2>
+
+          <p class="landing-subtitle">
+            A unified studio where core <strong>C++ &amp; Java</strong> DSA fundamentals — from Linked Lists to Arrays, Trees, Graphs, and Dynamic Programming — come together with interactive dry runs, coding challenges, and screen-aware <strong>Messy AI</strong>.
+          </p>
+
+          <div class="landing-cta-row">
+            <button type="button" class="tactile-btn landing-cta-primary" id="landingGetStartedBtn">
+              Get Started
+            </button>
+            <div class="landing-cta-meta">
+              <span>Quick sign-in for full studio access</span>
+              <span>Built for placement prep &amp; university cohorts</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Complete 8-Track DSA Blueprint Snapshot -->
+        <aside class="landing-blueprint-card" aria-label="Complete DSA Curriculum Overview">
+          <div class="landing-blueprint-head">
+            <span class="landing-blueprint-title">Complete DSA Track Architecture</span>
+            <span class="landing-blueprint-badge">C++ • Java</span>
+          </div>
+
+          <div class="landing-tracks-grid">
+            <div class="landing-track-chip is-live">
+              <span class="track-chip-name">🔗 Linked Lists</span>
+              <span class="track-chip-state live">Live Now</span>
+            </div>
+            <div class="landing-track-chip">
+              <span class="track-chip-name">📊 Arrays &amp; Two Pointers</span>
+              <span class="track-chip-state">Roadmap</span>
+            </div>
+            <div class="landing-track-chip">
+              <span class="track-chip-name">🥞 Stacks &amp; Queues</span>
+              <span class="track-chip-state">Roadmap</span>
+            </div>
+            <div class="landing-track-chip">
+              <span class="track-chip-name">🌲 Binary Trees &amp; BST</span>
+              <span class="track-chip-state">Roadmap</span>
+            </div>
+            <div class="landing-track-chip">
+              <span class="track-chip-name">⛰️ Heaps &amp; Greedy</span>
+              <span class="track-chip-state">Roadmap</span>
+            </div>
+            <div class="landing-track-chip">
+              <span class="track-chip-name">🕸️ Graphs &amp; DSU</span>
+              <span class="track-chip-state">Roadmap</span>
+            </div>
+            <div class="landing-track-chip">
+              <span class="track-chip-name">🧩 Dynamic Programming</span>
+              <span class="track-chip-state">Roadmap</span>
+            </div>
+            <div class="landing-track-chip">
+              <span class="track-chip-name">🔤 Tries &amp; Strings</span>
+              <span class="track-chip-state">Roadmap</span>
+            </div>
+          </div>
+
+          <div class="landing-visual-foot">
+            <div class="landing-mini-ai">
+              <span class="landing-ai-badge">✨ Messy AI • Active on Every Screen</span>
+              <span class="landing-ai-line">Whether you are reading theory, tracing visualizer steps, or debugging editor code — Messy AI reads your active screen and resolves doubts immediately.</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- 4 Core Studio Capabilities -->
+      <div class="landing-pillars-grid">
+        <article class="landing-pillar-card">
+          <span class="landing-pillar-icon">📖</span>
+          <h3>Dual-Language Theory</h3>
+          <p>Understand C++ &amp; Java implementations side by side in Formal English, Hinglish explanations, or concise TL;DR rules.</p>
+        </article>
+
+        <article class="landing-pillar-card">
+          <span class="landing-pillar-icon">⚡</span>
+          <h3>Live Step Visualizers</h3>
+          <p>Trace memory nodes, pointer movements, and algorithm state transitions step by step in real time.</p>
+        </article>
+
+        <article class="landing-pillar-card">
+          <span class="landing-pillar-icon">🎯</span>
+          <h3>Practice, Arena &amp; Sync</h3>
+          <p>Solve curated DSA problems, race classmates live in the arena, and track progress with LeetCode sync.</p>
+        </article>
+
+        <article class="landing-pillar-card">
+          <span class="landing-pillar-icon">✨</span>
+          <h3>Messy AI Mentor</h3>
+          <p>Get instant context-aware guidance on every screen without opening separate search tabs.</p>
+        </article>
+      </div>
+
+      <!-- Section 2: 🚀 TASKMESH ECOSYSTEM & VISION (Rendered from js/app.js shared stage) -->
+      <section class="ecosystem-vision-stage" id="landingFounderVision" aria-label="TaskMesh Ecosystem and Founder Vision"></section>
+    </div>
+  </section>
+
+  <!-- COMPULSORY AUTH GATEKEEPER MODAL (Shown After "Get Started") -->
   <div class="auth-gatekeeper-overlay" id="authGatekeeperModal" style="display:none;">
     <div class="auth-gatekeeper-card">
-      <div class="auth-gatekeeper-badge">
-        <span>🔒</span> Student Authentication
+      <div class="auth-gatekeeper-toprow">
+        <div class="auth-gatekeeper-badge" style="margin-bottom:0;">
+          <span>⚡</span> TaskMesh • DSA Domain
+        </div>
+        <button type="button" class="auth-back-link" id="authBackToLandingBtn">← Overview</button>
       </div>
-      <h1 class="auth-gatekeeper-title">MYTH Complete DSA Guide</h1>
+      <h1 class="auth-gatekeeper-title">TaskMesh DSA Studio</h1>
       <p class="auth-gatekeeper-subtitle">
-        Sign in to access your personal curriculum, live LeetCode sync, and cohort rank.
+        Sign in to master C++ & Java Data Structures with interactive memory visuals and Messy AI.
       </p>
 
       <!-- Google Sign In Option -->
@@ -183,54 +365,54 @@
 
       <form id="authLoginForm" class="auth-form-grid">
         <div class="auth-input-group">
-          <label>Student Full Name *</label>
+          <label for="authInputName">Student Full Name *</label>
           <input 
             type="text" 
             id="authInputName" 
             class="auth-input-field" 
-            placeholder="e.g. Student Full Name" 
+            placeholder="e.g. Kartik Kumar" 
             required 
             autocomplete="name"
           >
         </div>
 
-        <div class="auth-input-group">
-          <label>Roll Number / ID *</label>
-          <input 
-            type="text" 
-            id="authInputRoll" 
-            class="auth-input-field" 
-            placeholder="e.g. 1000000000001" 
-            required
-          >
-        </div>
-
-        <div class="auth-input-group">
-          <label>LeetCode Username (Optional)</label>
-          <input 
-            type="text" 
-            id="authInputLeetCode" 
-            class="auth-input-field" 
-            placeholder="e.g. your_leetcode_handle"
-          >
-        </div>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.65rem;">
+        <div class="auth-two-col">
           <div class="auth-input-group">
-            <label>Language Track</label>
-            <select id="authInputLangTrack" class="auth-input-field tactile-select" style="padding:0.6rem 0.75rem; font-size:0.82rem;">
+            <label for="authInputRoll">Roll Number / ID *</label>
+            <input 
+              type="text" 
+              id="authInputRoll" 
+              class="auth-input-field" 
+              placeholder="e.g. 2501640100454" 
+              required
+            >
+          </div>
+
+          <div class="auth-input-group">
+            <label for="authInputGender">Gender *</label>
+            <select id="authInputGender" class="auth-input-field tactile-select" required>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="auth-two-col">
+          <div class="auth-input-group">
+            <label for="authInputLangTrack">Language Track</label>
+            <select id="authInputLangTrack" class="auth-input-field tactile-select">
               <option value="cpp">C++ (Pointers & STL)</option>
               <option value="java">Java (OOP & JVM)</option>
             </select>
           </div>
 
           <div class="auth-input-group">
-            <label>Target Goal</label>
-            <select id="authInputTargetGoal" class="auth-input-field tactile-select" style="padding:0.6rem 0.75rem; font-size:0.82rem;">
-              <option value="FAANG / Tier-1 SDE">FAANG / Tier-1 SDE</option>
+            <label for="authInputTargetGoal">Target Goal</label>
+            <select id="authInputTargetGoal" class="auth-input-field tactile-select">
+              <option value="Software Engineering">Software Engineering</option>
               <option value="Product Placements">Product Placements</option>
-              <option value="CP & Codeforces">CP / Codeforces</option>
-              <option value="Semester Distinction">Semester Exams</option>
+              <option value="Competitive Programming">Competitive Programming</option>
+              <option value="Semester Exams">Semester Exams</option>
             </select>
           </div>
         </div>
@@ -239,8 +421,8 @@
           ⚠️ Please provide your Name and Roll Number to continue.
         </div>
 
-        <button type="submit" class="tactile-btn btn-yellow" style="width:100%; justify-content:center; padding:0.8rem; font-size:0.92rem; margin-top:0.35rem;">
-          INITIALIZE & ENTER PLATFORM 🚀
+        <button type="submit" class="tactile-btn btn-yellow btn-full btn-lg" style="margin-top:0.25rem;">
+          Continue to Workspace →
         </button>
       </form>
     </div>
@@ -259,7 +441,7 @@
           </svg>
           <span style="font-weight:900; font-size:1.05rem; color:var(--text-main);">Google Authentication</span>
         </div>
-        <button class="modal-close-cross" id="closeGoogleAuthModal">×</button>
+        <button type="button" class="modal-close-cross" id="closeGoogleAuthModal">×</button>
       </div>
 
       <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem;">
@@ -268,23 +450,28 @@
 
       <form id="googleDirectAuthForm">
         <div class="auth-input-group" style="margin-bottom:0.75rem;">
-          <label>Google Account Name *</label>
-          <input type="text" id="googleInputName" class="auth-input-field" placeholder="e.g. Student Full Name" required>
+          <label for="googleInputName">Google Account Name *</label>
+          <input type="text" id="googleInputName" class="auth-input-field" placeholder="e.g. Kartik Kumar" required>
         </div>
         <div class="auth-input-group" style="margin-bottom:0.75rem;">
-          <label>Google Email *</label>
+          <label for="googleInputEmail">Google Email *</label>
           <input type="email" id="googleInputEmail" class="auth-input-field" placeholder="student@university.edu" required>
         </div>
-        <div class="auth-input-group" style="margin-bottom:0.75rem;">
-          <label>Student Roll Number / ID *</label>
-          <input type="text" id="googleInputRoll" class="auth-input-field" placeholder="e.g. 1000000000001" required>
+        <div class="auth-two-col" style="margin-bottom:1rem;">
+          <div class="auth-input-group">
+            <label for="googleInputRoll">Roll Number / ID *</label>
+            <input type="text" id="googleInputRoll" class="auth-input-field" placeholder="e.g. 2501640100454" required>
+          </div>
+          <div class="auth-input-group">
+            <label for="googleInputGender">Gender *</label>
+            <select id="googleInputGender" class="auth-input-field tactile-select" required>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
         </div>
-        <div class="auth-input-group" style="margin-bottom:1rem;">
-          <label>LeetCode Username (Optional)</label>
-          <input type="text" id="googleInputLeetCode" class="auth-input-field" placeholder="e.g. username">
-        </div>
-        <button type="submit" class="tactile-btn btn-yellow" style="width:100%; justify-content:center; padding:0.75rem;">
-          Verify & Sign In with Google 🚀
+        <button type="submit" class="tactile-btn btn-yellow btn-full btn-lg">
+          Continue with Google 🚀
         </button>
       </form>
     </div>
@@ -295,13 +482,13 @@
     <div class="tactile-modal-card">
       <div class="modal-header-row">
         <div class="modal-header-title">Student Profile & Stats Hub</div>
-        <button class="modal-close-cross" id="closeProfileModal">×</button>
+        <button type="button" class="modal-close-cross" id="closeProfileModal">×</button>
       </div>
 
-      <div style="display:flex; align-items:center; gap:1.1rem; margin-bottom:1.25rem; background:var(--bg-panel-elevated); padding:1rem 1.25rem; border:var(--border-thick); border-radius:var(--radius-boxy); box-shadow:var(--shadow-tactile);">
+      <div class="profile-summary-banner">
         <div class="analytics-user-avatar" id="modalProfileAvatar" style="width:48px; height:48px; font-size:1.3rem;">S</div>
-        <div style="flex:1;">
-          <div style="display:flex; align-items:center;">
+        <div style="flex:1; min-width:0;">
+          <div style="display:flex; align-items:center; flex-wrap:wrap; gap:0.35rem;">
             <h3 id="modalProfileName" style="font-size:1.15rem; font-weight:900; color:var(--text-main);">Student</h3>
             <span id="modalGoogleBadge" class="google-verified-badge" style="display:none;">Google Verified ✓</span>
           </div>
@@ -309,7 +496,7 @@
         </div>
       </div>
 
-      <div class="analytics-stat-chips-row" style="margin-bottom:1.75rem; justify-content:space-between; gap:0.5rem;">
+      <div class="analytics-stat-chips-row" style="margin-bottom:1.25rem; justify-content:space-between; gap:0.5rem;">
         <div class="stat-metric-badge" style="flex:1; min-width:85px; padding:0.55rem 0.65rem;">
           <span class="metric-label">Solved</span>
           <span class="metric-value" id="modalStatSolved" style="font-size:1.15rem;">0/42</span>
@@ -328,13 +515,20 @@
         </div>
       </div>
 
-      <div style="margin-bottom:1.5rem; font-family:var(--font-mono); font-size:0.82rem; color:var(--text-muted);">
+      <div style="margin-bottom:1.25rem; font-family:var(--font-mono); font-size:0.82rem; color:var(--text-muted);">
         <p>• Language Track: <strong style="color:var(--text-main);" id="modalProfileTrack">C++</strong></p>
         <p style="margin-top:0.35rem;">• Target Milestone: <strong style="color:var(--text-main);" id="modalProfileTarget">FAANG SDE</strong></p>
+        <div style="margin-top:0.55rem; display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
+          <span>• Gender:</span>
+          <select id="modalGenderSelect" class="tactile-select" style="padding:0.25rem 0.5rem; font-size:0.78rem; font-family:var(--font-mono);" aria-label="Select Gender">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
       </div>
 
       <!-- Active Mascot Avatar in Profile -->
-      <div style="margin-bottom:1.25rem; background:var(--bg-panel-elevated); border:var(--border-thick); border-radius:var(--radius-boxy); padding:0.75rem 1rem; box-shadow:var(--shadow-tactile); display:flex; align-items:center; justify-content:space-between;">
+      <div class="profile-mascot-strip">
         <div style="display:flex; align-items:center; gap:0.75rem;">
           <div id="modalMascotAvatarMount" style="width:44px; height:44px; display:flex; align-items:center; justify-content:center;"></div>
           <div>
@@ -342,16 +536,16 @@
             <div id="modalMascotTitle" style="font-weight:900; font-size:0.88rem; color:var(--text-main);">Buster Blitz</div>
           </div>
         </div>
-        <button class="tactile-btn btn-yellow" id="profileMascotCustomizeBtn" style="font-size:0.75rem; padding:0.38rem 0.75rem;">
+        <button type="button" class="tactile-btn btn-yellow" id="profileMascotCustomizeBtn">
           Customize 🎭
         </button>
       </div>
 
       <!-- LeetCode Live Connection Box -->
-      <div style="margin-bottom:1.5rem; background:var(--bg-panel-elevated); border:var(--border-thick); border-radius:var(--radius-boxy); padding:1rem; box-shadow:var(--shadow-tactile);">
+      <div class="profile-lc-box">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
           <span style="font-family:var(--font-mono); font-size:0.75rem; font-weight:900; color:var(--text-main);">LIVE LEETCODE ACCOUNT</span>
-          <span id="modalLeetCodeStatus" style="font-family:var(--font-mono); font-size:0.7rem; font-weight:800; color:var(--accent-lime);">🟢 Connected</span>
+          <span id="modalLeetCodeStatus" style="font-family:var(--font-mono); font-size:0.7rem; font-weight:800; color:var(--accent-lime);">⚪ Not Linked</span>
         </div>
         <div style="display:flex; gap:0.5rem;">
           <input 
@@ -361,17 +555,20 @@
             style="margin-bottom:0; padding:0.45rem 0.75rem; font-size:0.85rem;" 
             placeholder="Username or LeetCode URL"
           >
-          <button class="tactile-btn btn-yellow" id="profileLeetCodeSyncBtn" style="padding:0.45rem 0.85rem; font-size:0.78rem; white-space:nowrap;">
+          <button type="button" class="tactile-btn btn-yellow" id="profileLeetCodeSyncBtn">
             Sync ⚡
           </button>
         </div>
+        <p id="modalLeetCodeVerifyNotice" style="display:none; margin-top:0.5rem; font-family:var(--font-mono); font-size:0.72rem; color:var(--accent-yellow); font-weight:700;">
+          🔒 Contact admin for verification, then you can connect your LeetCode.
+        </p>
       </div>
 
       <div style="display:flex; gap:0.75rem;">
-        <button class="tactile-btn" id="closeProfileModalBtn" style="flex:1; justify-content:center; padding:0.75rem;">
+        <button type="button" class="tactile-btn btn-lg" id="closeProfileModalBtn" style="flex:1; justify-content:center;">
           Close
         </button>
-        <button class="tactile-btn btn-yellow" id="logoutProfileBtn" style="flex:1; justify-content:center; padding:0.75rem; background:var(--accent-crimson); color:#fff; border-color:#000;">
+        <button type="button" class="tactile-btn btn-crimson btn-lg" id="logoutProfileBtn" style="flex:1; justify-content:center;">
           Switch Student / Logout
         </button>
       </div>
@@ -383,7 +580,7 @@
     <div class="tactile-modal-card" style="width:min(760px, calc(100% - 32px)); max-height:85vh; overflow-y:auto;">
       <div class="modal-header-row">
         <div class="modal-header-title">Master DSA Curriculum Roadmap</div>
-        <button class="modal-close-cross" id="closeRoadmapModal">×</button>
+        <button type="button" class="modal-close-cross" id="closeRoadmapModal">×</button>
       </div>
       <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.25rem;">
         Complete FAANG interview syllabus spanning all standard data structures and algorithmic paradigms. Select a track to explore:
@@ -399,10 +596,10 @@
     <div class="tactile-modal-card" style="width:min(620px, calc(100% - 32px));">
       <div class="modal-header-row">
         <div class="modal-header-title" id="comingSoonModalTitle">Module: Coming Soon</div>
-        <button class="modal-close-cross" id="closeComingSoonModal">×</button>
+        <button type="button" class="modal-close-cross" id="closeComingSoonModal">×</button>
       </div>
 
-      <div style="display:inline-flex; align-items:center; gap:0.4rem; background:rgba(255, 199, 0, 0.15); border:1.5px solid var(--accent-yellow); color:var(--accent-yellow); font-family:var(--font-mono); font-weight:900; font-size:0.75rem; padding:0.25rem 0.65rem; border-radius:2px; margin-bottom:1.25rem;">
+      <div class="coming-soon-pill">
         <span>🔒</span> MODULE UNDER ACTIVE PRODUCTION • COMING SOON
       </div>
 
@@ -410,158 +607,28 @@
         This DSA module is currently being authored with interactive memory visualizers, dry-runs, and verified solutions.
       </p>
 
-      <div style="background:var(--bg-panel-elevated); border:var(--border-thick); border-radius:var(--radius-boxy); padding:1rem 1.25rem; margin-bottom:1.5rem;">
-        <span style="font-family:var(--font-mono); font-size:0.75rem; font-weight:900; color:var(--text-muted); display:block; margin-bottom:0.6rem;">
+      <div class="coming-soon-topics-box">
+        <span class="coming-soon-topics-heading">
           PLANNED SYLLABUS HIGHLIGHTS:
         </span>
-        <div id="comingSoonTopicsList" style="display:flex; flex-direction:column; gap:0.45rem; font-family:var(--font-mono); font-size:0.82rem; color:var(--text-main);">
+        <div id="comingSoonTopicsList" class="coming-soon-topics-list">
           <!-- Injected dynamically -->
         </div>
       </div>
 
       <div style="display:flex; gap:0.75rem;">
-        <button class="tactile-btn" id="closeComingSoonBtn" style="flex:1; justify-content:center; padding:0.75rem;">
+        <button type="button" class="tactile-btn btn-lg" id="closeComingSoonBtn" style="flex:1; justify-content:center;">
           Close Preview
         </button>
-        <button class="tactile-btn btn-yellow" id="comingSoonSwitchModuleBtn" style="flex:1; justify-content:center; padding:0.75rem;">
+        <button type="button" class="tactile-btn btn-yellow btn-lg" id="comingSoonSwitchModuleBtn" style="flex:1; justify-content:center;">
           Go to Active Module (Linked Lists) ⚡
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Git & Deployment Guide Modal -->
-  <div class="tactile-modal-overlay" id="deployModal">
-    <div class="tactile-modal-card" style="width:min(660px, calc(100% - 32px));">
-      <div class="modal-header-row">
-        <div class="modal-header-title">Git & One-Click Deployment Guide</div>
-        <button class="modal-close-cross" id="closeDeployModal">×</button>
-      </div>
-
-      <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.1rem;">
-        Ye platform static production web app ke taur par structured hai. Tum ise GitHub repo me push karke Vercel, Netlify, ya GitHub Pages par 1 minute me live deploy kar sakte ho.
-      </p>
-
-      <div style="font-size:0.78rem; font-family:var(--font-mono); font-weight:800; color:var(--accent-yellow); margin-bottom:0.4rem;">
-        STEP 1: Push to your GitHub Repository (PowerShell)
-      </div>
-      <div class="terminal-deploy-shell">
-cd "D:\cpp-linked-list-mastery"<br>
-git add .<br>
-git commit -m "feat: complete C++ and Java linked list mastery platform"<br>
-git remote add origin https://github.com/&lt;your-username&gt;/cpp-linked-list-mastery.git<br>
-git branch -M main<br>
-git push -u origin main
-      </div>
-
-      <div style="font-size:0.78rem; font-family:var(--font-mono); font-weight:800; color:var(--accent-lime); margin-bottom:0.4rem;">
-        STEP 2: Instant Deployment (Vercel / Netlify)
-      </div>
-      <div class="terminal-deploy-shell">
-# Option A: With Vercel CLI<br>
-npx vercel<br>
-<br>
-# Option B: Vercel Web Dashboard<br>
-1. Go to https://vercel.com/new<br>
-2. Import your GitHub repo "cpp-linked-list-mastery"<br>
-3. Click "Deploy" (Zero configuration needed, vercel.json already present!)
-      </div>
-
-      <button class="tactile-btn btn-lime" id="deployModalGotItBtn" style="width:100%; justify-content:center; padding:0.75rem;">
-        Got it! Close Guide
-      </button>
-    </div>
-  </div>
-
-  
-  <!-- CROSS-DEVICE CLOUD BACKEND SETUP MODAL -->
-  <div class="tactile-modal-overlay" id="cloudSetupModal">
-    <div class="tactile-modal-card" style="width:min(680px, calc(100% - 32px)); max-height:85vh; overflow-y:auto;">
-      <div class="modal-header-row" style="margin-bottom:0.75rem;">
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <span style="font-size:1.3rem;">☁️</span>
-          <span class="modal-header-title">Cross-Device Cloud Database</span>
-        </div>
-        <button class="modal-close-cross" id="closeCloudSetupModal">×</button>
-      </div>
-
-      <!-- Cloud Status Banner -->
-      <div id="cloudModalStatusBanner" style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-panel-elevated); border:var(--border-thick); border-radius:var(--radius-boxy); padding:0.85rem 1.1rem; margin-bottom:1.25rem; box-shadow:var(--shadow-tactile);">
-        <div style="display:flex; align-items:center; gap:0.6rem;">
-          <span id="cloudModalStatusDot" style="width:10px; height:10px; border-radius:50%; background:#eab308; display:inline-block;"></span>
-          <div>
-            <div id="cloudModalStatusTitle" style="font-weight:900; font-size:0.92rem; color:var(--text-main);">Cloud Sync: Local Fallback Mode</div>
-            <div id="cloudModalStatusSub" style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">Paste your Firebase project credentials below to activate multi-device cloud persistence.</div>
-          </div>
-        </div>
-        <button class="tactile-btn btn-yellow" id="testCloudConnectionBtn" style="font-size:0.75rem; padding:0.4rem 0.75rem;">
-          Test Ping ⚡
-        </button>
-      </div>
-
-      <!-- Direct Config Input Box -->
-      <div style="background:var(--bg-surface); border:var(--border-thick); border-radius:var(--radius-boxy); padding:1.1rem; margin-bottom:1.25rem;">
-        <label style="display:block; font-family:var(--font-mono); font-size:0.75rem; font-weight:900; color:var(--text-main); margin-bottom:0.4rem; text-transform:uppercase;">
-          Firebase Web Config (JSON or JS Object)
-        </label>
-        <textarea 
-          id="cloudConfigInputText" 
-          class="interactive-code-textarea" 
-          style="min-height:120px; font-size:0.75rem; margin-bottom:0.75rem;" 
-          placeholder='{
-  "apiKey": "AIzaSy...",
-  "authDomain": "myth-dsa.firebaseapp.com",
-  "projectId": "myth-dsa",
-  "storageBucket": "myth-dsa.appspot.com",
-  "messagingSenderId": "...",
-  "appId": "..."
-}'
-        ></textarea>
-        
-        <div style="display:flex; gap:0.6rem;">
-          <button class="tactile-btn btn-lime" id="saveCustomCloudConfigBtn" style="flex:1; justify-content:center; padding:0.6rem; font-size:0.85rem;">
-            💾 Save Config & Activate Cloud
-          </button>
-          <button class="tactile-btn" id="clearCustomCloudConfigBtn" style="padding:0.6rem 0.9rem; font-size:0.85rem;">
-            Reset
-          </button>
-        </div>
-      </div>
-
-      <!-- Step by Step Setup Instructions -->
-      <div style="background:var(--bg-panel-elevated); border:var(--border-thick); border-radius:var(--radius-boxy); padding:1.1rem; margin-bottom:1rem;">
-        <span style="font-family:var(--font-mono); font-size:0.78rem; font-weight:900; color:var(--accent-yellow); display:block; margin-bottom:0.75rem;">
-          LINE-BY-LINE SETUP GUIDE (FREE TIER • 2 MINUTES):
-        </span>
-
-        <div style="display:flex; flex-direction:column; gap:0.65rem; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-main); line-height:1.6;">
-          <div>
-            <strong style="color:var(--accent-lime);">1. Create Firebase Project:</strong> 
-            Open <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" style="color:var(--accent-yellow); text-decoration:underline;">console.firebase.google.com</a>, click <em>"Add project"</em>, name it <code>myth-dsa-guide</code>.
-          </div>
-          <div>
-            <strong style="color:var(--accent-lime);">2. Enable Firestore Database:</strong> 
-            Left menu -> <strong>Build</strong> -> <strong>Firestore Database</strong> -> Click <em>"Create database"</em> -> Select <em>"Start in test mode"</em> -> Done.
-          </div>
-          <div>
-            <strong style="color:var(--accent-lime);">3. Enable Google Authentication:</strong> 
-            Left menu -> <strong>Build</strong> -> <strong>Authentication</strong> -> <em>"Get started"</em> -> Select <strong>Google</strong> provider -> Enable & Save.
-          </div>
-          <div>
-            <strong style="color:var(--accent-lime);">4. Copy Web App Config:</strong> 
-            Project Settings (gear icon) -> <strong>General</strong> -> Scroll to <strong>Your apps</strong> -> Click <code>&lt;/&gt;</code> Web icon -> Copy <code>firebaseConfig</code> and paste above (or in <code>js/firebase-config.js</code>).
-          </div>
-        </div>
-      </div>
-
-      <button class="tactile-btn" id="closeCloudSetupModalBtn" style="width:100%; justify-content:center; padding:0.75rem;">
-        Close Cloud Hub
-      </button>
-    </div>
-  </div>
-
-  <!-- MASCOT STUDIO MODAL (Gehna-3D Spring Physics & Obsidian Aura) -->
-  <div class="tactile-modal-overlay" id="mascotStudioModal">
+  <!-- MASCOT STUDIO MODAL -->
+  <div class="tactile-modal-overlay" id="mascotStudioModal" style="z-index:260;">
     <div class="tactile-modal-card mascot-studio-modal-card" style="width:min(720px, calc(100% - 32px)); max-height:88vh; overflow-y:auto;">
       <div class="modal-header-row" style="margin-bottom:0.75rem;">
         <div style="display:flex; align-items:center; gap:0.5rem;">
@@ -571,17 +638,17 @@ npx vercel<br>
             <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">Equip your animated runner for the Race Arena, Leaderboard & Profile</div>
           </div>
         </div>
-        <button class="modal-close-cross" id="closeMascotStudioModal">×</button>
+        <button type="button" class="modal-close-cross" id="closeMascotStudioModal">×</button>
       </div>
 
       <!-- Live Interactive Character Preview Stage -->
-      <div class="mascot-studio-preview-stage" style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-panel-elevated); border:var(--border-thick); border-radius:var(--radius-boxy); padding:1.25rem; margin-bottom:1.25rem; box-shadow:var(--shadow-tactile); position:relative; overflow:hidden;">
-        <div style="position:relative; z-index:2; flex:1;">
+      <div class="mascot-studio-preview-stage">
+        <div style="position:relative; z-index:2; flex:1; min-width:220px;">
           <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
             <span class="mascot-rarity-chip" id="mascotPreviewRarity">LEGENDARY</span>
             <span style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);" id="mascotPreviewRole">Cosmic Astral Architect</span>
           </div>
-          <h2 style="font-size:1.4rem; font-weight:900; margin:0 0 0.4rem 0;" id="mascotPreviewName">Nebula Nova</h2>
+          <h2 style="font-size:1.4rem; font-weight:900; margin:0 0 0.4rem 0; color:var(--text-main);" id="mascotPreviewName">Nebula Nova</h2>
           <p style="font-size:0.82rem; color:var(--text-body); font-style:italic; margin-bottom:0.75rem;" id="mascotPreviewQuote">"The recursion stack doesn't wait for anyone, rookie."</p>
           
           <!-- Palette Swatches -->
@@ -591,11 +658,11 @@ npx vercel<br>
           </div>
         </div>
 
-        <div class="mascot-preview-avatar-mount" id="mascotPreviewMount" style="width:130px; height:130px; display:flex; align-items:center; justify-content:center; background:var(--bg-surface); border:var(--border-thick); border-radius:var(--radius-boxy); box-shadow:var(--shadow-tactile); position:relative; z-index:2;">
+        <div class="mascot-preview-avatar-mount" id="mascotPreviewMount">
           <!-- Live SVG injected -->
         </div>
 
-        <!-- Ambient Radial Glow Halo (Gehna-3D) -->
+        <!-- Ambient Radial Glow Halo -->
         <div id="mascotModalAuraHalo" style="position:absolute; right:-20px; top:-20px; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle, rgba(0,240,255,0.25) 0%, transparent 70%); filter:blur(24px); pointer-events:none; z-index:1;"></div>
       </div>
 
@@ -603,30 +670,75 @@ npx vercel<br>
       <div style="font-family:var(--font-mono); font-size:0.75rem; font-weight:900; color:var(--accent-yellow); margin-bottom:0.6rem; text-transform:uppercase;">
         CHOOSE YOUR RUNNER ARCHETYPE:
       </div>
-      <div class="mascot-selector-grid" id="mascotSelectorGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:0.75rem; margin-bottom:1.25rem;">
+      <div class="mascot-selector-grid" id="mascotSelectorGrid">
         <!-- Injected dynamically -->
       </div>
 
       <!-- Actions -->
       <div style="display:flex; gap:0.75rem;">
-        <button class="tactile-btn btn-lime" id="equipMascotBtn" style="flex:2; justify-content:center; padding:0.75rem; font-size:0.88rem;">
+        <button type="button" class="tactile-btn btn-lime btn-lg" id="equipMascotBtn" style="flex:2; justify-content:center;">
           ⚡ Equip Mascot & Sync Profile
         </button>
-        <button class="tactile-btn" id="closeMascotStudioBtn" style="flex:1; justify-content:center; padding:0.75rem;">
+        <button type="button" class="tactile-btn btn-lg" id="closeMascotStudioBtn" style="flex:1; justify-content:center;">
           Close
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Platform Engineering & Authorship Footer (Names Only) -->
-  <footer style="margin-top:2.5rem; padding:1.25rem 1rem; border-top:var(--border-thick); background:var(--bg-panel-elevated); text-align:center; font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted);">
-    <div style="display:flex; justify-content:center; align-items:center; gap:0.75rem; flex-wrap:wrap; font-weight:700; color:var(--text-main);">
-      <span>⚡ MYTH DSA Mastery Platform</span>
-      <span>•</span>
-      <span>Engineering & Authorship: Kartik Kumar, Tanmay Awasthi, Krish Chaddha</span>
+  <!-- MESSY AI • SCREEN-AWARE TASKMESH ASSISTANT (Visible on Every Screen, Stateless) -->
+  <button type="button" class="kavish-fab-trigger" id="kavishAiTrigger" title="Ask Messy AI about anything on this screen" aria-label="Open Messy AI Assistant">
+    <span class="kavish-fab-spark">✨</span>
+    <span class="kavish-fab-label">Messy AI</span>
+    <span class="kavish-fab-sub">Ask Doubt</span>
+  </button>
+
+  <section class="kavish-drawer-panel" id="kavishAiPanel" aria-label="Messy AI Assistant" aria-hidden="true">
+    <header class="kavish-header">
+      <div class="kavish-header-brand">
+        <div class="kavish-avatar-badge">M</div>
+        <div>
+          <div class="kavish-title-row">
+            <span class="kavish-title-text">Messy AI</span>
+            <span class="kavish-parent-pill">TaskMesh</span>
+          </div>
+          <div class="kavish-subtitle-text">Screen-Aware DSA & Code Tutor</div>
+        </div>
+      </div>
+      <div class="kavish-header-actions">
+        <button type="button" class="kavish-mini-btn" id="kavishClearBtn" title="Clear Answer" style="display:none;">Clear</button>
+        <button type="button" class="modal-close-cross" id="kavishCloseBtn" aria-label="Close Messy AI">×</button>
+      </div>
+    </header>
+
+    <div class="kavish-context-strip" id="kavishContextChip">
+      <span class="kavish-context-dot"></span>
+      <span id="kavishContextLabel">Reading current screen...</span>
     </div>
-  </footer>
+
+    <div class="kavish-quick-chips" id="kavishQuickChips">
+      <!-- Dynamic per-screen quick doubt buttons -->
+    </div>
+
+    <div class="kavish-response-area" id="kavishResponseArea" style="display:none;">
+      <!-- Current answer rendered cleanly without history clutter -->
+    </div>
+
+    <form class="kavish-composer" id="kavishComposerForm">
+      <textarea
+        id="kavishPromptInput"
+        class="kavish-prompt-input"
+        rows="2"
+        placeholder="Ask your doubt here (e.g., why did this pointer move, or find the bug in my code)..."
+      ></textarea>
+      <div class="kavish-composer-footer">
+        <span class="kavish-hint-note">Reads current screen • Enter to ask</span>
+        <button type="submit" class="tactile-btn btn-yellow" id="kavishSendBtn">
+          Ask Messy ✨
+        </button>
+      </div>
+    </form>
+  </section>
 
   <!-- App Entry Point (Vite / ES Modules) -->
   <script type="module" src="/js/app.js"></script>

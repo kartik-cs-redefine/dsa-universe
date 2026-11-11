@@ -21,7 +21,9 @@ const __dirname = path.dirname(__filename);
 
 const DRY_RUN = process.env.DRY_RUN !== 'false';
 const ROSTER_PATH = process.env.ROSTER_PATH || path.resolve(__dirname, '../roster.csv');
-const SERVICE_ACCOUNT_PATH = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+const rootDir = path.resolve(__dirname, '..');
+const detectedSaFile = fs.readdirSync(rootDir).find(f => /firebase-adminsdk|service-account/i.test(f) && f.endsWith('.json'));
+const SERVICE_ACCOUNT_PATH = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || (detectedSaFile ? path.join(rootDir, detectedSaFile) : null);
 
 console.log('================================================================');
 console.log('MYTH DSA PLATFORM — ROSTER CLAIM MIGRATION ENGINE');
@@ -34,6 +36,16 @@ if (!fs.existsSync(ROSTER_PATH)) {
   process.exit(1);
 }
 
+const extractLeetCodeHandle = (raw) => {
+  if (!raw) return '';
+  let clean = raw.trim().replace(/\/+$/, '');
+  if (clean.includes('leetcode.com')) {
+    const parts = clean.split('/');
+    clean = parts[parts.length - 1] || '';
+  }
+  return clean.replace(/^@/, '').trim();
+};
+
 const parseCSV = (content) => {
   const lines = content.split(/\r?\n/).filter(l => l.trim().length > 0);
   if (lines.length <= 1) return [];
@@ -41,6 +53,7 @@ const parseCSV = (content) => {
   const rollIdx = headers.indexOf('roll');
   const emailIdx = headers.indexOf('email');
   const nameIdx = headers.indexOf('name');
+  const lcIdx = headers.indexOf('leetcode') !== -1 ? headers.indexOf('leetcode') : headers.indexOf('leetcodeuser');
 
   if (rollIdx === -1 || emailIdx === -1) {
     throw new Error('CSV must contain "roll" and "email" headers.');
@@ -55,12 +68,13 @@ const parseCSV = (content) => {
       const roll = parts[rollIdx].trim();
       const email = parts[emailIdx].toLowerCase().trim();
       const name = nameIdx !== -1 && parts[nameIdx] ? parts[nameIdx].trim() : '';
+      const leetcodeUser = lcIdx !== -1 && parts[lcIdx] ? extractLeetCodeHandle(parts[lcIdx]) : '';
 
       if (!rollRegex.test(roll)) {
         throw new Error(`Row ${i + 1}: Invalid roll number format '${roll}'. Must be exactly 13 digits.`);
       }
 
-      records.push({ roll, email, name });
+      records.push({ roll, email, name, leetcodeUser });
     }
   }
   return records;
@@ -93,27 +107,32 @@ if (!SERVICE_ACCOUNT_PATH || !fs.existsSync(SERVICE_ACCOUNT_PATH)) {
 }
 
 async function runLiveMigration() {
-  const { default: admin } = await import('firebase-admin');
+  const { initializeApp, getApps, cert } = await import('firebase-admin/app');
+  const { getFirestore, FieldValue } = await import('firebase-admin/firestore');
   const serviceAccount = JSON.parse(fs.readFileSync(SERVICE_ACCOUNT_PATH, 'utf8'));
 
-  if (!admin.apps.length) {
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount)
+  if (!getApps().length) {
+    initializeApp({
+      credential: cert(serviceAccount)
     });
   }
 
-  const db = admin.firestore();
+  const db = getFirestore();
   const batch = db.batch();
   let count = 0;
 
   for (const student of roster) {
     const rosterRef = db.collection('myth_roster').doc(student.email);
-    batch.set(rosterRef, {
+    const payload = {
       roll: student.roll,
       email: student.email,
       name: student.name,
-      provisionedAt: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
+      provisionedAt: FieldValue.serverTimestamp()
+    };
+    if (student.leetcodeUser) {
+      payload.leetcodeUser = student.leetcodeUser;
+    }
+    batch.set(rosterRef, payload, { merge: true });
 
     count++;
   }

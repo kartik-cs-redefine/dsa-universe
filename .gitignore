@@ -9,8 +9,11 @@ dist/
 .env.local
 roster.csv
 *service-account*.json
+*-firebase-adminsdk-*.json
 *.pem
 firestore-debug.log
 backups/
 coverage-rules.html
 coverage/
+
+.vercel

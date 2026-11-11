@@ -25,7 +25,9 @@ function getArg(flag) {
 const oldEmail = getArg('--old-email')?.toLowerCase().trim();
 const newEmail = getArg('--new-email')?.toLowerCase().trim();
 const DRY_RUN = process.env.DRY_RUN !== 'false';
-const SERVICE_ACCOUNT_PATH = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+const rootDir = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '..');
+const detectedSaFile = fs.readdirSync(rootDir).find(f => /firebase-adminsdk|service-account/i.test(f) && f.endsWith('.json'));
+const SERVICE_ACCOUNT_PATH = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || (detectedSaFile ? path.join(rootDir, detectedSaFile) : null);
 
 if (!oldEmail || !newEmail) {
   console.error('❌ Error: Both --old-email and --new-email arguments are required.');
@@ -56,16 +58,17 @@ if (!SERVICE_ACCOUNT_PATH || !fs.existsSync(SERVICE_ACCOUNT_PATH)) {
 }
 
 async function runLiveEmailUpdate() {
-  const { default: admin } = await import('firebase-admin');
+  const { initializeApp, getApps, cert } = await import('firebase-admin/app');
+  const { getFirestore, FieldValue } = await import('firebase-admin/firestore');
   const serviceAccount = JSON.parse(fs.readFileSync(SERVICE_ACCOUNT_PATH, 'utf8'));
 
-  if (!admin.apps.length) {
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount)
+  if (!getApps().length) {
+    initializeApp({
+      credential: cert(serviceAccount)
     });
   }
 
-  const db = admin.firestore();
+  const db = getFirestore();
   const oldRef = db.collection('myth_roster').doc(oldEmail);
   const oldDoc = await oldRef.get();
 
@@ -85,7 +88,7 @@ async function runLiveEmailUpdate() {
     roll: currentData.roll,
     name: currentData.name,
     email: newEmail,
-    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    updatedAt: FieldValue.serverTimestamp()
   });
 
   await batch.commit();
