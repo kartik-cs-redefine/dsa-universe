@@ -1242,7 +1242,32 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!data) return [];
     try {
       const parsed = JSON.parse(data);
-      return Array.isArray(parsed) ? parsed : [];
+      if (!Array.isArray(parsed)) return [];
+
+      // Deduplicate: same person may have multiple entries from different auth
+      // Identify by normalized name; keep the entry with the highest composite score
+      const dedupMap = new Map();
+      for (const entry of parsed) {
+        const nameKey = (entry.name || "").trim().toLowerCase();
+        if (!nameKey) continue;
+        const existing = dedupMap.get(nameKey);
+        if (!existing) {
+          dedupMap.set(nameKey, entry);
+        } else {
+          // Merge: keep the one with higher score; copy roll/LC if the winner is missing them
+          const winner = (entry.score || 0) >= (existing.score || 0) ? entry : existing;
+          const loser = winner === entry ? existing : entry;
+          // Prefer the record that has a roll number
+          if (!winner.roll && loser.roll) winner.roll = loser.roll;
+          // Prefer the record that has a LeetCode handle
+          if (!winner.leetcodeUser && loser.leetcodeUser) winner.leetcodeUser = loser.leetcodeUser;
+          // Prefer higher streak
+          if ((loser.streak || 0) > (winner.streak || 0)) winner.streak = loser.streak;
+          dedupMap.set(nameKey, winner);
+        }
+      }
+
+      return Array.from(dedupMap.values());
     } catch (e) {
       return [];
     }
@@ -1334,7 +1359,11 @@ document.addEventListener("DOMContentLoaded", () => {
       calculatedStreak = Math.max(calculatedStreak, lcStats.streak);
     }
 
-    const existingIdx = registry.findIndex(u => u.roll === authSession.roll);
+    const nameNorm = (authSession.name || "").trim().toLowerCase();
+    const existingIdx = registry.findIndex(u =>
+      u.roll === authSession.roll ||
+      (nameNorm && (u.name || "").trim().toLowerCase() === nameNorm)
+    );
     const currentUserRecord = {
       name: authSession.name,
       roll: authSession.roll,
